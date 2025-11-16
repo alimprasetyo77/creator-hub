@@ -1,0 +1,98 @@
+import { NextFunction, Request, Response } from 'express';
+import userService from '../services/user-service';
+import { UserRequest } from '../middlewares/auth-middleware';
+
+const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const request = req.body;
+    await userService.register(request);
+    res.status(201).json({
+      message: 'User registered successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const request = req.body;
+    const response = await userService.login(request);
+    res.cookie('token', response.token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+    res.status(200).json({
+      message: 'User logged in successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const logout = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const token = req.cookies.token;
+    const user = req.user;
+    await userService.logout(token, user);
+    res.clearCookie('token');
+    res.status(200).json({
+      message: 'User logged out successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const get = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const response = await userService.get(user);
+    res.status(200).json({
+      message: 'Get user successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const update = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const request = req.body;
+    const response = await userService.update(user, request);
+    res.status(200).json({
+      message: 'Update user successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const changePassword = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const request = req.body;
+    await userService.changePassword(user?.id!, request);
+    res.status(200).json({
+      message: 'Change password successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const remove = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    await userService.remove(user);
+    res.clearCookie('token');
+    res.status(200).json({
+      message: 'Remove user successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default { register, login, get, update, remove, logout, changePassword };
