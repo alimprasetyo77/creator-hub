@@ -8,11 +8,10 @@ import Link from 'next/link';
 
 interface ProductCardProps {
   product: IProduct;
-  onProductClick: (productId: string) => void;
 }
 
-export function ProductCard({ product, onProductClick }: ProductCardProps) {
-  const categoryColors = {
+export function ProductCard({ product }: ProductCardProps) {
+  const categoryColors: any = {
     ebook: 'bg-blue-100 text-blue-700',
     template: 'bg-purple-100 text-purple-700',
     'ui-kit': 'bg-pink-100 text-pink-700',
@@ -38,7 +37,7 @@ export function ProductCard({ product, onProductClick }: ProductCardProps) {
 
         <CardContent className='px-4 py-2'>
           <div className='mb-2 flex items-center gap-2'>
-            <Badge variant='secondary' className={(categoryColors as any)[product.category as any]}>
+            <Badge variant='secondary' className={(categoryColors as any)[product.category.name as any]}>
               {product.category.name.replace('-', ' ')}
             </Badge>
             <div className='flex items-center gap-1 text-sm text-muted-foreground'>

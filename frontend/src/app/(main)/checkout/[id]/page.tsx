@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import PaymentDetail from '@/components/payment-detail';
 import OrderSummary from '@/components/order-summary';
 import PaymentSuccessScreen from '@/components/payment-success-screen';
+import Image from 'next/image';
 
 export type PaymentMethodType = 'card' | 'bank-transfer' | 'ewallet' | 'qris' | 'convenience-store';
 export type BankOptionType = 'bca' | 'mandiri' | 'bni' | 'bri';
@@ -118,28 +119,28 @@ export default function Checkout(props: CheckoutProps) {
     {
       id: 'bca',
       name: 'BCA',
-      logo: '🏦',
+      logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bca_va.png',
       accountNumber: '1234567890',
       accountName: 'CreatorHub Indonesia',
     },
     {
       id: 'mandiri',
       name: 'Mandiri',
-      logo: '🏦',
+      logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/mandiri_bill.png',
       accountNumber: '9876543210',
       accountName: 'CreatorHub Indonesia',
     },
     {
       id: 'bni',
       name: 'BNI',
-      logo: '🏦',
+      logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bni_va.png',
       accountNumber: '5551234567',
       accountName: 'CreatorHub Indonesia',
     },
     {
       id: 'bri',
       name: 'BRI',
-      logo: '🏦',
+      logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bri_va.png',
       accountNumber: '7778889990',
       accountName: 'CreatorHub Indonesia',
     },
@@ -220,7 +221,7 @@ export default function Checkout(props: CheckoutProps) {
 
         <div className='mx-auto max-w-6xl'>
           <div className='mb-8 text-center'>
-            <h1 className='mb-2'>Choose Payment Method</h1>
+            <h1 className='mb-2 text-2xl font-medium'>Choose Payment Method</h1>
             <p className='text-muted-foreground'>Select your preferred way to pay</p>
           </div>
 
@@ -283,7 +284,13 @@ export default function Checkout(props: CheckoutProps) {
                               : 'border-border bg-white'
                           }`}
                         >
-                          <span className='text-2xl'>{bank.logo}</span>
+                          <Image
+                            src={bank.logo}
+                            alt={bank.name}
+                            width={80}
+                            height={80}
+                            className='h-6 object-contain object-left'
+                          />
                           <span className='font-medium'>{bank.name}</span>
                           {selectedBank === bank.id && (
                             <CheckCircle className='ml-auto h-4 w-4 text-blue-600' />

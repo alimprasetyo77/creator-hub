@@ -25,7 +25,10 @@ export const checkProperty = (property: any) => {
   return false;
 };
 
-export const convertToIDR = (value: number) =>
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(
-    value * 16500
-  );
+export const convertToIDR = (value: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(value * 16500);
+};

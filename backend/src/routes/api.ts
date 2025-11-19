@@ -5,6 +5,7 @@ import { formDataMiddleware } from '../middlewares/formdata-middleware';
 import productController from '../controllers/product-controller';
 import categoryController from '../controllers/category-controller';
 import { allowedRoles } from '../middlewares/role-middleware';
+import orderController from '../controllers/order-controller';
 
 const apiRouter = express.Router();
 
@@ -33,5 +34,8 @@ apiRouter.delete('/api/products/:id', allowedRoles(['CREATOR']), productControll
 // API routes for category
 apiRouter.get('/api/categories', categoryController.getAll);
 apiRouter.post('/api/categories/create', allowedRoles(['ADMIN']), categoryController.create);
+
+// API routes for order
+apiRouter.post('/api/orders', allowedRoles(['USER', 'CREATOR']), orderController.create);
 
 export default apiRouter;

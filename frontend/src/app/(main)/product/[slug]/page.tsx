@@ -32,11 +32,21 @@ interface Params {
 export default function page({ params }: Params) {
   const { slug } = use(params);
   const [activeTab, setActiveTab] = useState('overview');
-  const { product } = useGetProduct({ slug });
-  const { products } = useGetProducts();
+  const { product, isLoading: isLoadingProduct } = useGetProduct({ slug });
+  const { products, isLoading: isLoadingProducts } = useGetProducts();
   const { user } = useAuth();
   const router = useRouter();
   const isAdmin = user?.role === 'admin';
+
+  if (isLoadingProduct || isLoadingProducts) {
+    return (
+      <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
+        <div className='text-center'>
+          <h2>Loading...</h2>
+        </div>
+      </div>
+    );
+  }
   if (!product) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
@@ -45,15 +55,6 @@ export default function page({ params }: Params) {
           <Button onClick={() => router.push('marketplace')} className='mt-4'>
             Back to Marketplace
           </Button>
-        </div>
-      </div>
-    );
-  }
-  if (!products) {
-    return (
-      <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
-        <div className='text-center'>
-          <h2>Loading...</h2>
         </div>
       </div>
     );
@@ -485,11 +486,7 @@ export default function page({ params }: Params) {
             <h2 className='mb-8'>Related Products</h2>
             <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
               {relatedProducts.map((relatedProduct) => (
-                <ProductCard
-                  key={relatedProduct.id}
-                  product={relatedProduct}
-                  onProductClick={(id) => router.push('product-detail')}
-                />
+                <ProductCard key={relatedProduct.id} product={relatedProduct} />
               ))}
             </div>
           </div>

@@ -1,15 +1,12 @@
-import { on } from 'events';
-import React from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Building2, CheckCircle, Copy, CreditCard, QrCode, Store, Wallet } from 'lucide-react';
+import { Building2, Copy, CreditCard, QrCode, Store, Wallet } from 'lucide-react';
 import { PaymentMethodType } from '@/app/(main)/checkout/[id]/page';
 import { Label } from '@/components/ui/label';
 import { Input } from './ui/input';
 import { convertToIDR } from '@/lib/utils';
 import { Badge } from './ui/badge';
-import { Separator } from './ui/separator';
-import { IProduct } from '@/types/api/product-type';
+import { toast } from 'sonner';
 
 interface PaymentDetailProps {
   onChangePaymentMethod: () => void;
@@ -28,8 +25,13 @@ export default function PaymentDetail({
   selectedMethodPaymentInfo,
   total,
 }: PaymentDetailProps) {
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast('Copied to clipboard');
+    } catch (error) {
+      toast.error('Failed to copy to clipboard');
+    }
   };
   return (
     <div className='min-h-screen bg-linear-to-b from-blue-50 to-white py-8 md:py-12'>
@@ -42,7 +44,7 @@ export default function PaymentDetail({
 
         <div className='mx-auto max-w-6xl'>
           <div className='mb-8 text-center'>
-            <h1 className='mb-2'>Complete Payment</h1>
+            <h1 className='mb-2 text-2xl font-medium'>Complete Payment</h1>
             <p className='text-muted-foreground'>Follow the instructions below to complete your purchase</p>
           </div>
 
@@ -155,7 +157,7 @@ export default function PaymentDetail({
                             <Button
                               size='sm'
                               variant='ghost'
-                              onClick={() => copyToClipboard(convertToIDR(total))}
+                              onClick={() => copyToClipboard(convertToIDR(total).replace('Rp', ''))}
                             >
                               <Copy className='h-4 w-4' />
                             </Button>

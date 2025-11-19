@@ -1,6 +1,5 @@
 import { IProduct } from '@/types/api/product-type';
 import { CheckCircle } from 'lucide-react';
-import React from 'react';
 import { Separator } from './ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 

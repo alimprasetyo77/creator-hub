@@ -109,8 +109,8 @@ const getById = async (id: string): Promise<Omit<Product, 'categoryId' | 'userId
  */
 const update = async (id: string, request: ProductUpdateType): Promise<Product> => {
   const updateProductRequest = validate(productValidation.UpdateSchema, request);
-  const product = await prisma.product.findUnique({ where: { id } });
 
+  const product = await prisma.product.findUnique({ where: { id } });
   if (!product) throw new ResponseError(400, 'Product not found');
 
   let thumbnail;

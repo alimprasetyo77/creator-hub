@@ -7,16 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGetProducts } from '@/hooks/use-products';
 import { ProductCard } from '@/components/product-card';
-import { useRouter } from 'next/navigation';
 
 export default function Explore() {
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
-  const { products, isLoading } = useGetProducts();
-  const router = useRouter();
+  const { products } = useGetProducts();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (!products || products?.length === 0) return <div>No products found</div>;
 
   const filteredProducts = products?.filter((product) => {
     const matchesSearch =
@@ -106,11 +104,7 @@ export default function Explore() {
         {sortedProducts.length > 0 ? (
           <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
             {sortedProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onProductClick={() => router.push('/product/' + product.slug)}
-              />
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (

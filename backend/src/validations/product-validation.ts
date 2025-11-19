@@ -22,7 +22,7 @@ const base = z.object({
     .optional(),
   rating: z.coerce.number().min(0).max(5).optional().default(0),
   featured: z.boolean().optional().default(false),
-  status: z.string().min(1, 'Status is required'),
+  status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),
   categoryId: z.uuid('categoryId must be a valid UUID'),
 });
 
