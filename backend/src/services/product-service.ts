@@ -53,6 +53,30 @@ const getAll = async (): Promise<any> => {
 };
 
 /**
+ * Get my products
+ *
+ * @param {string} userId - The id of the user
+ * @returns {Promise<Omit<Product, 'categoryId' | 'userId'>[]>} - An array of products
+ */
+
+const getMyProducts = async (userId: string): Promise<any> => {
+  const products = await prisma.product.findMany({
+    where: { userId },
+    omit: { categoryId: true, userId: true },
+    include: {
+      category: true,
+      user: {
+        omit: {
+          password: true,
+          token: true,
+        },
+      },
+    },
+  });
+  return products;
+};
+
+/**
  * Get product by slug
  *
  * @param {string} id - The id of the product
@@ -156,4 +180,4 @@ const deleteById = async (id: string): Promise<void> => {
   });
 };
 
-export default { create, getAll, getBySlug, getById, update, deleteById };
+export default { create, getAll, getMyProducts, getBySlug, getById, update, deleteById };

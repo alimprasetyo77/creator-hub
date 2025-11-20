@@ -1,5 +1,13 @@
-import { getProductById, getProductBySlug, getProducts } from '@/lib/services/product-api';
-import { useQuery } from '@tanstack/react-query';
+import {
+  createProduct,
+  getMyProducts,
+  getProductById,
+  getProductBySlug,
+  getProducts,
+} from '@/lib/services/product-api';
+import { ProductCreateType } from '@/types/api/product-type';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export const useGetProducts = () => {
   const { data, isLoading } = useQuery({
@@ -25,5 +33,36 @@ export const useGetProduct = ({ slug, id }: Partial<{ slug: string; id: string }
   return {
     product: data?.data,
     isLoading,
+  };
+};
+
+export const useGetMyProducts = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['my-products'],
+    queryFn: () => getMyProducts(),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+  return {
+    myProducts: data?.data,
+    isLoading,
+  };
+};
+
+export const useCreateProduct = () => {
+  const queryClient = useQueryClient();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (data: ProductCreateType) => createProduct(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-products', 'products', 'product'] });
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+
+  return {
+    createProduct: mutateAsync,
+    isPending,
   };
 };

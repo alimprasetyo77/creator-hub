@@ -16,4 +16,17 @@ const create = async (req: UserRequest, res: Response, next: NextFunction): Prom
   }
 };
 
-export default { create };
+const cancel = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const request = req.params.transactionId;
+    const response = await orderServices.cancel(request);
+    res.status(200).json({
+      message: 'Order canceled successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default { create, cancel };

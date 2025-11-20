@@ -15,16 +15,16 @@ export default function SidebarNav({ items }: SidebarNavProps) {
     router.push(`${pathname.split('/').slice(0, -1).join('/')}/${id}`);
   };
   return (
-    <nav className='flex flex-col gap-1 p-4'>
+    <nav className='flex flex-col gap-1 p-4 '>
       {items.map((item) => (
         <button
           key={item.id}
           onClick={() => navigateTo(item.id)}
           className={cn(
-            'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors',
+            'flex items-center gap-3 rounded-lg px-3 py-2 transition-colors w-full text-sm ',
             pathToCompare === item.id
-              ? 'bg-secondary text-secondary-foreground'
-              : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+              ? 'bg-slate-200/70 text-sidebar-foreground '
+              : 'text-sidebar-primary/90 hover:bg-slate-200/50 hover:text-foreground cursor-pointer'
           )}
         >
           {item.icon}

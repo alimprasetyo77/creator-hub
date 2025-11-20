@@ -47,6 +47,27 @@ const getAll = async (req: Request, res: Response, next: NextFunction): Promise<
 };
 
 /**
+ * Get my products
+ * process request with product-service and return response
+ *
+ * @param {UserRequest} req - The request object
+ * @param {Response} res - The response object
+ * @param {NextFunction} next - The next middleware function
+ * @returns {Promise<void>}
+ */
+const getMyProducts = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const response = await productService.getMyProducts(req.user?.id!);
+    res.status(200).json({
+      message: 'Get my products successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Get product by slug
  * process request with product-service and return response
  *
@@ -131,4 +152,4 @@ const remove = async (req: UserRequest, res: Response, next: NextFunction): Prom
   }
 };
 
-export default { create, getAll, getById, getBySlug, update, remove };
+export default { create, getAll, getMyProducts, getById, getBySlug, update, remove };

@@ -54,4 +54,10 @@ const create = async (
   return result as IChargeSuccessResponse;
 };
 
-export default { create };
+const cancel = async (transactionIdOrOrderId: string) => {
+  if (!transactionIdOrOrderId) throw new ResponseError(400, 'Transaction or order id is required');
+  const result = await paymentService.cancel(transactionIdOrOrderId);
+  return result;
+};
+
+export default { create, cancel };

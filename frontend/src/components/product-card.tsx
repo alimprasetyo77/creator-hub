@@ -12,9 +12,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const categoryColors: any = {
-    ebook: 'bg-blue-100 text-blue-700',
+    'E-Book': 'bg-blue-100 text-blue-700',
     template: 'bg-purple-100 text-purple-700',
-    'ui-kit': 'bg-pink-100 text-pink-700',
+    'Ui-Kit': 'bg-pink-100 text-pink-700',
     asset: 'bg-green-100 text-green-700',
     course: 'bg-orange-100 text-orange-700',
   };

@@ -66,8 +66,8 @@ export default function page() {
         </div>
 
         <div className='space-y-4'>
-          {mockPurchases.map((purchase) => (
-            <Card key={purchase?.id} className='overflow-hidden'>
+          {mockPurchases.map((purchase, index) => (
+            <Card key={index} className='overflow-hidden'>
               <CardContent className='p-0'>
                 <div className='flex flex-col gap-4 p-6 md:flex-row md:items-center'>
                   <img

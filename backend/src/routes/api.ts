@@ -22,20 +22,20 @@ apiRouter.delete('/api/users/logout', userController.logout);
 apiRouter.get('/api/products/slug/:slug', productController.getBySlug);
 apiRouter.get('/api/products/id/:id', productController.getById);
 apiRouter.get('/api/products', productController.getAll);
-apiRouter.post(
-  '/api/products/create',
-  allowedRoles(['CREATOR']),
-  formDataMiddleware,
-  productController.create
-);
+apiRouter.get('/api/products/my-products', allowedRoles(['CREATOR']), productController.getMyProducts);
+apiRouter.post('/api/products', allowedRoles(['CREATOR']), formDataMiddleware, productController.create);
 apiRouter.put('/api/products/:id', allowedRoles(['CREATOR']), formDataMiddleware, productController.update);
 apiRouter.delete('/api/products/:id', allowedRoles(['CREATOR']), productController.remove);
 
 // API routes for category
 apiRouter.get('/api/categories', categoryController.getAll);
-apiRouter.post('/api/categories/create', allowedRoles(['ADMIN']), categoryController.create);
+apiRouter.post('/api/categories', allowedRoles(['ADMIN']), categoryController.create);
 
 // API routes for order
 apiRouter.post('/api/orders', allowedRoles(['USER', 'CREATOR']), orderController.create);
-
+apiRouter.post(
+  '/api/orders/cancel/:transactionId',
+  allowedRoles(['USER', 'CREATOR']),
+  orderController.cancel
+);
 export default apiRouter;

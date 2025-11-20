@@ -18,6 +18,21 @@ const getProducts = async () => {
     throw Error('An unexpected error occurred');
   }
 };
+
+const getMyProducts = async () => {
+  try {
+    const response = await axiosWithConfig.get('/api/products/my-products');
+    return response.data as IResponse<IProduct[]>;
+  } catch (error) {
+    if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (error instanceof AxiosError && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
 const getProductBySlug = async (slug: string) => {
   try {
     const response = await axiosWithConfig.get(`/api/products/slug/${slug}`);
@@ -55,8 +70,7 @@ const createProduct = async (data: ProductCreateType) => {
     for (key in data) {
       const value = data[key];
       if (checkProperty(value)) {
-        // append value; cast to any because FormData accepts string | Blob
-        formData.append(key, value as any);
+        formData.append(key, value);
       }
     }
     const response = await axiosWithConfig.post('/api/products', formData);
@@ -79,7 +93,7 @@ const updateProduct = async (id: string, data: ProductUpdateType) => {
     for (key in data) {
       const value = data[key];
       if (checkProperty(value)) {
-        formData.append(key, value as any);
+        formData.append(key, value);
       }
     }
     const response = await axiosWithConfig.put(`/api/products/${id}`, formData);
@@ -109,4 +123,12 @@ const deleteProduct = async (id: string) => {
     throw Error('An unexpected error occurred');
   }
 };
-export { getProducts, getProductById, getProductBySlug, createProduct, updateProduct, deleteProduct };
+export {
+  getProducts,
+  getMyProducts,
+  getProductById,
+  getProductBySlug,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};

@@ -1,10 +1,22 @@
-import { NextFunction, Request, Response } from 'express';
+import { CategoryWhereUniqueInput } from '../generated/prisma/models';
 import prisma from '../utils/prisma';
+import { ResponseError } from '../utils/response-error';
 const create = async (request: { name: string }): Promise<void> => {
-  const requestCreateCategory = request;
-  const uuid = crypto.randomUUID();
-  console.log(requestCreateCategory);
-  await prisma.$executeRaw`INSERT INTO "categories" ("id","name") VALUES (${uuid},${requestCreateCategory.name})`;
+  const requestCreateCategory = request.name.trim();
+  if (requestCreateCategory === null || requestCreateCategory === '')
+    throw new ResponseError(400, 'Category name is required');
+
+  const checkIfExists = await prisma.category.findFirst({
+    where: {
+      name: requestCreateCategory,
+    },
+  });
+  if (checkIfExists) throw new ResponseError(400, 'Category already exists');
+  await prisma.category.create({
+    data: {
+      name: requestCreateCategory,
+    },
+  });
 };
 
 const getAll = async (): Promise<void> => {

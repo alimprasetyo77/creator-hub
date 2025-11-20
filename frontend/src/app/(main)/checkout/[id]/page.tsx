@@ -20,6 +20,7 @@ import PaymentDetail from '@/components/payment-detail';
 import OrderSummary from '@/components/order-summary';
 import PaymentSuccessScreen from '@/components/payment-success-screen';
 import Image from 'next/image';
+import { CreateOrderType } from '@/types/api/order-type';
 
 export type PaymentMethodType = 'card' | 'bank-transfer' | 'ewallet' | 'qris' | 'convenience-store';
 export type BankOptionType = 'bca' | 'mandiri' | 'bni' | 'bri';
@@ -68,18 +69,20 @@ export default function Checkout(props: CheckoutProps) {
   const handleProceedPayment = (e: React.FormEvent) => {
     e.preventDefault();
     setShowPaymentDetails(true);
+    const bankTransferPayload: CreateOrderType = {
+      payment_type: selectedBank === 'mandiri' ? 'echannel' : 'bank_transfer',
+      product_id: product.id,
+      total_amount: total,
+      bank_transfer: {
+        bank: selectedBank,
+      },
+    };
+
+    console.log(bankTransferPayload);
   };
 
   const handleCompletePayment = () => {
-    setIsProcessing(true);
-    // Simulate payment verification
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsSuccess(true);
-      setTimeout(() => {
-        router.push('buyer-dashboard');
-      }, 3000);
-    }, 2000);
+    setIsSuccess(true);
   };
 
   const paymentMethods = [
