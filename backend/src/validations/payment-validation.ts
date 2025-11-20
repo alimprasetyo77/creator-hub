@@ -10,6 +10,7 @@ const chargeSchema = z
     bank_transfer: z
       .object({
         bank: z.enum(['bca', 'bni', 'bri', 'mandiri']),
+        va_number: z.string().optional(),
       })
       .optional(),
     echannel: z

@@ -35,27 +35,11 @@ export default function Navbar() {
 
           <div className='hidden items-center gap-1 md:flex'>
             <Button
-              variant={pathname === '/marketplace' ? 'secondary' : 'ghost'}
+              variant={pathname === '/explore' ? 'secondary' : 'ghost'}
               onClick={() => router.push('/explore')}
             >
               Explore
             </Button>
-            {user?.role.toLowerCase() === 'creator' && (
-              <Button
-                variant={pathname === '/creator-dashboard' ? 'secondary' : 'ghost'}
-                onClick={() => router.push('/creator-dashboard')}
-              >
-                Dashboard
-              </Button>
-            )}
-            {user?.role.toLowerCase() === 'admin' && (
-              <Button
-                variant={pathname === '/admin-dashboard' ? 'secondary' : 'ghost'}
-                onClick={() => router.push('/admin-dashboard')}
-              >
-                Admin
-              </Button>
-            )}
           </div>
         </div>
 
@@ -91,24 +75,19 @@ export default function Navbar() {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  {user?.role?.toLowerCase() === 'creator' && (
-                    <DropdownMenuItem onClick={() => router.push('creator-dashboard')}>
-                      <LayoutDashboard className='mr-2 h-4 w-4' />
-                      <span>Creator Dashboard</span>
-                    </DropdownMenuItem>
-                  )}
-                  {user?.role?.toLowerCase() === 'user' && (
+
+                  {user?.role?.toLowerCase() === 'user' ? (
                     <DropdownMenuItem onClick={() => router.push('/my-purchases')}>
                       <LayoutDashboard className='mr-2 h-4 w-4' />
                       <span>My Purchases</span>
                     </DropdownMenuItem>
-                  )}
-                  {user?.role?.toLowerCase() === 'admin' && (
-                    <DropdownMenuItem onClick={() => router.push('/admin-dashboard')}>
+                  ) : (
+                    <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                       <LayoutDashboard className='mr-2 h-4 w-4' />
-                      <span>Admin Dashboard</span>
+                      <span>Dashboard</span>
                     </DropdownMenuItem>
                   )}
+
                   <DropdownMenuItem onClick={() => router.push('/profile')}>
                     <User className='mr-2 h-4 w-4' />
                     <span>Profile Settings</span>

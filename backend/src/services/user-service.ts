@@ -5,7 +5,6 @@ import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { User } from '../generated/prisma/client';
 import { UserRequest } from '../middlewares/auth-middleware';
 import { supabase } from '../utils/supabase-client';
 import fs from 'fs';

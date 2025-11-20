@@ -5,6 +5,10 @@ import apiRouter from './routes/api';
 import cors from 'cors';
 import { errorMiddleware } from './middlewares/error-middleware';
 import cookieParser from 'cookie-parser';
+import prisma from './utils/prisma';
+import { UserCreateArgs } from './generated/prisma/models';
+import bcrypt from 'bcrypt';
+
 dotenv.config();
 
 const app = express();

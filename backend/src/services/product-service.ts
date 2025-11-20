@@ -17,18 +17,18 @@ import { validate } from '../validations/validation';
  */
 const create = async (userId: string, request: ProductCreateType): Promise<void> => {
   const createProductRequest = validate(productValidation.CreateSchema, request);
-  createProductRequest.thumbnail = (await uploadImage(createProductRequest.thumbnail)) as any;
+  const uploadedImageResult = await uploadImage(createProductRequest.thumbnail);
 
-  const slug = generateSlug(createProductRequest.title);
+  const slug = await generateSlug(createProductRequest.title);
 
-  await prisma.$executeRaw`
-  INSERT INTO "products" ("id","title","slug", "description", "price", "thumbnail", "rating", "featured", "status", "categoryId", "userId") VALUES
-   (${crypto.randomUUID()},${createProductRequest.title},${slug}, ${createProductRequest.description}, ${
-    createProductRequest.price
-  }, ${createProductRequest.thumbnail}, ${createProductRequest.rating}, ${createProductRequest.featured}, ${
-    createProductRequest.status
-  }, ${createProductRequest.categoryId}, ${userId});
-  `;
+  await prisma.product.create({
+    data: {
+      ...createProductRequest,
+      slug,
+      userId,
+      thumbnail: uploadedImageResult,
+    },
+  });
 };
 
 /**
