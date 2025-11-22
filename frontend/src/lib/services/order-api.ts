@@ -18,4 +18,19 @@ const createOrder = async (body: CreateOrderType) => {
   }
 };
 
-export { createOrder };
+const cancelOrder = async (transactionIdOrOrderId: string) => {
+  try {
+    const response = await axiosWithConfig.delete(`/api/orders/cancel/${transactionIdOrOrderId}`);
+    return response.data as IResponse<{}>;
+  } catch (error) {
+    if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (error instanceof AxiosError && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
+export { createOrder, cancelOrder };

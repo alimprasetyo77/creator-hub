@@ -2,6 +2,19 @@ import { NextFunction, Request, Response } from 'express';
 import orderServices from '../services/order-services';
 import { UserRequest } from '../middlewares/auth-middleware';
 
+const getAll = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const response = await orderServices.getAll(user);
+    res.status(200).json({
+      message: 'Get all orders successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const create = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const request = req.body;
@@ -16,9 +29,22 @@ const create = async (req: UserRequest, res: Response, next: NextFunction): Prom
   }
 };
 
+const checkout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const request = req.body;
+    const response = await orderServices.checkout(request);
+    res.status(200).json({
+      message: 'Order checkout successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const cancel = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const request = req.params.transactionId;
+    const request = req.params.transactionOrOrderId;
     const response = await orderServices.cancel(request);
     res.status(200).json({
       message: 'Order canceled successfully',
@@ -29,4 +55,4 @@ const cancel = async (req: UserRequest, res: Response, next: NextFunction): Prom
   }
 };
 
-export default { create, cancel };
+export default { getAll, create, checkout, cancel };

@@ -52,5 +52,42 @@ const createOrderSchema = z
     }
   });
 
+const checkoutSchema = createOrderSchema
+  .omit({
+    total_amount: true,
+    product_id: true,
+  })
+  .extend({
+    transaction_details: z.object({
+      gross_amount: z.number(),
+      order_id: z.string(),
+    }),
+  });
+
 export type CreateOrderType = z.infer<typeof createOrderSchema>;
-export default { createOrderSchema };
+export type CheckoutType = z.infer<typeof checkoutSchema>;
+export default { createOrderSchema, checkoutSchema };
+
+export interface ICheckoutOrderSuccessResponse {
+  status_code: string;
+  status_message: string;
+  transaction_id: string;
+  order_id: string;
+  gross_amount: string;
+  payment_type: string;
+  transaction_time: string;
+  transaction_status: string;
+  va_numbers: [
+    {
+      bank: string;
+      va_number: string;
+    }
+  ];
+  fraud_status: string;
+  currency: string;
+}
+export interface ICheckoutOrderErrorResponse {
+  id: string;
+  status_code: string;
+  status_message: string;
+}

@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import { UserRequest } from '../middlewares/auth-middleware';
 import { supabase } from '../utils/supabase-client';
 import fs from 'fs';
+import { Order, OrderItem } from '../generated/prisma/client';
 
 const register = async (request: RegisterType): Promise<void> => {
   const registerRequest = validate(userValidation.registerSchema, request);
@@ -69,7 +70,22 @@ const logout = async (token: string, user: UserRequest['user']): Promise<void> =
 };
 
 const get = async (user: UserRequest['user']): Promise<UserRequest['user']> => {
-  return user;
+  if (user?.role === 'ADMIN') return user;
+  if (user?.role === 'CREATOR') {
+    return (await prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        products: true,
+        orders: true,
+      },
+    })) as UserRequest['user'];
+  }
+  return (await prisma.user.findUnique({
+    where: { id: user?.id },
+    include: {
+      orders: true,
+    },
+  })) as UserRequest['user'];
 };
 
 const update = async (user: UserRequest['user'], request: UpdateUserType): Promise<UserRequest['user']> => {

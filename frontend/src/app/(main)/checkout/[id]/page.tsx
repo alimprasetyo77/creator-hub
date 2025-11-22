@@ -21,6 +21,7 @@ import OrderSummary from '@/components/order-summary';
 import PaymentSuccessScreen from '@/components/payment-success-screen';
 import Image from 'next/image';
 import { CreateOrderType } from '@/types/api/order-type';
+import { useCancelOrder, useCreateOrder } from '@/hooks/use-orders';
 
 export type PaymentMethodType = 'card' | 'bank-transfer' | 'ewallet' | 'qris' | 'convenience-store';
 export type BankOptionType = 'bca' | 'mandiri' | 'bni' | 'bri';
@@ -35,6 +36,8 @@ export default function Checkout(props: CheckoutProps) {
   const { id } = use(props.params);
   const router = useRouter();
   const { product, isLoading } = useGetProduct({ id });
+  const { createOrder } = useCreateOrder();
+  const { cancelOrder } = useCancelOrder();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -66,6 +69,7 @@ export default function Checkout(props: CheckoutProps) {
   }
   const processingFee = product.price * 0.029 + 0.3;
   const total = product.price + processingFee;
+
   const handleProceedPayment = (e: React.FormEvent) => {
     e.preventDefault();
     setShowPaymentDetails(true);
