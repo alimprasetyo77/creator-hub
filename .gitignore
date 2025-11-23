@@ -1,7 +1,7 @@
 backend/node_modules/
 backend/dist
 backend/.env
-backend/src/generated/prisma
+# backend/src/generated/prisma
 backend/prisma/migrations
 
 frontend/node_modules
