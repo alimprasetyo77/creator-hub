@@ -1,4 +1,5 @@
 import { Order } from '../generated/prisma/client';
+import { OrderWhereUniqueInput } from '../generated/prisma/models';
 import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
@@ -138,8 +139,15 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
 
 const paymentNotificationHandler = async (notification: any) => {
   console.log('🔔 Notifikasi Diterima:', notification);
-  const { order_id, status_code, gross_amount, signature_key, transaction_status, fraud_status } =
-    notification;
+  const {
+    order_id,
+    status_code,
+    gross_amount,
+    signature_key,
+    transaction_status,
+    fraud_status,
+    transaction_id,
+  } = notification;
 
   const signature = createHash('sha512')
     .update(order_id + status_code + gross_amount + process.env.MIDTRANS_SERVER_KEY)
@@ -149,6 +157,20 @@ const paymentNotificationHandler = async (notification: any) => {
     console.log('❌ Signature tidak valid');
     throw new ResponseError(403, 'Invalid signature');
   }
+
+  const whereClause: OrderWhereUniqueInput = {
+    AND: [
+      {
+        id: order_id,
+      },
+      {
+        midtransOrderId: order_id,
+      },
+      {
+        midtransTransactionId: transaction_id,
+      },
+    ],
+  } as OrderWhereUniqueInput;
 
   switch (transaction_status) {
     case 'capture':
@@ -161,22 +183,46 @@ const paymentNotificationHandler = async (notification: any) => {
     case 'settlement':
       console.log('Pembayaran selesai');
       // update DB...
+      await prisma.order.update({
+        where: whereClause,
+        data: {
+          paymentStatus: 'PAID',
+        },
+      });
       break;
 
     case 'pending':
       console.log('Menunggu pembayaran');
       // update DB...
+      await prisma.order.update({
+        where: whereClause,
+        data: {
+          paymentStatus: 'PENDING',
+        },
+      });
       break;
 
     case 'deny':
       console.log('Pembayaran ditolak');
       // update DB...
+      await prisma.order.update({
+        where: whereClause,
+        data: {
+          paymentStatus: 'FAILED',
+        },
+      });
       break;
 
     case 'cancel':
     case 'expire':
       console.log('Pembayaran dibatalkan / kadaluwarsa');
       // update DB...
+      await prisma.order.update({
+        where: whereClause,
+        data: {
+          paymentStatus: 'FAILED',
+        },
+      });
       break;
 
     case 'refund':
