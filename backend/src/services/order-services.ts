@@ -137,6 +137,7 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
 };
 
 const paymentNotificationHandler = async (notification: any) => {
+  console.log('🔔 Notifikasi Diterima:', notification);
   const orderId = notification.order_id;
   const statusCode = notification.status_code;
   const grossAmount = notification.gross_amount;
