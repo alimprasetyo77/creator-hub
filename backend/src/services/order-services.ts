@@ -135,4 +135,8 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
   });
 };
 
-export default { getAll, create, checkout, cancel };
+const paymentNotificationHandler = async (request: any) => {
+  console.log(request);
+};
+
+export default { getAll, create, checkout, cancel, paymentNotificationHandler };
