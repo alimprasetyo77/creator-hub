@@ -32,3 +32,18 @@ export const convertToIDR = (value: number) => {
     maximumFractionDigits: 0,
   }).format(value * 16500);
 };
+
+/**
+ * Convert USD to IDR safely (avoid float errors)
+ * @param usd amount in USD
+ * @param rate exchange rate (example: 15500)
+ */
+export function usdToIdr(usd: number, rate = 16500): number {
+  // hindari float → ubah ke integer (cent)
+  const usdInCents = Math.round(usd * 100);
+
+  // hasil = cent × rate / 100
+  const idr = Math.round((usdInCents * rate) / 100);
+
+  return idr; // hasil integer siap kirim ke Midtrans
+}

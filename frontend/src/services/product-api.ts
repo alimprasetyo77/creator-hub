@@ -1,8 +1,8 @@
 import { IResponse } from '@/types';
-import axiosWithConfig from '../axios-config';
+import axiosWithConfig from '../lib/axios-config';
 import { IProduct, ProductCreateType, ProductUpdateType } from '@/types/api/product-type';
 import { AxiosError } from 'axios';
-import { checkProperty } from '../utils';
+import { checkProperty } from '../lib/utils';
 
 const getProducts = async () => {
   try {

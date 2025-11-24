@@ -1,8 +1,8 @@
-import axiosWithConfig from '../axios-config';
-import { IResponse } from '../../types';
-import { ChangePasswordType, IUser, ProfileType } from '../../types/api/user-type';
+import axiosWithConfig from '../lib/axios-config';
+import { IResponse } from '../types';
+import { ChangePasswordType, IUser, ProfileType } from '../types/api/user-type';
 import { AxiosError } from 'axios';
-import { checkProperty } from '../utils';
+import { checkProperty } from '../lib/utils';
 
 const getUser = async () => {
   try {

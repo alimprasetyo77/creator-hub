@@ -1,17 +1,6 @@
 'use client';
 import { use, useState } from 'react';
-import {
-  CheckCircle,
-  CreditCard,
-  Lock,
-  Building2,
-  Wallet,
-  QrCode,
-  Store,
-  ChevronRight,
-  Copy,
-  Download,
-} from 'lucide-react';
+import { CheckCircle, CreditCard, Lock, Building2, Wallet, QrCode, Store, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetProduct } from '@/hooks/use-products';
@@ -20,8 +9,11 @@ import PaymentDetail from '@/components/payment-detail';
 import OrderSummary from '@/components/order-summary';
 import PaymentSuccessScreen from '@/components/payment-success-screen';
 import Image from 'next/image';
-import { CreateOrderType } from '@/types/api/order-type';
+import { CheckoutOrderType, CreateOrderType } from '@/types/api/order-type';
 import { useCancelOrder, useCreateOrder } from '@/hooks/use-orders';
+import { checkoutOrder } from '@/services/order-api';
+import { toast } from 'sonner';
+import { convertToIDR, usdToIdr } from '@/lib/utils';
 
 export type PaymentMethodType = 'card' | 'bank-transfer' | 'ewallet' | 'qris' | 'convenience-store';
 export type BankOptionType = 'bca' | 'mandiri' | 'bni' | 'bri';
@@ -45,7 +37,7 @@ export default function Checkout(props: CheckoutProps) {
   const [selectedBank, setSelectedBank] = useState<BankOptionType>('bca');
   const [selectedEwallet, setSelectedEwallet] = useState<EwalletOptionType>('gopay');
   const [selectedStore, setSelectedStore] = useState<StoreOptionType>('alfamart');
-
+  const [bankVaNumber, setBankVaNumber] = useState('');
   if (isLoading) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
@@ -67,22 +59,62 @@ export default function Checkout(props: CheckoutProps) {
       </div>
     );
   }
-  const processingFee = product.price * 0.029 + 0.3;
+  const processingFee = Math.round(product.price * 0.029 + 0.3);
   const total = product.price + processingFee;
 
-  const handleProceedPayment = (e: React.FormEvent) => {
+  const handleProceedPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    setShowPaymentDetails(true);
-    const bankTransferPayload: CreateOrderType = {
-      payment_type: selectedBank === 'mandiri' ? 'echannel' : 'bank_transfer',
-      product_id: product.id,
-      total_amount: total,
-      bank_transfer: {
-        bank: selectedBank,
-      },
-    };
+    let payment_type: CreateOrderType['payment_type'] = 'bank_transfer';
 
-    console.log(bankTransferPayload);
+    if (paymentMethod === 'bank-transfer') {
+      if (selectedBank === 'mandiri') {
+        payment_type = 'echannel';
+      } else {
+        payment_type = 'bank_transfer';
+      }
+    } else if (paymentMethod === 'qris') {
+      payment_type = 'qris';
+    }
+
+    try {
+      setIsProcessing(true);
+
+      const { data: resultCreateOrder } = await createOrder({
+        payment_type,
+        product_id: product.id,
+        total_amount: total,
+        ...(payment_type === 'bank_transfer' && { bank_transfer: { bank: selectedBank } }),
+        ...(payment_type === 'echannel' && { echannel: { bill_info1: '', bill_info2: '' } }),
+        ...(payment_type === 'qris' && { qris: { acquirer: selectedEwallet } }),
+      });
+
+      const { data: resultCheckoutOrder } = await checkoutOrder({
+        payment_type: resultCreateOrder.paymentType as CheckoutOrderType['payment_type'],
+        transaction_details: {
+          gross_amount: usdToIdr(resultCreateOrder.totalAmount),
+          order_id: resultCreateOrder.id,
+        },
+        // item_details: [
+        //   {
+        //     id: resultCreateOrder.items[0].productId,
+        //     price: usdToIdr(resultCreateOrder.items[0].price),
+        //     quantity: resultCreateOrder.items[0].quantity,
+        //     name: resultCreateOrder.items[0].product.title,
+        //   },
+        // ],
+        ...(resultCreateOrder.paymentType === 'bank_transfer' && { bank_transfer: { bank: selectedBank } }),
+        ...(resultCreateOrder.paymentType === 'echannel' && { echannel: { bill_info1: '', bill_info2: '' } }),
+        ...(resultCreateOrder.paymentType === 'qris' && { qris: { acquirer: selectedEwallet } }),
+      });
+      if (resultCreateOrder.paymentType === 'bank_transfer') {
+        setBankVaNumber(resultCheckoutOrder.va_numbers[0].va_number);
+      }
+      setShowPaymentDetails(true);
+    } catch (error) {
+      toast.error((error as Error).message);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleCompletePayment = () => {
@@ -200,6 +232,7 @@ export default function Checkout(props: CheckoutProps) {
       <PaymentDetail
         onChangePaymentMethod={() => {
           setShowPaymentDetails(false);
+          // cancelOrder('')
         }}
         paymentMethod={paymentMethod}
         isProcessing={isProcessing}

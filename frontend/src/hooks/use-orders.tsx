@@ -1,13 +1,13 @@
-import { cancelOrder, createOrder } from '@/lib/services/order-api';
+import { cancelOrder, checkoutOrder, createOrder } from '@/services/order-api';
 import { CreateOrderType } from '@/types/api/order-type';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();
-  const { mutate, isPending } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: CreateOrderType) => createOrder(data),
-    onSuccess: () => {
+    onSuccess: async ({ data }) => {
       queryClient.invalidateQueries({ queryKey: ['my-products', 'products', 'product'] });
     },
     onError: ({ message }) => {
@@ -16,7 +16,7 @@ export const useCreateOrder = () => {
   });
 
   return {
-    createOrder: mutate,
+    createOrder: mutateAsync,
     isPending,
   };
 };
@@ -24,7 +24,7 @@ export const useCreateOrder = () => {
 export const useCancelOrder = () => {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: (data: string) => cancelOrder(data),
+    mutationFn: (transactionIdOrOrderId: string) => cancelOrder(transactionIdOrOrderId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-products', 'products', 'product'] });
     },

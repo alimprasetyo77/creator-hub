@@ -1,6 +1,6 @@
-import axiosWithConfig from '../axios-config';
-import { LoginType, RegisterType } from '../../types/api/auth-type';
-import { IResponse } from '../../types';
+import axiosWithConfig from '../lib/axios-config';
+import { LoginType, RegisterType } from '../types/api/auth-type';
+import { IResponse } from '../types';
 
 const login = async (data: LoginType) => {
   try {

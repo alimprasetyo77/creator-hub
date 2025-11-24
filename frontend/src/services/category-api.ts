@@ -1,5 +1,5 @@
 import { IResponse } from '@/types';
-import axiosWithConfig from '../axios-config';
+import axiosWithConfig from '../lib/axios-config';
 import { CategoryType } from '@/types/api/category-type';
 import { AxiosError } from 'axios';
 

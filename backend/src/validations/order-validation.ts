@@ -62,6 +62,14 @@ const checkoutSchema = createOrderSchema
       gross_amount: z.number(),
       order_id: z.string(),
     }),
+    // item_details: z.array(
+    //   z.object({
+    //     id: z.string(),
+    //     price: z.number(),
+    //     quantity: z.number(),
+    //     name: z.string(),
+    //   })
+    // ),
   });
 
 export type CreateOrderType = z.infer<typeof createOrderSchema>;
@@ -90,4 +98,31 @@ export interface ICheckoutOrderErrorResponse {
   id: string;
   status_code: string;
   status_message: string;
+}
+
+export interface INotificationSampleRequest {
+  va_numbers: {
+    va_number: string;
+    bank: string;
+  }[];
+  transaction_time: string;
+  transaction_status: string;
+  transaction_id: string;
+  status_message: string;
+  status_code: string;
+  signature_key: string;
+  settlement_time: string;
+  permata_va_number: string;
+  payment_type: string;
+  payment_amounts: any[];
+  order_id: string;
+  merchant_id: string;
+  gross_amount: string;
+  fraud_status: string;
+  currency: string;
+  biller_code: string;
+  bill_key: string;
+  store: string;
+  merchant_cross_reference_id: string;
+  issuer: string;
 }

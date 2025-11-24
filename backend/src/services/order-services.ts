@@ -7,6 +7,7 @@ import orderValidation, {
   CheckoutType,
   CreateOrderType,
   ICheckoutOrderSuccessResponse,
+  INotificationSampleRequest,
 } from '../validations/order-validation';
 import { validate } from '../validations/validation';
 import { createHash } from 'crypto';
@@ -17,6 +18,20 @@ const midtransHeaders = {
     Accept: 'application/json',
     Authorization: 'Basic ' + Buffer.from(process.env.MIDTRANS_SERVER_KEY + ':').toString('base64'),
   },
+};
+
+const getStatus = async (transactionIdOrOrderId: string): Promise<{}> => {
+  if (!transactionIdOrOrderId) throw new ResponseError(400, 'Transaction or order id is required');
+  const response = await fetch(`${process.env.MIDTRANS_BASE_URL}/${transactionIdOrOrderId}/status`, {
+    method: 'GET',
+    ...midtransHeaders,
+  });
+
+  const data = (await response.json()) as ICheckoutOrderSuccessResponse;
+  if (!response.ok || (data.status_code && !['200', '201'].includes(data.status_code))) {
+    throw new ResponseError(parseInt(data.status_code), data.status_message || 'Unknown error');
+  }
+  return data;
 };
 
 const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
@@ -84,7 +99,15 @@ const create = async (user: UserRequest['user'], request: CreateOrderType): Prom
     },
 
     include: {
-      items: true,
+      items: {
+        include: {
+          product: {
+            select: {
+              title: true,
+            },
+          },
+        },
+      },
     },
   });
 
@@ -137,22 +160,20 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
   });
 };
 
-const paymentNotificationHandler = async (notification: any): Promise<{ status: number }> => {
-  console.log('🔔 Webhook diterima:', notification);
-
+const paymentNotificationHandler = async (
+  notification: Partial<INotificationSampleRequest>
+): Promise<{ status: number }> => {
   const { order_id, gross_amount, signature_key, transaction_status, fraud_status } = notification;
 
-  // VALIDASI SIGNATURE (pakai "200" per aturan Midtrans)
   const validSignature = createHash('sha512')
     .update(order_id + '200' + gross_amount + process.env.MIDTRANS_SERVER_KEY)
     .digest('hex');
 
   if (signature_key !== validSignature) {
     console.log('❌ Signature tidak valid');
-    return { status: 200 }; // jangan throw, cukup return
+    return { status: 400 };
   }
 
-  // Ambil order di DB
   const order = await prisma.order.findUnique({
     where: { id: order_id },
   });
@@ -162,7 +183,6 @@ const paymentNotificationHandler = async (notification: any): Promise<{ status: 
     return { status: 200 };
   }
 
-  // State transitions (idempotent)
   const updatePaymentStatus = async (status: string) => {
     if (order.paymentStatus !== status) {
       await prisma.order.update({
@@ -175,18 +195,15 @@ const paymentNotificationHandler = async (notification: any): Promise<{ status: 
   switch (transaction_status) {
     case 'capture':
       if (fraud_status === 'accept') {
-        console.log('✔ Pembayaran kartu kredit berhasil');
         await updatePaymentStatus('PAID');
       }
       break;
 
     case 'settlement':
-      console.log('✔ Pembayaran selesai');
       await updatePaymentStatus('PAID');
       break;
 
     case 'pending':
-      console.log('⌛ Menunggu pembayaran');
       await updatePaymentStatus('PENDING');
       break;
 
@@ -198,12 +215,11 @@ const paymentNotificationHandler = async (notification: any): Promise<{ status: 
       break;
 
     case 'refund':
-      console.log('↩ Dana direfund');
-      await updatePaymentStatus('REFUND');
+      // await updatePaymentStatus('REFUND');
       break;
   }
 
   return { status: 200 };
 };
 
-export default { getAll, create, checkout, cancel, paymentNotificationHandler };
+export default { getStatus, getAll, create, checkout, cancel, paymentNotificationHandler };

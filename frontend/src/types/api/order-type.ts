@@ -23,6 +23,13 @@ const createOrderSchema = z
       .optional(),
   })
   .superRefine((data, ctx) => {
+    if (!data.bank_transfer && !data.echannel && !data.qris) {
+      ctx.addIssue({
+        message: 'Bank transfer, echannel, or qris is required',
+        path: ['payment_type'],
+        code: 'custom',
+      });
+    }
     if (data.payment_type === 'bank_transfer') {
       if (!data.bank_transfer) {
         ctx.addIssue({
@@ -52,8 +59,52 @@ const createOrderSchema = z
     }
   });
 
+const checkoutOrderSchema = createOrderSchema
+  .omit({
+    total_amount: true,
+    product_id: true,
+  })
+  .extend({
+    transaction_details: z.object({
+      gross_amount: z.number(),
+      order_id: z.string(),
+    }),
+    // item_details: z.array(
+    //   z.object({
+    //     id: z.string(),
+    //     price: z.number(),
+    //     quantity: z.number(),
+    //     name: z.string(),
+    //   })
+    // ),
+  });
+
 export type CreateOrderType = z.infer<typeof createOrderSchema>;
-export default { createOrderSchema };
+export type CheckoutOrderType = z.infer<typeof checkoutOrderSchema>;
+export default { createOrderSchema, checkoutOrderSchema };
+
+export interface IResponseSuccessCreateOrder {
+  id: string;
+  userId: string;
+  totalAmount: number;
+  paymentStatus: string;
+  midtransOrderId: any;
+  midtransTransactionId: any;
+  paymentType: string;
+  createdAt: string;
+  updatedAt: string;
+  items: {
+    id: string;
+    orderId: string;
+    productId: string;
+    product: {
+      title: string;
+    };
+    price: number;
+    quantity: number;
+    subtotal: number;
+  }[];
+}
 
 export interface IProcessOrderSuccessResponse {
   status_code: string;

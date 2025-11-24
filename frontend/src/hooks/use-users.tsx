@@ -2,7 +2,7 @@ import { ProfileType, IUser, ChangePasswordType } from '@/types/api/user-type';
 import { IResponse } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { changePassword, deleteUser, getUser, updateUser } from '@/lib/services/user-api';
+import { changePassword, deleteUser, getUser, updateUser } from '@/services/user-api';
 import { toast } from 'sonner';
 
 interface IOptionsProps {

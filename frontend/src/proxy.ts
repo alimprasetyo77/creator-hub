@@ -6,8 +6,10 @@ export async function proxy(req: NextRequest) {
   const token = (await cookies()).get('token')?.value;
   const { pathname } = req.nextUrl;
   const isAuthRoute = pathname === '/login' || pathname === '/register';
-  const isAuthenticatedRoute = pathname.startsWith('/profile') || pathname.startsWith('/my-purchases');
-  pathname.startsWith('/dashboard');
+  const isAuthenticatedRoute =
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/my-purchases') ||
+    pathname.startsWith('/checkout');
 
   if (token && isAuthRoute) {
     return NextResponse.redirect(new URL('/', req.url));

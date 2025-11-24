@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 // import { useAuth } from '@/contexts/auth-context';
-import { login, logout, register } from '@/lib/services/auth-api';
+import { login, logout, register } from '@/services/auth-api';
 
 export const useLogin = () => {
   const router = useRouter();

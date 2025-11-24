@@ -12,7 +12,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: '*',
+    origin: ['https://creator-hub-api.up.railway.app', 'http://localhost:3000'],
     credentials: true,
   })
 );
