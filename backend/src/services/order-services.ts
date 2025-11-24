@@ -1,4 +1,4 @@
-import { Order } from '../generated/prisma/client';
+import { Order, PaymentStatus } from '../generated/prisma/client';
 import { OrderWhereUniqueInput } from '../generated/prisma/models';
 import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
@@ -137,99 +137,73 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
   });
 };
 
-const paymentNotificationHandler = async (notification: any) => {
-  console.log('🔔 Notifikasi Diterima:', notification);
-  const {
-    order_id,
-    status_code,
-    gross_amount,
-    signature_key,
-    transaction_status,
-    fraud_status,
-    transaction_id,
-  } = notification;
+const paymentNotificationHandler = async (notification: any): Promise<{ status: number }> => {
+  console.log('🔔 Webhook diterima:', notification);
 
-  const signature = createHash('sha512')
-    .update(order_id + status_code + gross_amount + process.env.MIDTRANS_SERVER_KEY)
+  const { order_id, gross_amount, signature_key, transaction_status, fraud_status } = notification;
+
+  // VALIDASI SIGNATURE (pakai "200" per aturan Midtrans)
+  const validSignature = createHash('sha512')
+    .update(order_id + '200' + gross_amount + process.env.MIDTRANS_SERVER_KEY)
     .digest('hex');
 
-  if (signature !== signature_key) {
+  if (signature_key !== validSignature) {
     console.log('❌ Signature tidak valid');
-    throw new ResponseError(403, 'Invalid signature');
+    return { status: 200 }; // jangan throw, cukup return
   }
 
-  const whereClause: OrderWhereUniqueInput = {
-    AND: [
-      {
-        id: order_id,
-      },
-      {
-        midtransOrderId: order_id,
-      },
-      {
-        midtransTransactionId: transaction_id,
-      },
-    ],
-  } as OrderWhereUniqueInput;
+  // Ambil order di DB
+  const order = await prisma.order.findUnique({
+    where: { id: order_id },
+  });
+
+  if (!order) {
+    console.log('❌ Order tidak ditemukan:', order_id);
+    return { status: 200 };
+  }
+
+  // State transitions (idempotent)
+  const updatePaymentStatus = async (status: string) => {
+    if (order.paymentStatus !== status) {
+      await prisma.order.update({
+        where: { id: order_id },
+        data: { paymentStatus: status as PaymentStatus },
+      });
+    }
+  };
 
   switch (transaction_status) {
     case 'capture':
       if (fraud_status === 'accept') {
-        console.log('Pembayaran berhasil (credit card)');
-        // update DB...
+        console.log('✔ Pembayaran kartu kredit berhasil');
+        await updatePaymentStatus('PAID');
       }
       break;
 
     case 'settlement':
-      console.log('Pembayaran selesai');
-      // update DB...
-      await prisma.order.update({
-        where: whereClause,
-        data: {
-          paymentStatus: 'PAID',
-        },
-      });
+      console.log('✔ Pembayaran selesai');
+      await updatePaymentStatus('PAID');
       break;
 
     case 'pending':
-      console.log('Menunggu pembayaran');
-      // update DB...
-      await prisma.order.update({
-        where: whereClause,
-        data: {
-          paymentStatus: 'PENDING',
-        },
-      });
+      console.log('⌛ Menunggu pembayaran');
+      await updatePaymentStatus('PENDING');
       break;
 
     case 'deny':
-      console.log('Pembayaran ditolak');
-      // update DB...
-      await prisma.order.update({
-        where: whereClause,
-        data: {
-          paymentStatus: 'FAILED',
-        },
-      });
-      break;
-
     case 'cancel':
     case 'expire':
-      console.log('Pembayaran dibatalkan / kadaluwarsa');
-      // update DB...
-      await prisma.order.update({
-        where: whereClause,
-        data: {
-          paymentStatus: 'FAILED',
-        },
-      });
+      console.log('❌ Pembayaran gagal');
+      await updatePaymentStatus('FAILED');
       break;
 
     case 'refund':
-      console.log('Dana direfund');
-      // update DB...
+      console.log('↩ Dana direfund');
+      await updatePaymentStatus('REFUND');
       break;
   }
+
+  return { status: 200 };
 };
 
 export default { getAll, create, checkout, cancel, paymentNotificationHandler };

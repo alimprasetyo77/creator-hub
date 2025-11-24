@@ -58,8 +58,8 @@ const cancel = async (req: UserRequest, res: Response, next: NextFunction): Prom
 const paymentNotificationHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const request = req.body;
-    await orderServices.paymentNotificationHandler(request);
-    res.status(200).json({ message: 'OK' });
+    const response = await orderServices.paymentNotificationHandler(request);
+    res.status(response.status).json({ message: 'OK', status_code: response.status });
   } catch (error) {
     next(error);
   }
