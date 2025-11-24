@@ -8,6 +8,7 @@ import orderValidation, {
   ICheckoutOrderSuccessResponse,
 } from '../validations/order-validation';
 import { validate } from '../validations/validation';
+import { createHash } from 'crypto';
 
 const midtransHeaders = {
   headers: {
@@ -135,8 +136,66 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
   });
 };
 
-const paymentNotificationHandler = async (request: any) => {
-  console.log(request);
+const paymentNotificationHandler = async (notification: any) => {
+  const orderId = notification.order_id;
+  const statusCode = notification.status_code;
+  const grossAmount = notification.gross_amount;
+
+  const signature = createHash('sha512')
+    .update(orderId + statusCode + grossAmount + process.env.MIDTRANS_SERVER_KEY)
+    .digest('hex');
+
+  if (signature !== notification.signature_key) {
+    console.log('❌ Signature tidak valid');
+    throw new ResponseError(403, 'Invalid signature');
+  }
+
+  const statusResponse = await fetch(`${process.env.MIDTRANS_BASE_URL}/${orderId}/status`, {
+    method: 'GET',
+    ...midtransHeaders,
+  });
+
+  const data = (await statusResponse.json()) as ICheckoutOrderSuccessResponse;
+  // if (!statusResponse.ok || (data.status_code && !['200', '201'].includes(data.status_code))) {
+  //   throw new ResponseError(parseInt(data.status_code), data.status_message || 'Unknown error');
+  // }
+
+  console.log('🔔 Notifikasi Diterima:', data.transaction_status);
+
+  switch (data.transaction_status) {
+    case 'capture':
+      if (data.fraud_status === 'accept') {
+        console.log('Pembayaran berhasil (credit card)');
+        // update DB...
+      }
+      break;
+
+    case 'settlement':
+      console.log('Pembayaran selesai');
+      // update DB...
+      break;
+
+    case 'pending':
+      console.log('Menunggu pembayaran');
+      // update DB...
+      break;
+
+    case 'deny':
+      console.log('Pembayaran ditolak');
+      // update DB...
+      break;
+
+    case 'cancel':
+    case 'expire':
+      console.log('Pembayaran dibatalkan / kadaluwarsa');
+      // update DB...
+      break;
+
+    case 'refund':
+      console.log('Dana direfund');
+      // update DB...
+      break;
+  }
 };
 
 export default { getAll, create, checkout, cancel, paymentNotificationHandler };
