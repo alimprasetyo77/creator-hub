@@ -138,34 +138,21 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
 
 const paymentNotificationHandler = async (notification: any) => {
   console.log('🔔 Notifikasi Diterima:', notification);
-  const orderId = notification.order_id;
-  const statusCode = notification.status_code;
-  const grossAmount = notification.gross_amount;
+  const { order_id, status_code, gross_amount, signature_key, transaction_status, fraud_status } =
+    notification;
 
   const signature = createHash('sha512')
-    .update(orderId + statusCode + grossAmount + process.env.MIDTRANS_SERVER_KEY)
+    .update(order_id + status_code + gross_amount + process.env.MIDTRANS_SERVER_KEY)
     .digest('hex');
 
-  if (signature !== notification.signature_key) {
+  if (signature !== signature_key) {
     console.log('❌ Signature tidak valid');
     throw new ResponseError(403, 'Invalid signature');
   }
 
-  const statusResponse = await fetch(`${process.env.MIDTRANS_BASE_URL}/${orderId}/status`, {
-    method: 'GET',
-    ...midtransHeaders,
-  });
-
-  const data = (await statusResponse.json()) as ICheckoutOrderSuccessResponse;
-  // if (!statusResponse.ok || (data.status_code && !['200', '201'].includes(data.status_code))) {
-  //   throw new ResponseError(parseInt(data.status_code), data.status_message || 'Unknown error');
-  // }
-
-  console.log('🔔 Notifikasi Diterima:', data.transaction_status);
-
-  switch (data.transaction_status) {
+  switch (transaction_status) {
     case 'capture':
-      if (data.fraud_status === 'accept') {
+      if (fraud_status === 'accept') {
         console.log('Pembayaran berhasil (credit card)');
         // update DB...
       }
