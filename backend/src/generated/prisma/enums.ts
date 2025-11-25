@@ -26,11 +26,11 @@ export const ProductStatus = {
 export type ProductStatus = (typeof ProductStatus)[keyof typeof ProductStatus]
 
 
-export const PaymentStatus = {
+export const OrderStatus = {
   PENDING: 'PENDING',
   PAID: 'PAID',
   FAILED: 'FAILED',
   EXPIRED: 'EXPIRED'
 } as const
 
-export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus]
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]

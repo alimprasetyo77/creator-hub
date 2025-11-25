@@ -35,6 +35,14 @@ enum Role {
   CREATOR
 }
 
+model Category {
+  id       String    @id @default(uuid())
+  name     String
+  products Product[]
+
+  @@map("categories")
+}
+
 model Product {
   id          String        @id @default(uuid())
   slug        String        @unique
@@ -63,22 +71,19 @@ enum ProductStatus {
 }
 
 model Order {
-  id                    String        @id @default(cuid())
-  user                  User          @relation(fields: [userId], references: [id])
-  userId                String
-  totalAmount           Int
-  paymentStatus         PaymentStatus @default(PENDING)
-  midtransOrderId       String? // order_id dari Midtrans
-  midtransTransactionId String? // transaction_id
-  paymentType           String? // ewallet, bank_transfer, dll
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
-  items                 OrderItem[]
+  id          String        @id @default(cuid())
+  user        User          @relation(fields: [userId], references: [id])
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  orderStatus OrderStatus   @default(PENDING)
+  items       OrderItem[]
+  paymentInfo OrderPayment?
 
   @@map("orders")
 }
 
-enum PaymentStatus {
+enum OrderStatus {
   PENDING
   PAID
   FAILED
@@ -98,10 +103,32 @@ model OrderItem {
   @@map("order_items")
 }
 
-model Category {
-  id       String    @id @default(uuid())
-  name     String
-  products Product[]
+model OrderPayment {
+  id String @id @default(cuid())
 
-  @@map("categories")
+  transactionId   String?
+  midtransOrderId String?
+  grossAmount     String?
+  paymentType     String?
+
+  transactionTime   DateTime?
+  transactionStatus String?
+
+  // Untuk semua jenis pembayaran (VA, QRIS, e-wallet)
+  vaNumbers  Json? // array VA (lebih fleksibel)
+  billKey    String?
+  billerCode String?
+  acquirer   String?
+  actions    Json?
+
+  expiryTime  DateTime?
+  fraudStatus String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  @@map("order_payments")
 }

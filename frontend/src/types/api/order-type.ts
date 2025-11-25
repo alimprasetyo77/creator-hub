@@ -83,7 +83,7 @@ export type CreateOrderType = z.infer<typeof createOrderSchema>;
 export type CheckoutOrderType = z.infer<typeof checkoutOrderSchema>;
 export default { createOrderSchema, checkoutOrderSchema };
 
-export interface IResponseSuccessCreateOrder {
+export interface ICreateOrderSuccessResponse {
   id: string;
   userId: string;
   totalAmount: number;
@@ -106,7 +106,7 @@ export interface IResponseSuccessCreateOrder {
   }[];
 }
 
-export interface IProcessOrderSuccessResponse {
+export interface ICheckoutSuccessResponse {
   status_code: string;
   status_message: string;
   transaction_id: string;
@@ -124,7 +124,7 @@ export interface IProcessOrderSuccessResponse {
   fraud_status: string;
   currency: string;
 }
-export interface IProcessOrderErrorResponse {
+export interface ICheckoutErrorResponse {
   id: string;
   status_code: string;
   status_message: string;

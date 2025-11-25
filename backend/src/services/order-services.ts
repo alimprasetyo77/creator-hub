@@ -1,4 +1,4 @@
-import { Order, PaymentStatus } from '../generated/prisma/client';
+import { Order, OrderStatus } from '../generated/prisma/client';
 import { OrderWhereUniqueInput } from '../generated/prisma/models';
 import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
@@ -75,7 +75,10 @@ const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
   return orders.map((order) => ({ ...order, items: order.items.map((item) => item.product) }));
 };
 
-const create = async (user: UserRequest['user'], request: CreateOrderType): Promise<Order> => {
+const create = async (
+  user: UserRequest['user'],
+  request: CreateOrderType
+): Promise<ICheckoutOrderSuccessResponse> => {
   const createOrderRequest = validate(orderValidation.createOrderSchema, request);
 
   const product = await prisma.product.findUnique({ where: { id: createOrderRequest.product_id } });
@@ -85,33 +88,37 @@ const create = async (user: UserRequest['user'], request: CreateOrderType): Prom
   const order = await prisma.order.create({
     data: {
       userId: user!.id,
-      paymentStatus: 'PENDING',
-      paymentType: createOrderRequest.payment_type,
-      totalAmount: createOrderRequest.total_amount,
+      orderStatus: 'PENDING',
       items: {
         create: {
           price: product.price,
           productId: product.id,
           quantity: 1,
-          subtotal: product.price,
+          subtotal: product.price * 1,
         },
       },
     },
 
     include: {
-      items: {
-        include: {
-          product: {
-            select: {
-              title: true,
-            },
-          },
-        },
-      },
+      items: true,
     },
   });
-
-  return order;
+  const checkoutResult = await checkout({
+    payment_type: createOrderRequest.payment_type,
+    transaction_details: {
+      gross_amount: order.items[0].subtotal,
+      order_id: order.id,
+    },
+    ...(createOrderRequest.payment_type === 'bank_transfer' &&
+      createOrderRequest.bank_transfer && {
+        bank_transfer: { bank: createOrderRequest.bank_transfer?.bank },
+      }),
+    ...(createOrderRequest.payment_type === 'echannel' &&
+      createOrderRequest.echannel && { echannel: { bill_info1: 'bill_info_1', bill_info2: 'bill_info_2' } }),
+    ...(createOrderRequest.payment_type === 'qris' &&
+      createOrderRequest.qris && { qris: { acquirer: createOrderRequest.qris?.acquirer } }),
+  });
+  return checkoutResult;
 };
 
 const checkout = async (payload: CheckoutType) => {
@@ -127,7 +134,7 @@ const checkout = async (payload: CheckoutType) => {
   if (!response.ok || (data.status_code && !['200', '201'].includes(data.status_code))) {
     await prisma.order.update({
       where: { id: data.order_id || checkoutRequest.transaction_details.order_id },
-      data: { paymentStatus: 'FAILED' },
+      data: { orderStatus: 'FAILED' },
     });
     throw new ResponseError(
       parseInt(data.status_code as string),
@@ -135,9 +142,32 @@ const checkout = async (payload: CheckoutType) => {
     );
   }
 
-  await prisma.order.update({
-    where: { id: data.order_id },
-    data: { midtransTransactionId: data.transaction_id, midtransOrderId: data.order_id },
+  await prisma.orderPayment.create({
+    data: {
+      orderId: data.order_id,
+      transactionId: data.transaction_id,
+      midtransOrderId: data.order_id,
+      grossAmount: data.gross_amount,
+      paymentType: data.payment_type,
+      transactionTime: new Date(data.transaction_time),
+      transactionStatus: data.transaction_status,
+      ...(data.va_numbers && {
+        vaNumbers: {
+          bank: data.va_numbers[0].bank,
+          va_number: data.va_numbers[0].va_number,
+        },
+      }),
+      ...(data.bill_key && { billKey: data.bill_key }),
+      ...(data.bill_code && { billerCode: data.bill_code }),
+      ...(data.acquirer && { acquirer: data.acquirer }),
+      ...(data.actions && {
+        actions: {
+          name: data.actions[0].name,
+          method: data.actions[0].method,
+          url: data.actions[0].url,
+        },
+      }),
+    },
   });
   return data;
 };
@@ -156,7 +186,7 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
 
   await prisma.order.update({
     where: { id: data.order_id || transactionIdOrOrderId },
-    data: { paymentStatus: 'FAILED' },
+    data: { orderStatus: 'FAILED' },
   });
 };
 
@@ -184,10 +214,10 @@ const paymentNotificationHandler = async (
   }
 
   const updatePaymentStatus = async (status: string) => {
-    if (order.paymentStatus !== status) {
+    if (order.orderStatus !== status) {
       await prisma.order.update({
         where: { id: order_id },
-        data: { paymentStatus: status as PaymentStatus },
+        data: { orderStatus: status as OrderStatus },
       });
     }
   };

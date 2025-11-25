@@ -52,10 +52,11 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  Category: 'Category',
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  Category: 'Category'
+  OrderPayment: 'OrderPayment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -89,6 +90,14 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+} as const
+
+export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
+
+
 export const ProductScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -111,13 +120,9 @@ export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeo
 export const OrderScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  totalAmount: 'totalAmount',
-  paymentStatus: 'paymentStatus',
-  midtransOrderId: 'midtransOrderId',
-  midtransTransactionId: 'midtransTransactionId',
-  paymentType: 'paymentType',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  orderStatus: 'orderStatus'
 } as const
 
 export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
@@ -135,12 +140,27 @@ export const OrderItemScalarFieldEnum = {
 export type OrderItemScalarFieldEnum = (typeof OrderItemScalarFieldEnum)[keyof typeof OrderItemScalarFieldEnum]
 
 
-export const CategoryScalarFieldEnum = {
+export const OrderPaymentScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  transactionId: 'transactionId',
+  midtransOrderId: 'midtransOrderId',
+  grossAmount: 'grossAmount',
+  paymentType: 'paymentType',
+  transactionTime: 'transactionTime',
+  transactionStatus: 'transactionStatus',
+  vaNumbers: 'vaNumbers',
+  billKey: 'billKey',
+  billerCode: 'billerCode',
+  acquirer: 'acquirer',
+  actions: 'actions',
+  expiryTime: 'expiryTime',
+  fraudStatus: 'fraudStatus',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  orderId: 'orderId'
 } as const
 
-export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
+export type OrderPaymentScalarFieldEnum = (typeof OrderPaymentScalarFieldEnum)[keyof typeof OrderPaymentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -149,6 +169,14 @@ export const SortOrder = {
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull'
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -165,4 +193,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull',
+  AnyNull: 'AnyNull'
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

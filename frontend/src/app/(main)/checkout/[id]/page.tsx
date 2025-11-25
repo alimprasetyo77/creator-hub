@@ -23,7 +23,24 @@ export type StoreOptionType = 'alfamart' | 'indomaret';
 interface CheckoutProps {
   params: Promise<{ id: string }>;
 }
-
+interface IPaymentInfo {
+  bankInfo?: {
+    bank: BankOptionType;
+    va_number: string;
+  };
+  ewalletInfo?: {
+    ewallet: string;
+    ewallet_number: string;
+  };
+  qrisInfo?: {
+    qris: string;
+    qris_number: string;
+  };
+  storeInfo?: {
+    store: string;
+    store_number: string;
+  };
+}
 export default function Checkout(props: CheckoutProps) {
   const { id } = use(props.params);
   const router = useRouter();
@@ -37,7 +54,9 @@ export default function Checkout(props: CheckoutProps) {
   const [selectedBank, setSelectedBank] = useState<BankOptionType>('bca');
   const [selectedEwallet, setSelectedEwallet] = useState<EwalletOptionType>('gopay');
   const [selectedStore, setSelectedStore] = useState<StoreOptionType>('alfamart');
-  const [bankVaNumber, setBankVaNumber] = useState('');
+
+  const [paymentInfo, setPaymentInfo] = useState<IPaymentInfo | null>(null);
+
   if (isLoading) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
@@ -88,27 +107,6 @@ export default function Checkout(props: CheckoutProps) {
         ...(payment_type === 'qris' && { qris: { acquirer: selectedEwallet } }),
       });
 
-      const { data: resultCheckoutOrder } = await checkoutOrder({
-        payment_type: resultCreateOrder.paymentType as CheckoutOrderType['payment_type'],
-        transaction_details: {
-          gross_amount: usdToIdr(resultCreateOrder.totalAmount),
-          order_id: resultCreateOrder.id,
-        },
-        // item_details: [
-        //   {
-        //     id: resultCreateOrder.items[0].productId,
-        //     price: usdToIdr(resultCreateOrder.items[0].price),
-        //     quantity: resultCreateOrder.items[0].quantity,
-        //     name: resultCreateOrder.items[0].product.title,
-        //   },
-        // ],
-        ...(resultCreateOrder.paymentType === 'bank_transfer' && { bank_transfer: { bank: selectedBank } }),
-        ...(resultCreateOrder.paymentType === 'echannel' && { echannel: { bill_info1: '', bill_info2: '' } }),
-        ...(resultCreateOrder.paymentType === 'qris' && { qris: { acquirer: selectedEwallet } }),
-      });
-      if (resultCreateOrder.paymentType === 'bank_transfer') {
-        setBankVaNumber(resultCheckoutOrder.va_numbers[0].va_number);
-      }
       setShowPaymentDetails(true);
     } catch (error) {
       toast.error((error as Error).message);
@@ -159,29 +157,21 @@ export default function Checkout(props: CheckoutProps) {
       id: 'bca',
       name: 'BCA',
       logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bca_va.png',
-      accountNumber: '1234567890',
-      accountName: 'CreatorHub Indonesia',
     },
     {
       id: 'mandiri',
       name: 'Mandiri',
       logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/mandiri_bill.png',
-      accountNumber: '9876543210',
-      accountName: 'CreatorHub Indonesia',
     },
     {
       id: 'bni',
       name: 'BNI',
       logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bni_va.png',
-      accountNumber: '5551234567',
-      accountName: 'CreatorHub Indonesia',
     },
     {
       id: 'bri',
       name: 'BRI',
       logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bri_va.png',
-      accountNumber: '7778889990',
-      accountName: 'CreatorHub Indonesia',
     },
   ];
 
@@ -248,7 +238,6 @@ export default function Checkout(props: CheckoutProps) {
       />
     );
   }
-
   // Main Checkout Screen - Payment Method Selection
   return (
     <div className='min-h-screen bg-linear-to-b from-blue-50 to-white py-8 md:py-12'>

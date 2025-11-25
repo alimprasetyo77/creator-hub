@@ -93,6 +93,10 @@ export interface ICheckoutOrderSuccessResponse {
   ];
   fraud_status: string;
   currency: string;
+  bill_key: string;
+  bill_code: string;
+  acquirer: string;
+  actions: any;
 }
 export interface ICheckoutOrderErrorResponse {
   id: string;
