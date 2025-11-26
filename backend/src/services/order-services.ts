@@ -192,7 +192,7 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
   }
 
   await prisma.order.update({
-    where: { id: data.order_id || transactionIdOrOrderId },
+    where: { id: data.order_id },
     data: {
       orderStatus: 'FAILED',
       paymentInfo: {
@@ -207,7 +207,6 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
 const paymentNotificationHandler = async (
   notification: Partial<INotificationSampleRequest>
 ): Promise<{ status: number; message: string }> => {
-  console.log('notification : ', notification);
   const { order_id, status_code, gross_amount, signature_key, transaction_status, fraud_status } =
     notification;
 
@@ -224,6 +223,7 @@ const paymentNotificationHandler = async (
 
   const order = await prisma.order.findUnique({
     where: { id: order_id },
+    include: { paymentInfo: true },
   });
 
   if (!order) {
@@ -232,20 +232,17 @@ const paymentNotificationHandler = async (
   }
 
   const updatePaymentStatus = async (status: string) => {
-    if (order.orderStatus !== status) {
-      await prisma.order.update({
-        where: { id: order_id },
-        data: {
-          orderStatus: status as OrderStatus,
+    await prisma.order.update({
+      where: { id: order_id },
+      data: {
+        orderStatus: status as OrderStatus,
+        paymentInfo: {
+          update: {
+            transactionStatus: transaction_status,
+          },
         },
-      });
-      await prisma.orderPayment.update({
-        where: { id: order_id },
-        data: {
-          transactionStatus: transaction_status,
-        },
-      });
-    }
+      },
+    });
   };
 
   switch (transaction_status) {
@@ -256,10 +253,13 @@ const paymentNotificationHandler = async (
       break;
 
     case 'settlement':
+      console.log('✅ Pembayaran berhasil');
       await updatePaymentStatus('PAID');
       break;
 
     case 'pending':
+      console.log('⏳ Menunggu pembayaran');
+      if (order.orderStatus === 'PENDING') return { status: 200, message: 'OK' };
       await updatePaymentStatus('PENDING');
       break;
 
