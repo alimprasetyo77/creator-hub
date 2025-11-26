@@ -207,6 +207,7 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
 const paymentNotificationHandler = async (
   notification: Partial<INotificationSampleRequest>
 ): Promise<{ status: number; message: string }> => {
+  console.log('notification : ', notification);
   const { order_id, status_code, gross_amount, signature_key, transaction_status, fraud_status } =
     notification;
 
