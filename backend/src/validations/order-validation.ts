@@ -3,7 +3,7 @@ import z from 'zod';
 const createOrderSchema = z
   .object({
     payment_type: z.enum(['echannel', 'bank_transfer', 'qris']),
-    total_amount: z.number().min(1, 'Amount must be greater than 0'),
+    // total_amount: z.number().min(1, 'Amount must be greater than 0'),
     product_id: z.uuid({ error: 'Invalid product id' }).nonempty('Product id is required'),
     bank_transfer: z
       .object({
@@ -54,7 +54,6 @@ const createOrderSchema = z
 
 const checkoutSchema = createOrderSchema
   .omit({
-    total_amount: true,
     product_id: true,
   })
   .extend({
@@ -97,6 +96,7 @@ export interface ICheckoutOrderSuccessResponse {
   bill_code: string;
   acquirer: string;
   actions: any;
+  expiry_time: string;
 }
 export interface ICheckoutOrderErrorResponse {
   id: string;

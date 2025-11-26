@@ -42,19 +42,6 @@ const create = async (req: UserRequest, res: Response, next: NextFunction): Prom
   }
 };
 
-const checkout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const request = req.body;
-    const response = await orderServices.checkout(request);
-    res.status(200).json({
-      message: 'Order checkout successfully',
-      data: response,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
 const cancel = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const request = req.params.transactionOrOrderId;
@@ -78,4 +65,4 @@ const paymentNotificationHandler = async (req: Request, res: Response, next: Nex
   }
 };
 
-export default { getStatus, getAll, create, checkout, cancel, paymentNotificationHandler };
+export default { getStatus, getAll, create, cancel, paymentNotificationHandler };

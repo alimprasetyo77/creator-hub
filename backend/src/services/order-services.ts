@@ -1,4 +1,4 @@
-import { Order, OrderStatus } from '../generated/prisma/client';
+import { Order, OrderPayment, OrderStatus } from '../generated/prisma/client';
 import { OrderWhereUniqueInput } from '../generated/prisma/models';
 import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
@@ -75,10 +75,7 @@ const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
   return orders.map((order) => ({ ...order, items: order.items.map((item) => item.product) }));
 };
 
-const create = async (
-  user: UserRequest['user'],
-  request: CreateOrderType
-): Promise<ICheckoutOrderSuccessResponse> => {
+const create = async (user: UserRequest['user'], request: CreateOrderType): Promise<OrderPayment> => {
   const createOrderRequest = validate(orderValidation.createOrderSchema, request);
 
   const product = await prisma.product.findUnique({ where: { id: createOrderRequest.product_id } });
@@ -142,7 +139,7 @@ const checkout = async (payload: CheckoutType) => {
     );
   }
 
-  await prisma.orderPayment.create({
+  const orderPayment = await prisma.orderPayment.create({
     data: {
       orderId: data.order_id,
       transactionId: data.transaction_id,
@@ -167,9 +164,19 @@ const checkout = async (payload: CheckoutType) => {
           url: data.actions[0].url,
         },
       }),
+      ...(data.fraud_status && { fraudStatus: data.fraud_status }),
+    },
+    omit: {
+      vaNumbers: !data.va_numbers,
+      billKey: !data.bill_key,
+      billerCode: !data.bill_code,
+      acquirer: !data.acquirer,
+      actions: !data.actions,
+      expiryTime: !data.expiry_time || !(data as any).expire_time,
+      fraudStatus: !data.fraud_status,
     },
   });
-  return data;
+  return orderPayment;
 };
 
 const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
@@ -186,17 +193,27 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
 
   await prisma.order.update({
     where: { id: data.order_id || transactionIdOrOrderId },
-    data: { orderStatus: 'FAILED' },
+    data: {
+      orderStatus: 'FAILED',
+      paymentInfo: {
+        update: {
+          transactionStatus: 'cancel',
+        },
+      },
+    },
   });
 };
 
 const paymentNotificationHandler = async (
   notification: Partial<INotificationSampleRequest>
 ): Promise<{ status: number }> => {
-  const { order_id, gross_amount, signature_key, transaction_status, fraud_status } = notification;
+  const { order_id, status_code, gross_amount, signature_key, transaction_status, fraud_status } =
+    notification;
 
   const validSignature = createHash('sha512')
-    .update(order_id + '200' + gross_amount + process.env.MIDTRANS_SERVER_KEY)
+    .update(
+      `${order_id ?? ''}${status_code ?? ''}${gross_amount ?? ''}${process.env.MIDTRANS_SERVER_KEY ?? ''}`
+    )
     .digest('hex');
 
   if (signature_key !== validSignature) {
@@ -217,7 +234,15 @@ const paymentNotificationHandler = async (
     if (order.orderStatus !== status) {
       await prisma.order.update({
         where: { id: order_id },
-        data: { orderStatus: status as OrderStatus },
+        data: {
+          orderStatus: status as OrderStatus,
+        },
+      });
+      await prisma.orderPayment.update({
+        where: { id: order_id },
+        data: {
+          transactionStatus: transaction_status,
+        },
       });
     }
   };

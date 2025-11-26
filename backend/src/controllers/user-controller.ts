@@ -18,7 +18,7 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<v
   try {
     const request = req.body;
     const response = await userService.login(request);
-    res.cookie('token', response.token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+    res.cookie('token', response.token, { httpOnly: true, maxAge: 60 * 60 * 1000 });
     res.status(200).json({
       message: 'User logged in successfully',
       data: response,
