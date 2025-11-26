@@ -1,5 +1,5 @@
 'use client';
-import { use, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { CheckCircle, CreditCard, Lock, Building2, Wallet, QrCode, Store, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,11 +9,9 @@ import PaymentDetail from '@/components/payment-detail';
 import OrderSummary from '@/components/order-summary';
 import PaymentSuccessScreen from '@/components/payment-success-screen';
 import Image from 'next/image';
-import { CheckoutOrderType, CreateOrderType } from '@/types/api/order-type';
+import { CreateOrderType } from '@/types/api/order-type';
 import { useCancelOrder, useCreateOrder } from '@/hooks/use-orders';
-import { checkoutOrder } from '@/services/order-api';
 import { toast } from 'sonner';
-import { convertToIDR, usdToIdr } from '@/lib/utils';
 
 export type PaymentMethodType = 'card' | 'bank-transfer' | 'ewallet' | 'qris' | 'convenience-store';
 export type BankOptionType = 'bca' | 'mandiri' | 'bni' | 'bri';
@@ -55,7 +53,12 @@ export default function Checkout(props: CheckoutProps) {
   const [selectedEwallet, setSelectedEwallet] = useState<EwalletOptionType>('gopay');
   const [selectedStore, setSelectedStore] = useState<StoreOptionType>('alfamart');
 
-  const [paymentInfo, setPaymentInfo] = useState<IPaymentInfo | null>(null);
+  useEffect(() => {
+    const orderId = localStorage.getItem('orderId');
+    if (orderId) {
+      setShowPaymentDetails(true);
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -98,7 +101,7 @@ export default function Checkout(props: CheckoutProps) {
     try {
       setIsProcessing(true);
 
-      const { data: resultCreateOrder } = await createOrder({
+      const { data } = await createOrder({
         payment_type,
         product_id: product.id,
         total_amount: total,
@@ -106,7 +109,7 @@ export default function Checkout(props: CheckoutProps) {
         ...(payment_type === 'echannel' && { echannel: { bill_info1: '', bill_info2: '' } }),
         ...(payment_type === 'qris' && { qris: { acquirer: selectedEwallet } }),
       });
-
+      localStorage.setItem('orderId', data.orderId);
       setShowPaymentDetails(true);
     } catch (error) {
       toast.error((error as Error).message);
@@ -117,6 +120,7 @@ export default function Checkout(props: CheckoutProps) {
 
   const handleCompletePayment = () => {
     setIsSuccess(true);
+    localStorage.removeItem('orderId');
   };
 
   const paymentMethods = [
@@ -222,7 +226,7 @@ export default function Checkout(props: CheckoutProps) {
       <PaymentDetail
         onChangePaymentMethod={() => {
           setShowPaymentDetails(false);
-          // cancelOrder('')
+          cancelOrder(localStorage.getItem('orderId') as string);
         }}
         paymentMethod={paymentMethod}
         isProcessing={isProcessing}

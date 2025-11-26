@@ -1,37 +1,63 @@
-import { Order, OrderPayment, OrderStatus } from '../generated/prisma/client';
-import { OrderWhereUniqueInput } from '../generated/prisma/models';
+import { Order, OrderItem, OrderPayment, OrderStatus } from '../generated/prisma/client';
+import { OrderGetPayload, OrderInclude, OrderWhereUniqueInput } from '../generated/prisma/models';
 import { UserRequest } from '../middlewares/auth-middleware';
+import { cancelMidtrans, chargeMidtrans, getStatusMidtrans } from '../utils/midtrans';
 import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
 import orderValidation, {
-  CheckoutType,
   CreateOrderType,
-  ICheckoutOrderSuccessResponse,
   INotificationSampleRequest,
 } from '../validations/order-validation';
 import { validate } from '../validations/validation';
 import { createHash } from 'crypto';
 
-const midtransHeaders = {
-  headers: {
-    'Content-Type': 'application/json',
-    Accept: 'application/json',
-    Authorization: 'Basic ' + Buffer.from(process.env.MIDTRANS_SERVER_KEY + ':').toString('base64'),
-  },
-};
-
-const getStatus = async (transactionIdOrOrderId: string): Promise<{}> => {
+const get = async (
+  transactionIdOrOrderId: string
+): Promise<OrderGetPayload<{ include: { paymentInfo: true } }>> => {
   if (!transactionIdOrOrderId) throw new ResponseError(400, 'Transaction or order id is required');
-  const response = await fetch(`${process.env.MIDTRANS_BASE_URL}/${transactionIdOrOrderId}/status`, {
-    method: 'GET',
-    ...midtransHeaders,
+  const order = await prisma.order.findFirst({
+    where: {
+      OR: [
+        {
+          id: transactionIdOrOrderId,
+        },
+        {
+          paymentInfo: {
+            transactionId: transactionIdOrOrderId,
+          },
+        },
+      ],
+    },
+    select: {
+      id: true,
+      orderStatus: true,
+      items: {
+        select: {
+          productId: true,
+          price: true,
+          quantity: true,
+          subtotal: true,
+        },
+      },
+      paymentInfo: {
+        select: {
+          paymentType: true,
+          transactionTime: true,
+          transactionStatus: true,
+          grossAmount: true,
+          vaNumbers: true,
+          billKey: true,
+          billerCode: true,
+          acquirer: true,
+          actions: true,
+          fraudStatus: true,
+        },
+      },
+    },
   });
 
-  const data = (await response.json()) as ICheckoutOrderSuccessResponse;
-  if (!response.ok || (data.status_code && !['200', '201'].includes(data.status_code))) {
-    throw new ResponseError(parseInt(data.status_code), data.status_message || 'Unknown error');
-  }
-  return data;
+  if (!order) throw new ResponseError(404, 'Order not found');
+  return order as any;
 };
 
 const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
@@ -75,132 +101,96 @@ const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
   return orders.map((order) => ({ ...order, items: order.items.map((item) => item.product) }));
 };
 
-const create = async (user: UserRequest['user'], request: CreateOrderType): Promise<OrderPayment> => {
+const create = async (user: UserRequest['user'], request: CreateOrderType): Promise<{ orderId: string }> => {
   const createOrderRequest = validate(orderValidation.createOrderSchema, request);
 
-  const product = await prisma.product.findUnique({ where: { id: createOrderRequest.product_id } });
+  const product = await prisma.product.findUnique({
+    where: { id: createOrderRequest.product_id },
+  });
 
-  if (!product) throw new ResponseError(401, 'Failed to create order. Product not found.');
+  if (!product) throw new ResponseError(404, 'Failed to create order. Product not found.');
 
-  const order = await prisma.order.create({
-    data: {
-      userId: user!.id,
-      orderStatus: 'PENDING',
-      items: {
-        create: {
-          price: product.price,
-          productId: product.id,
-          quantity: 1,
-          subtotal: product.price * 1,
+  const result = await prisma.$transaction(async (tx) => {
+    const order = await tx.order.create({
+      data: {
+        userId: user!.id,
+        orderStatus: 'PENDING',
+        items: {
+          create: {
+            price: product.price,
+            productId: product.id,
+            quantity: 1,
+            subtotal: product.price,
+          },
         },
       },
-    },
-
-    include: {
-      items: true,
-    },
-  });
-  const checkoutResult = await checkout({
-    payment_type: createOrderRequest.payment_type,
-    transaction_details: {
-      gross_amount: order.items[0].subtotal,
-      order_id: order.id,
-    },
-    ...(createOrderRequest.payment_type === 'bank_transfer' &&
-      createOrderRequest.bank_transfer && {
-        bank_transfer: { bank: createOrderRequest.bank_transfer?.bank },
-      }),
-    ...(createOrderRequest.payment_type === 'echannel' &&
-      createOrderRequest.echannel && { echannel: { bill_info1: 'bill_info_1', bill_info2: 'bill_info_2' } }),
-    ...(createOrderRequest.payment_type === 'qris' &&
-      createOrderRequest.qris && { qris: { acquirer: createOrderRequest.qris?.acquirer } }),
-  });
-  return checkoutResult;
-};
-
-const checkout = async (payload: CheckoutType) => {
-  const checkoutRequest = validate(orderValidation.checkoutSchema, payload);
-  const response = await fetch(`${process.env.MIDTRANS_BASE_URL}/charge`, {
-    method: 'POST',
-    ...midtransHeaders,
-    body: JSON.stringify(checkoutRequest),
-  });
-
-  const data = (await response.json()) as ICheckoutOrderSuccessResponse;
-
-  if (!response.ok || (data.status_code && !['200', '201'].includes(data.status_code))) {
-    await prisma.order.update({
-      where: { id: data.order_id || checkoutRequest.transaction_details.order_id },
-      data: { orderStatus: 'FAILED' },
+      include: { items: true },
     });
-    throw new ResponseError(
-      parseInt(data.status_code as string),
-      `Midtrans charge failed: ${data.status_message || 'Unknown error'}`
-    );
-  }
 
-  const orderPayment = await prisma.orderPayment.create({
-    data: {
-      orderId: data.order_id,
-      transactionId: data.transaction_id,
-      midtransOrderId: data.order_id,
-      grossAmount: data.gross_amount,
-      paymentType: data.payment_type,
-      transactionTime: new Date(data.transaction_time),
-      transactionStatus: data.transaction_status,
-      ...(data.va_numbers && {
-        vaNumbers: {
-          bank: data.va_numbers[0].bank,
-          va_number: data.va_numbers[0].va_number,
-        },
-      }),
-      ...(data.bill_key && { billKey: data.bill_key }),
-      ...(data.bill_code && { billerCode: data.bill_code }),
-      ...(data.acquirer && { acquirer: data.acquirer }),
-      ...(data.actions && {
-        actions: {
-          name: data.actions[0].name,
-          method: data.actions[0].method,
-          url: data.actions[0].url,
-        },
-      }),
-      ...(data.fraud_status && { fraudStatus: data.fraud_status }),
-    },
-    omit: {
-      vaNumbers: !data.va_numbers,
-      billKey: !data.bill_key,
-      billerCode: !data.bill_code,
-      acquirer: !data.acquirer,
-      actions: !data.actions,
-      expiryTime: !data.expiry_time || !(data as any).expire_time,
-      fraudStatus: !data.fraud_status,
-    },
+    const midtransData = await chargeMidtrans(createOrderRequest, order);
+
+    if (!midtransData) throw new ResponseError(500, 'Midtrans response invalid.');
+
+    const orderPayment = await tx.orderPayment.create({
+      data: {
+        orderId: midtransData.order_id,
+        transactionId: midtransData.transaction_id,
+        midtransOrderId: midtransData.order_id,
+        grossAmount: midtransData.gross_amount,
+        paymentType: midtransData.payment_type,
+        transactionTime: new Date(midtransData.transaction_time),
+        transactionStatus: midtransData.transaction_status,
+
+        ...(midtransData.va_numbers && {
+          vaNumbers: {
+            bank: midtransData.va_numbers[0].bank,
+            va_number: midtransData.va_numbers[0].va_number,
+          },
+        }),
+
+        ...(midtransData.bill_key && { billKey: midtransData.bill_key }),
+        ...(midtransData.bill_code && { billerCode: midtransData.bill_code }),
+        ...(midtransData.acquirer && { acquirer: midtransData.acquirer }),
+        ...(midtransData.actions && {
+          actions: {
+            name: midtransData.actions[0].name,
+            method: midtransData.actions[0].method,
+            url: midtransData.actions[0].url,
+          },
+        }),
+        ...(midtransData.fraud_status && {
+          fraudStatus: midtransData.fraud_status,
+        }),
+      },
+      select: {
+        orderId: true,
+      },
+    });
+
+    return orderPayment;
   });
-  return orderPayment;
+
+  return result;
 };
 
 const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
   if (!transactionIdOrOrderId) throw new ResponseError(400, 'Transaction or order id is required');
-  const response = await fetch(`${process.env.MIDTRANS_BASE_URL}/${transactionIdOrOrderId}/cancel`, {
-    method: 'POST',
-    ...midtransHeaders,
-  });
+  await prisma.$transaction(async (tx) => {
+    const midtransData = await cancelMidtrans(transactionIdOrOrderId);
 
-  const data = (await response.json()) as ICheckoutOrderSuccessResponse;
-  if (!response.ok || (data.status_code && !['200', '201'].includes(data.status_code))) {
-    throw new ResponseError(parseInt(data.status_code), data.status_message || 'Unknown error');
-  }
+    if (!midtransData) throw new ResponseError(500, 'Midtrans response invalid.');
 
-  await prisma.order.update({
-    where: { id: data.order_id },
-    data: {
-      orderStatus: 'FAILED',
-      paymentInfo: {
-        update: {
-          transactionStatus: 'cancel',
+    await tx.order.update({
+      where: { id: midtransData.order_id },
+      data: {
+        orderStatus: 'FAILED',
+        paymentInfo: {
+          update: {
+            transactionStatus: 'cancel',
+          },
         },
       },
-    },
+    });
   });
 };
 
@@ -217,8 +207,7 @@ const paymentNotificationHandler = async (
     .digest('hex');
 
   if (signature_key !== validSignature) {
-    console.log('❌ Invalid signature');
-    return { status: 200, message: 'Invalid signature' };
+    return { status: 400, message: 'Invalid signature' };
   }
 
   const order = await prisma.order.findUnique({
@@ -227,22 +216,25 @@ const paymentNotificationHandler = async (
   });
 
   if (!order) {
-    console.log('❌ Order not found:', order_id);
     return { status: 200, message: 'Order not found' };
   }
 
   const updatePaymentStatus = async (status: string) => {
-    await prisma.order.update({
-      where: { id: order_id },
-      data: {
-        orderStatus: status as OrderStatus,
-        paymentInfo: {
-          update: {
-            transactionStatus: transaction_status,
+    try {
+      await prisma.order.update({
+        where: { id: order_id },
+        data: {
+          orderStatus: status as OrderStatus,
+          paymentInfo: {
+            update: {
+              transactionStatus: transaction_status,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (error) {
+      return { status: 400, message: 'Error updating payment status' };
+    }
   };
 
   switch (transaction_status) {
@@ -253,20 +245,18 @@ const paymentNotificationHandler = async (
       break;
 
     case 'settlement':
-      console.log('✅ Pembayaran berhasil');
       await updatePaymentStatus('PAID');
       break;
 
     case 'pending':
-      console.log('⏳ Menunggu pembayaran');
-      if (order.orderStatus === 'PENDING') return { status: 200, message: 'OK' };
-      await updatePaymentStatus('PENDING');
+      if (order.orderStatus !== 'PENDING') {
+        await updatePaymentStatus('PENDING');
+      }
       break;
 
     case 'deny':
     case 'cancel':
     case 'expire':
-      console.log('❌ Pembayaran gagal');
       await updatePaymentStatus('FAILED');
       break;
 
@@ -278,4 +268,4 @@ const paymentNotificationHandler = async (
   return { status: 200, message: 'OK' };
 };
 
-export default { getStatus, getAll, create, checkout, cancel, paymentNotificationHandler };
+export default { get, getAll, create, cancel, paymentNotificationHandler };

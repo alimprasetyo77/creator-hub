@@ -1,4 +1,5 @@
 import z from 'zod';
+import { OrderGetPayload } from '../generated/prisma/models';
 
 const createOrderSchema = z
   .object({
@@ -130,3 +131,10 @@ export interface INotificationSampleRequest {
   merchant_cross_reference_id: string;
   issuer: string;
 }
+
+export type OrderWithRelations = OrderGetPayload<{
+  include: {
+    items: true;
+    paymentInfo: true;
+  };
+}>;

@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 import orderServices from '../services/order-services';
 import { UserRequest } from '../middlewares/auth-middleware';
 
-const getStatus = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+const get = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const request = req.params.transactionOrOrderId;
-    const response = await orderServices.getStatus(request);
+    const response = await orderServices.get(request);
     res.status(200).json({
       message: 'Get status successfully',
       data: response,
@@ -65,4 +65,4 @@ const paymentNotificationHandler = async (req: Request, res: Response, next: Nex
   }
 };
 
-export default { getStatus, getAll, create, cancel, paymentNotificationHandler };
+export default { get, getAll, create, cancel, paymentNotificationHandler };

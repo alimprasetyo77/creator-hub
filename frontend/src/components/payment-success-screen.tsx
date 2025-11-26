@@ -19,11 +19,11 @@ export default function PaymentSuccessScreen({ productTitle }: { productTitle: s
           <div className='space-y-3'>
             <Button
               className='w-full bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
-              onClick={() => redirect('buyer-dashboard')}
+              onClick={() => redirect('/my-purchases')}
             >
               View My Purchases
             </Button>
-            <Button variant='outline' className='w-full' onClick={() => redirect('marketplace')}>
+            <Button variant='outline' className='w-full' onClick={() => redirect('/explore')}>
               Continue Shopping
             </Button>
           </div>

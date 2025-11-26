@@ -1,3 +1,4 @@
+'use client';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Building2, Copy, CreditCard, QrCode, Store, Wallet } from 'lucide-react';
@@ -7,6 +8,7 @@ import { Input } from './ui/input';
 import { convertToIDR } from '@/lib/utils';
 import { Badge } from './ui/badge';
 import { toast } from 'sonner';
+import { useOrder } from '@/hooks/use-orders';
 
 interface PaymentDetailProps {
   onChangePaymentMethod: () => void;
@@ -25,6 +27,13 @@ export default function PaymentDetail({
   selectedMethodPaymentInfo,
   total,
 }: PaymentDetailProps) {
+  const { order } = useOrder(localStorage.getItem('orderId') as string);
+
+  if (order?.orderStatus === 'PAID') {
+    handleCompletePayment();
+    return;
+  }
+
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -33,6 +42,7 @@ export default function PaymentDetail({
       toast.error('Failed to copy to clipboard');
     }
   };
+
   return (
     <div className='min-h-screen bg-linear-to-b from-blue-50 to-white py-8 md:py-12'>
       <div className='container mx-auto px-4 md:px-6'>
@@ -52,7 +62,7 @@ export default function PaymentDetail({
             {/* Payment Instructions */}
             <div className='lg:col-span-2  space-y-6'>
               {/* Card Payment */}
-              {paymentMethod === 'card' && (
+              {order?.paymentInfo.paymentType === 'card' && (
                 <Card className='border-none shadow-sm'>
                   <CardHeader>
                     <CardTitle className='flex items-center gap-2'>
@@ -109,12 +119,12 @@ export default function PaymentDetail({
               )}
 
               {/* Bank Transfer */}
-              {paymentMethod === 'bank-transfer' && selectedMethodPaymentInfo && (
+              {order?.paymentInfo.paymentType === 'bank_transfer' && (
                 <Card className='border-none shadow-sm'>
                   <CardHeader>
                     <CardTitle className='flex items-center gap-2'>
-                      <Building2 className='h-5 w-5' />
-                      Bank Transfer - {selectedMethodPaymentInfo.name}
+                      <Building2 className='h-5 w-5 ' />
+                      Bank Transfer - {order.paymentInfo.vaNumbers.bank.toUpperCase()}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className='space-y-6'>
@@ -125,18 +135,20 @@ export default function PaymentDetail({
                         <div>
                           <Label className='text-xs text-muted-foreground'>Bank Name</Label>
                           <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
-                            <span className='font-medium'>{selectedMethodPaymentInfo.name}</span>
+                            <span className='font-medium capitalize'>
+                              {order.paymentInfo.vaNumbers.bank.toUpperCase()}
+                            </span>
                           </div>
                         </div>
 
                         <div>
                           <Label className='text-xs text-muted-foreground'>Account Number</Label>
                           <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
-                            <span className='font-mono'>{selectedMethodPaymentInfo.accountNumber}</span>
+                            <span className='font-mono'>{order.paymentInfo.vaNumbers.va_number}</span>
                             <Button
                               size='sm'
                               variant='ghost'
-                              onClick={() => copyToClipboard(selectedMethodPaymentInfo.accountNumber)}
+                              onClick={() => copyToClipboard(order.paymentInfo.vaNumbers.va_number)}
                             >
                               <Copy className='h-4 w-4' />
                             </Button>
@@ -146,18 +158,20 @@ export default function PaymentDetail({
                         <div>
                           <Label className='text-xs text-muted-foreground'>Account Name</Label>
                           <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
-                            <span className='font-medium'>{selectedMethodPaymentInfo.accountName}</span>
+                            <span className='font-medium capitalize'>{'Creator Hub Indonesia'}</span>
                           </div>
                         </div>
 
                         <div>
                           <Label className='text-xs text-muted-foreground'>Transfer Amount</Label>
                           <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
-                            <span className='text-2xl font-bold text-blue-600'>{convertToIDR(total)}</span>
+                            <span className='text-2xl font-bold text-blue-600'>
+                              {order.paymentInfo.grossAmount}
+                            </span>
                             <Button
                               size='sm'
                               variant='ghost'
-                              onClick={() => copyToClipboard(convertToIDR(total).replace('Rp', ''))}
+                              onClick={() => copyToClipboard(order.paymentInfo.grossAmount)}
                             >
                               <Copy className='h-4 w-4' />
                             </Button>

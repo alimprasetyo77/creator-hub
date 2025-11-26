@@ -83,6 +83,32 @@ export type CreateOrderType = z.infer<typeof createOrderSchema>;
 export type CheckoutOrderType = z.infer<typeof checkoutOrderSchema>;
 export default { createOrderSchema, checkoutOrderSchema };
 
+export type IOrder = {
+  id: string;
+  orderStatus: string;
+  items: Array<{
+    productId: string;
+    price: number;
+    quantity: number;
+    subtotal: number;
+  }>;
+  paymentInfo: {
+    paymentType: string;
+    transactionTime: string;
+    transactionStatus: string;
+    grossAmount: string;
+    vaNumbers: {
+      bank: string;
+      va_number: string;
+    };
+    billKey: any;
+    billerCode: any;
+    acquirer: any;
+    actions: any;
+    fraudStatus: string;
+  };
+};
+
 export interface ICreateOrderSuccessResponse {
   id: string;
   userId: string;
