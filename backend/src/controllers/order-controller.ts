@@ -59,7 +59,7 @@ const paymentNotificationHandler = async (req: Request, res: Response, next: Nex
   try {
     const request = req.body;
     const response = await orderServices.paymentNotificationHandler(request);
-    res.status(response.status).json({ message: 'OK', status_code: response.status });
+    res.status(response.status).json(response);
   } catch (error) {
     next(error);
   }

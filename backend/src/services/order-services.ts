@@ -206,7 +206,7 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
 
 const paymentNotificationHandler = async (
   notification: Partial<INotificationSampleRequest>
-): Promise<{ status: number }> => {
+): Promise<{ status: number; message: string }> => {
   const { order_id, status_code, gross_amount, signature_key, transaction_status, fraud_status } =
     notification;
 
@@ -217,8 +217,8 @@ const paymentNotificationHandler = async (
     .digest('hex');
 
   if (signature_key !== validSignature) {
-    console.log('❌ Signature tidak valid');
-    return { status: 400 };
+    console.log('❌ Invalid signature');
+    return { status: 200, message: 'Invalid signature' };
   }
 
   const order = await prisma.order.findUnique({
@@ -226,8 +226,8 @@ const paymentNotificationHandler = async (
   });
 
   if (!order) {
-    console.log('❌ Order tidak ditemukan:', order_id);
-    return { status: 200 };
+    console.log('❌ Order not found:', order_id);
+    return { status: 200, message: 'Order not found' };
   }
 
   const updatePaymentStatus = async (status: string) => {
@@ -274,7 +274,7 @@ const paymentNotificationHandler = async (
       break;
   }
 
-  return { status: 200 };
+  return { status: 200, message: 'OK' };
 };
 
 export default { getStatus, getAll, create, checkout, cancel, paymentNotificationHandler };
