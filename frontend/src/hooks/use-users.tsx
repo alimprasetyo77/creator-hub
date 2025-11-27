@@ -2,7 +2,7 @@ import { ProfileType, IUser, ChangePasswordType } from '@/types/api/user-type';
 import { IResponse } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { changePassword, deleteUser, getUser, updateUser } from '@/services/user-api';
+import { changePassword, deleteUser, getMyPurchases, getUser, updateUser } from '@/services/user-api';
 import { toast } from 'sonner';
 
 interface IOptionsProps {
@@ -11,6 +11,19 @@ interface IOptionsProps {
   enabled?: boolean;
 }
 
+export const useMyPurchases = () => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['my-purchases'],
+    queryFn: () => getMyPurchases(),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  return {
+    myPurchases: data?.data,
+    isLoading,
+    error,
+  };
+};
 export const useGetUser = (options?: IOptionsProps) => {
   const { data, isLoading, error } = useQuery<IResponse<IUser>, AxiosError>({
     queryKey: ['user'],

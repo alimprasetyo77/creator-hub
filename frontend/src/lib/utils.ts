@@ -25,12 +25,12 @@ export const checkProperty = (property: any) => {
   return false;
 };
 
-export const convertToIDR = (value: number) => {
+export const formatIDR = (value: number) => {
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     maximumFractionDigits: 0,
-  }).format(value * 16500);
+  }).format(value);
 };
 
 /**
@@ -46,4 +46,11 @@ export function usdToIdr(usd: number, rate = 16500): number {
   const idr = Math.round((usdInCents * rate) / 100);
 
   return idr; // hasil integer siap kirim ke Midtrans
+}
+
+export function getDiffSeconds(startTime: string, endTime: string) {
+  const start = new Date(startTime) as unknown as number;
+  const end = new Date(endTime) as unknown as number;
+
+  return Math.max(0, Math.floor((end - start) / 1000));
 }

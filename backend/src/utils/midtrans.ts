@@ -39,8 +39,9 @@ const chargeMidtrans = async (
     ...(createOrderRequest.payment_type === 'echannel' &&
       createOrderRequest.echannel && {
         echannel: {
-          bill_info1: 'bill_info_1',
-          bill_info2: 'bill_info_2',
+          bill_info1: createOrderRequest.echannel.bill_info1,
+          bill_info2: createOrderRequest.echannel.bill_info2,
+          bill_key: createOrderRequest.echannel.bill_key,
         },
       }),
     ...(createOrderRequest.payment_type === 'qris' &&
@@ -48,7 +49,7 @@ const chargeMidtrans = async (
         qris: { acquirer: createOrderRequest.qris.acquirer },
       }),
   };
-
+  console.log(payload);
   const response = await fetch(`${process.env.MIDTRANS_BASE_URL}/charge`, {
     method: 'POST',
     ...midtransHeaders,

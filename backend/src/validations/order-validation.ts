@@ -15,6 +15,7 @@ const createOrderSchema = z
       .object({
         bill_info1: z.string().optional(),
         bill_info2: z.string().optional(),
+        bill_key: z.string().optional(),
       })
       .optional(),
     qris: z
@@ -94,7 +95,7 @@ export interface ICheckoutOrderSuccessResponse {
   fraud_status: string;
   currency: string;
   bill_key: string;
-  bill_code: string;
+  biller_code: string;
   acquirer: string;
   actions: any;
   expiry_time: string;

@@ -95,4 +95,17 @@ const remove = async (req: UserRequest, res: Response, next: NextFunction): Prom
   }
 };
 
-export default { register, login, get, update, remove, logout, changePassword };
+const getMyPurchases = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const response = await userService.getMyPurchases(user);
+    res.status(200).json({
+      message: 'Get my purchases successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default { register, login, get, update, remove, logout, changePassword, getMyPurchases };

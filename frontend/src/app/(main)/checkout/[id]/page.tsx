@@ -1,6 +1,6 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import { CheckCircle, CreditCard, Lock, Building2, Wallet, QrCode, Store, ChevronRight } from 'lucide-react';
+import { CheckCircle, Lock, Building2, Wallet, QrCode, Store, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useGetProduct } from '@/hooks/use-products';
@@ -21,46 +21,26 @@ export type StoreOptionType = 'alfamart' | 'indomaret';
 interface CheckoutProps {
   params: Promise<{ id: string }>;
 }
-interface IPaymentInfo {
-  bankInfo?: {
-    bank: BankOptionType;
-    va_number: string;
-  };
-  ewalletInfo?: {
-    ewallet: string;
-    ewallet_number: string;
-  };
-  qrisInfo?: {
-    qris: string;
-    qris_number: string;
-  };
-  storeInfo?: {
-    store: string;
-    store_number: string;
-  };
-}
 export default function Checkout(props: CheckoutProps) {
   const { id } = use(props.params);
   const router = useRouter();
-  const { product, isLoading } = useGetProduct({ id });
-  const { createOrder } = useCreateOrder();
+  const { product, isLoading: isLoadingProduct } = useGetProduct({ id });
+  const { createOrder, isPending } = useCreateOrder();
   const { cancelOrder } = useCancelOrder();
-  const [isProcessing, setIsProcessing] = useState(false);
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('card');
   const [selectedBank, setSelectedBank] = useState<BankOptionType>('bca');
-  const [selectedEwallet, setSelectedEwallet] = useState<EwalletOptionType>('gopay');
   const [selectedStore, setSelectedStore] = useState<StoreOptionType>('alfamart');
 
   useEffect(() => {
-    const orderId = localStorage.getItem('orderId');
-    if (orderId) {
+    const savedId = localStorage.getItem('orderId');
+    if (savedId) {
       setShowPaymentDetails(true);
     }
   }, []);
 
-  if (isLoading) {
+  if (isLoadingProduct) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
         <div className='text-center'>
@@ -69,7 +49,8 @@ export default function Checkout(props: CheckoutProps) {
       </div>
     );
   }
-  if (!id || !product) {
+
+  if (!product) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
         <div className='text-center'>
@@ -99,49 +80,50 @@ export default function Checkout(props: CheckoutProps) {
     }
 
     try {
-      setIsProcessing(true);
-
       const { data } = await createOrder({
         payment_type,
         product_id: product.id,
-        total_amount: total,
         ...(payment_type === 'bank_transfer' && { bank_transfer: { bank: selectedBank } }),
-        ...(payment_type === 'echannel' && { echannel: { bill_info1: '', bill_info2: '' } }),
-        ...(payment_type === 'qris' && { qris: { acquirer: selectedEwallet } }),
+        ...(payment_type === 'echannel' && {
+          echannel: {
+            bill_info1: `Payment for : ${product.title}`,
+            bill_info2: 'debt',
+            bill_key: '081211111111',
+          },
+        }),
+        ...(payment_type === 'qris' && { qris: { acquirer: 'gopay' } }),
       });
       localStorage.setItem('orderId', data.orderId);
       setShowPaymentDetails(true);
     } catch (error) {
       toast.error((error as Error).message);
-    } finally {
-      setIsProcessing(false);
     }
+  };
+  const handleExpirePayment = () => {
+    toast('QR Code expired, please try again.');
+    localStorage.removeItem('orderId');
+    setShowPaymentDetails(false);
   };
 
   const handleCompletePayment = () => {
+    localStorage.removeItem('orderId');
     setIsSuccess(true);
+  };
+
+  const onChangePaymentMethod = () => {
+    setShowPaymentDetails(false);
+    cancelOrder(localStorage.getItem('orderId') as string);
     localStorage.removeItem('orderId');
   };
 
   const paymentMethods = [
-    {
-      id: 'card' as PaymentMethodType,
-      name: 'Credit/Debit Card',
-      description: 'Visa, Mastercard, Amex',
-      icon: <CreditCard className='h-5 w-5' />,
-    },
     {
       id: 'bank-transfer' as PaymentMethodType,
       name: 'Bank Transfer',
       description: 'BCA, Mandiri, BNI, BRI',
       icon: <Building2 className='h-5 w-5' />,
     },
-    {
-      id: 'ewallet' as PaymentMethodType,
-      name: 'E-Wallet',
-      description: 'GoPay, OVO, DANA, ShopeePay',
-      icon: <Wallet className='h-5 w-5' />,
-    },
+
     {
       id: 'qris' as PaymentMethodType,
       name: 'QRIS',
@@ -179,66 +161,30 @@ export default function Checkout(props: CheckoutProps) {
     },
   ];
 
-  const ewalletOptions = [
-    {
-      id: 'gopay',
-      name: 'GoPay',
-      logo: '💚',
-      phoneNumber: '+62 812-3456-7890',
-    },
-    {
-      id: 'ovo',
-      name: 'OVO',
-      logo: '💜',
-      phoneNumber: '+62 812-3456-7891',
-    },
-    {
-      id: 'dana',
-      name: 'DANA',
-      logo: '💙',
-      phoneNumber: '+62 812-3456-7892',
-    },
-    {
-      id: 'shopeepay',
-      name: 'ShopeePay',
-      logo: '🧡',
-      phoneNumber: '+62 812-3456-7893',
-    },
-  ];
-
   const storeOptions = [
     { id: 'alfamart', name: 'Alfamart', logo: '🏪' },
     { id: 'indomaret', name: 'Indomaret', logo: '🏪' },
   ];
 
-  // Success Screen
   if (isSuccess) {
     return <PaymentSuccessScreen productTitle={product.title} />;
   }
 
-  // Payment Details Screen
   if (showPaymentDetails) {
-    const selectedBankInfo = bankOptions.find((b) => b.id === selectedBank);
-    const selectedEwalletInfo = ewalletOptions.find((e) => e.id === selectedEwallet);
-    const selectedStoreInfo = storeOptions.find((s) => s.id === selectedStore);
-
     return (
       <PaymentDetail
-        onChangePaymentMethod={() => {
-          setShowPaymentDetails(false);
-          cancelOrder(localStorage.getItem('orderId') as string);
-        }}
-        paymentMethod={paymentMethod}
-        isProcessing={isProcessing}
+        onChangePaymentMethod={onChangePaymentMethod}
         handleCompletePayment={handleCompletePayment}
-        selectedMethodPaymentInfo={
-          paymentMethod === 'bank-transfer'
-            ? selectedBankInfo
-            : paymentMethod === 'ewallet'
-            ? selectedEwalletInfo
-            : selectedStoreInfo
-        }
-        total={total}
+        handleExpirePayment={handleExpirePayment}
+        paymentLogo={{
+          bank: bankOptions.map((option) => ({
+            [option.id]: option.logo,
+          })),
+
+          store: storeOptions.map((option) => ({
+            [option.id]: option.logo,
+          })),
+        }}
       />
     );
   }
@@ -335,36 +281,6 @@ export default function Checkout(props: CheckoutProps) {
                 </Card>
               )}
 
-              {/* E-Wallet Selection */}
-              {paymentMethod === 'ewallet' && (
-                <Card className='border-none shadow-sm'>
-                  <CardHeader>
-                    <CardTitle>Select E-Wallet</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className='grid grid-cols-2 gap-3'>
-                      {ewalletOptions.map((ewallet) => (
-                        <button
-                          key={ewallet.id}
-                          onClick={() => setSelectedEwallet(ewallet.id as EwalletOptionType)}
-                          className={`flex items-center gap-3 rounded-lg border-2 p-4 transition-all hover:border-blue-300 ${
-                            selectedEwallet === ewallet.id
-                              ? 'border-blue-600 bg-linear-to-br from-blue-50 to-purple-50'
-                              : 'border-border bg-white'
-                          }`}
-                        >
-                          <span className='text-2xl'>{ewallet.logo}</span>
-                          <span className='font-medium'>{ewallet.name}</span>
-                          {selectedEwallet === ewallet.id && (
-                            <CheckCircle className='ml-auto h-4 w-4 text-blue-600' />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
               {/* Store Selection */}
               {paymentMethod === 'convenience-store' && (
                 <Card className='border-none shadow-sm'>
@@ -411,8 +327,9 @@ export default function Checkout(props: CheckoutProps) {
                 onClick={handleProceedPayment}
                 className='w-full bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
                 size='lg'
+                disabled={isPending}
               >
-                Proceed to Payment
+                {isPending ? 'Processing...' : 'Proceed to Payment'}
                 <ChevronRight className='ml-2 h-5 w-5' />
               </Button>
             </div>

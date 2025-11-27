@@ -8,7 +8,6 @@ import jwt from 'jsonwebtoken';
 import { UserRequest } from '../middlewares/auth-middleware';
 import { supabase } from '../utils/supabase-client';
 import fs from 'fs';
-import { Order, OrderItem } from '../generated/prisma/client';
 
 const register = async (request: RegisterType): Promise<void> => {
   const registerRequest = validate(userValidation.registerSchema, request);
@@ -172,4 +171,68 @@ const remove = async (user: UserRequest['user']): Promise<void> => {
   });
 };
 
-export default { register, login, get, update, remove, logout, changePassword };
+const getMyPurchases = async (user: UserRequest['user']): Promise<{}> => {
+  const orders = await prisma.order.findMany({
+    where: {
+      userId: user?.id,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      id: true,
+      orderStatus: true,
+      createdAt: true,
+      items: {
+        select: {
+          product: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              price: true,
+              thumbnail: true,
+              slug: true,
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              user: {
+                select: { avatar: true, full_name: true },
+              },
+            },
+          },
+        },
+      },
+      paymentInfo: {
+        select: {
+          grossAmount: true,
+          paymentType: true,
+          vaNumbers: true,
+          transactionStatus: true,
+        },
+      },
+    },
+  });
+
+  const response = {
+    totalPurchases: orders.length,
+    totalSpent: orders.reduce((total, order) => {
+      if (!order.paymentInfo?.grossAmount) return total;
+      return total + +order.paymentInfo?.grossAmount;
+    }, 0),
+    lastPurchase: orders[0].createdAt || null,
+    orders: orders.map((order) => ({
+      id: order.id,
+      orderStatus: order.orderStatus.toLowerCase(),
+      createdAt: order.createdAt,
+      items: order.items.map((item) => item.product),
+      paymentInfo: order.paymentInfo,
+    })),
+  };
+  return response;
+};
+
+export default { register, login, get, update, remove, logout, changePassword, getMyPurchases };

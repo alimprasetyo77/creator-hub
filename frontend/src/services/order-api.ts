@@ -1,10 +1,4 @@
-import {
-  CheckoutOrderType,
-  CreateOrderType,
-  ICheckoutSuccessResponse,
-  ICreateOrderSuccessResponse,
-  IOrder,
-} from '@/types/api/order-type';
+import { CreateOrderType, IOrder } from '@/types/api/order-type';
 import axiosWithConfig from '../lib/axios-config';
 import { IResponse } from '@/types';
 import { isAxiosError } from 'axios';
@@ -42,7 +36,7 @@ const createOrder = async (body: CreateOrderType) => {
 const cancelOrder = async (transactionIdOrOrderId: string) => {
   try {
     if (!transactionIdOrOrderId) throw new Error('Transaction or order id is required');
-    const response = await axiosWithConfig.delete(`/api/orders/cancel/${transactionIdOrOrderId}`);
+    const response = await axiosWithConfig.post(`/api/orders/cancel/${transactionIdOrOrderId}`);
     return response.data as IResponse<{}>;
   } catch (error) {
     if (isAxiosError(error) && error.code === 'ERR_NETWORK') {

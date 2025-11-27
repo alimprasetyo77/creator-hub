@@ -1,24 +1,31 @@
 import { cancelOrder, createOrder, getOrder } from '@/services/order-api';
 import { CreateOrderType } from '@/types/api/order-type';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-export const useOrder = (orderId: string) => {
+type OrderResponse = Awaited<ReturnType<typeof getOrder>>;
+
+export function useOrder(
+  orderId: string,
+  options?: Omit<UseQueryOptions<OrderResponse, Error, OrderResponse, any[]>, 'queryKey' | 'queryFn'>
+): {
+  order: OrderResponse['data'] | undefined;
+  isLoading: boolean;
+} {
   const { data, isLoading } = useQuery({
     queryKey: ['orders', orderId],
     queryFn: () => getOrder(orderId),
-    staleTime: 1000 * 60,
-    refetchOnWindowFocus: false,
     enabled: !!orderId,
+    refetchOnWindowFocus: false,
     retry: false,
-    refetchInterval: 1000 * 60,
+    ...options,
   });
 
   return {
     order: data?.data,
     isLoading,
   };
-};
+}
 
 export const useCreateOrder = () => {
   const queryClient = useQueryClient();

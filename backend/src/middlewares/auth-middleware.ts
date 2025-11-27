@@ -24,8 +24,15 @@ export const authMiddleware = async (req: UserRequest, res: Response, next: Next
           token: token,
         },
       },
-      omit: {
-        password: true,
+      select: {
+        id: true,
+        full_name: true,
+        email: true,
+        role: true,
+        avatar: true,
+        token: true,
+        created_at: true,
+        balance: true,
       },
     });
 

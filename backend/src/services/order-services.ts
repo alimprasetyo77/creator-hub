@@ -31,9 +31,31 @@ const get = async (
     select: {
       id: true,
       orderStatus: true,
+      createdAt: true,
       items: {
         select: {
-          productId: true,
+          product: {
+            select: {
+              id: true,
+              title: true,
+              description: true,
+              price: true,
+              thumbnail: true,
+              slug: true,
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+              user: {
+                select: {
+                  avatar: true,
+                  full_name: true,
+                },
+              },
+            },
+          },
           price: true,
           quantity: true,
           subtotal: true,
@@ -51,6 +73,7 @@ const get = async (
           acquirer: true,
           actions: true,
           fraudStatus: true,
+          expiryTime: true,
         },
       },
     },
@@ -149,7 +172,7 @@ const create = async (user: UserRequest['user'], request: CreateOrderType): Prom
         }),
 
         ...(midtransData.bill_key && { billKey: midtransData.bill_key }),
-        ...(midtransData.bill_code && { billerCode: midtransData.bill_code }),
+        ...(midtransData.biller_code && { billerCode: midtransData.biller_code }),
         ...(midtransData.acquirer && { acquirer: midtransData.acquirer }),
         ...(midtransData.actions && {
           actions: {
@@ -160,6 +183,9 @@ const create = async (user: UserRequest['user'], request: CreateOrderType): Prom
         }),
         ...(midtransData.fraud_status && {
           fraudStatus: midtransData.fraud_status,
+        }),
+        ...(midtransData.expiry_time && {
+          expiryTime: new Date(midtransData.expiry_time),
         }),
       },
       select: {

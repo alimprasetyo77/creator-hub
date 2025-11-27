@@ -3,7 +3,6 @@ import z from 'zod';
 const createOrderSchema = z
   .object({
     payment_type: z.enum(['echannel', 'bank_transfer', 'qris']),
-    total_amount: z.number().min(1, 'Amount must be greater than 0'),
     product_id: z.uuid({ error: 'Invalid product id' }).nonempty('Product id is required'),
     bank_transfer: z
       .object({
@@ -14,6 +13,7 @@ const createOrderSchema = z
       .object({
         bill_info1: z.string().optional(),
         bill_info2: z.string().optional(),
+        bill_key: z.string().optional(),
       })
       .optional(),
     qris: z
@@ -59,35 +59,30 @@ const createOrderSchema = z
     }
   });
 
-const checkoutOrderSchema = createOrderSchema
-  .omit({
-    total_amount: true,
-    product_id: true,
-  })
-  .extend({
-    transaction_details: z.object({
-      gross_amount: z.number(),
-      order_id: z.string(),
-    }),
-    // item_details: z.array(
-    //   z.object({
-    //     id: z.string(),
-    //     price: z.number(),
-    //     quantity: z.number(),
-    //     name: z.string(),
-    //   })
-    // ),
-  });
-
 export type CreateOrderType = z.infer<typeof createOrderSchema>;
-export type CheckoutOrderType = z.infer<typeof checkoutOrderSchema>;
-export default { createOrderSchema, checkoutOrderSchema };
+export default { createOrderSchema };
 
-export type IOrder = {
+export interface IOrder {
   id: string;
   orderStatus: string;
+  createdAt: string;
   items: Array<{
-    productId: string;
+    product: {
+      id: string;
+      title: string;
+      description: string;
+      price: number;
+      thumbnail: string;
+      slug: string;
+      category: {
+        id: string;
+        name: string;
+      };
+      user: {
+        avatar: string;
+        full_name: string;
+      };
+    };
     price: number;
     quantity: number;
     subtotal: number;
@@ -106,8 +101,9 @@ export type IOrder = {
     acquirer: any;
     actions: any;
     fraudStatus: string;
+    expiryTime: any;
   };
-};
+}
 
 export interface ICreateOrderSuccessResponse {
   id: string;

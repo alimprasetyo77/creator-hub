@@ -56,3 +56,39 @@ export interface IUser {
   token: string;
   created_at: Date;
 }
+
+export type IMyPurchases = {
+  totalPurchases: number;
+  totalSpent: number;
+  lastPurchase: string;
+  orders: Array<{
+    id: string;
+    orderStatus: string;
+    createdAt: string;
+    items: Array<{
+      id: string;
+      title: string;
+      description: string;
+      price: number;
+      thumbnail: string;
+      slug: string;
+      category: {
+        id: string;
+        name: string;
+      };
+      user: {
+        avatar: string;
+        full_name: string;
+      };
+    }>;
+    paymentInfo: {
+      grossAmount: string;
+      paymentType: string;
+      vaNumbers: {
+        bank: string;
+        va_number: string;
+      };
+      transactionStatus: string;
+    };
+  }>;
+};

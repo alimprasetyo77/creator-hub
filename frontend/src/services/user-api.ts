@@ -1,6 +1,6 @@
 import axiosWithConfig from '../lib/axios-config';
 import { IResponse } from '../types';
-import { ChangePasswordType, IUser, ProfileType } from '../types/api/user-type';
+import { ChangePasswordType, IMyPurchases, IUser, ProfileType } from '../types/api/user-type';
 import { AxiosError } from 'axios';
 import { checkProperty } from '../lib/utils';
 
@@ -18,7 +18,20 @@ const getUser = async () => {
     throw Error('An unexpected error occurred');
   }
 };
-
+const getMyPurchases = async () => {
+  try {
+    const response = await axiosWithConfig.get('/api/users/my-purchases');
+    return response.data as IResponse<IMyPurchases>;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (error instanceof AxiosError && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
 const updateUser = async (data: ProfileType) => {
   try {
     const formData = new FormData();
@@ -70,4 +83,4 @@ const deleteUser = async () => {
     throw Error('An unexpected error occurred');
   }
 };
-export { getUser, updateUser, changePassword, deleteUser };
+export { getUser, getMyPurchases, updateUser, changePassword, deleteUser };
