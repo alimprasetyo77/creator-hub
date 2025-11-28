@@ -53,3 +53,13 @@ export type LoginType = z.infer<typeof loginSchema>;
 export type UpdateUserType = z.infer<typeof updateSchema>;
 
 export default { registerSchema, loginSchema, updateSchema, changePasswordSchema };
+
+export interface IQueryMyPurchases {
+  page: string;
+  limit: string;
+}
+export interface IMyDashboardPurchasesInfo {
+  totalPurchases: number;
+  totalSpent: number;
+  lastPurchase: Date;
+}

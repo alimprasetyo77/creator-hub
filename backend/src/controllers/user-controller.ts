@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import userService from '../services/user-service';
 import { UserRequest } from '../middlewares/auth-middleware';
+import { IQueryMyPurchases } from '../validations/user-validation';
 
 const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -95,10 +96,32 @@ const remove = async (req: UserRequest, res: Response, next: NextFunction): Prom
   }
 };
 
+const getMyDashboardPurchasesInfo = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const user = req.user;
+    const response = await userService.getMyDashboardPurchasesInfo(user);
+    res.status(200).json({
+      message: 'Get my dashboard purchases info successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getMyPurchases = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const user = req.user;
-    const response = await userService.getMyPurchases(user);
+    const query = {
+      page: req.query.page ? req.query.page : 1,
+      limit: req.query.limit ? req.query.limit : 10,
+    } as IQueryMyPurchases;
+
+    const response = await userService.getMyPurchases(user, query);
     res.status(200).json({
       message: 'Get my purchases successfully',
       data: response,
@@ -108,4 +131,14 @@ const getMyPurchases = async (req: UserRequest, res: Response, next: NextFunctio
   }
 };
 
-export default { register, login, get, update, remove, logout, changePassword, getMyPurchases };
+export default {
+  register,
+  login,
+  get,
+  update,
+  remove,
+  logout,
+  changePassword,
+  getMyPurchases,
+  getMyDashboardPurchasesInfo,
+};

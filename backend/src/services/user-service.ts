@@ -1,4 +1,11 @@
-import { ChangePasswordType, LoginType, RegisterType, UpdateUserType } from '../validations/user-validation';
+import {
+  ChangePasswordType,
+  IMyDashboardPurchasesInfo,
+  IQueryMyPurchases,
+  LoginType,
+  RegisterType,
+  UpdateUserType,
+} from '../validations/user-validation';
 import { validate } from '../validations/validation';
 import userValidation from '../validations/user-validation';
 import prisma from '../utils/prisma';
@@ -171,7 +178,7 @@ const remove = async (user: UserRequest['user']): Promise<void> => {
   });
 };
 
-const getMyPurchases = async (user: UserRequest['user']): Promise<{}> => {
+const getMyDashboardPurchasesInfo = async (user: UserRequest['user']): Promise<IMyDashboardPurchasesInfo> => {
   const orders = await prisma.order.findMany({
     where: {
       userId: user?.id,
@@ -180,59 +187,114 @@ const getMyPurchases = async (user: UserRequest['user']): Promise<{}> => {
       createdAt: 'desc',
     },
     select: {
-      id: true,
-      orderStatus: true,
       createdAt: true,
-      items: {
-        select: {
-          product: {
-            select: {
-              id: true,
-              title: true,
-              description: true,
-              price: true,
-              thumbnail: true,
-              slug: true,
-              category: {
-                select: {
-                  id: true,
-                  name: true,
-                },
-              },
-              user: {
-                select: { avatar: true, full_name: true },
-              },
-            },
-          },
-        },
-      },
       paymentInfo: {
         select: {
           grossAmount: true,
-          paymentType: true,
-          vaNumbers: true,
-          transactionStatus: true,
         },
       },
     },
   });
-
-  const response = {
-    totalPurchases: orders.length,
+  const totalOrder = await prisma.order.count({
+    where: {
+      userId: user?.id,
+    },
+  });
+  const response: IMyDashboardPurchasesInfo = {
+    totalPurchases: totalOrder,
     totalSpent: orders.reduce((total, order) => {
       if (!order.paymentInfo?.grossAmount) return total;
       return total + +order.paymentInfo?.grossAmount;
     }, 0),
     lastPurchase: orders[0].createdAt || null,
-    orders: orders.map((order) => ({
+  };
+  return response;
+};
+
+const getMyPurchases = async (user: UserRequest['user'], query: IQueryMyPurchases): Promise<{}> => {
+  const page = parseInt(query.page as string) || 1;
+  const limit = parseInt(query.limit as string) || 10;
+
+  const skip = (page - 1) * limit;
+
+  const [orders, totalOrder] = await prisma.$transaction([
+    prisma.order.findMany({
+      where: {
+        userId: user?.id,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        orderStatus: true,
+        createdAt: true,
+        items: {
+          select: {
+            product: {
+              select: {
+                id: true,
+                title: true,
+                description: true,
+                price: true,
+                thumbnail: true,
+                slug: true,
+                category: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+                user: {
+                  select: { avatar: true, full_name: true },
+                },
+              },
+            },
+          },
+        },
+        paymentInfo: {
+          select: {
+            grossAmount: true,
+            paymentType: true,
+            vaNumbers: true,
+            transactionStatus: true,
+          },
+        },
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.order.count({
+      where: {
+        userId: user?.id,
+      },
+    }),
+  ]);
+
+  const response = {
+    data: orders.map((order) => ({
       id: order.id,
       orderStatus: order.orderStatus.toLowerCase(),
       createdAt: order.createdAt,
       items: order.items.map((item) => item.product),
       paymentInfo: order.paymentInfo,
     })),
+    page: page,
+    hasMore: totalOrder > page * limit,
+    totalOrder: totalOrder,
   };
+
   return response;
 };
 
-export default { register, login, get, update, remove, logout, changePassword, getMyPurchases };
+export default {
+  register,
+  login,
+  get,
+  update,
+  remove,
+  logout,
+  changePassword,
+  getMyPurchases,
+  getMyDashboardPurchasesInfo,
+};

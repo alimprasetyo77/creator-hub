@@ -245,7 +245,7 @@ const paymentNotificationHandler = async (
     return { status: 200, message: 'Order not found' };
   }
 
-  const updatePaymentStatus = async (status: string) => {
+  const updatePaymentStatus = async (status: Order['orderStatus']) => {
     try {
       await prisma.order.update({
         where: { id: order_id },
@@ -282,8 +282,10 @@ const paymentNotificationHandler = async (
 
     case 'deny':
     case 'cancel':
-    case 'expire':
       await updatePaymentStatus('FAILED');
+      break;
+    case 'expire':
+      await updatePaymentStatus('EXPIRED');
       break;
 
     case 'refund':

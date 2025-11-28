@@ -2,6 +2,7 @@ import { IProduct } from '@/types/api/product-type';
 import { CheckCircle } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { formatIDR } from '@/lib/utils';
 
 export default function OrderSummary({
   product,
@@ -37,11 +38,11 @@ export default function OrderSummary({
             <div className='space-y-3'>
               <div className='flex justify-between text-sm'>
                 <span className='text-muted-foreground'>Product Price</span>
-                <span>${product.price.toFixed(2)}</span>
+                <span>{formatIDR(product.price)}</span>
               </div>
               <div className='flex justify-between text-sm'>
                 <span className='text-muted-foreground'>Processing Fee</span>
-                <span>${processingFee.toFixed(2)}</span>
+                <span>{formatIDR(processingFee)}</span>
               </div>
             </div>
 
@@ -50,7 +51,7 @@ export default function OrderSummary({
             <div className='flex justify-between items-center'>
               <span className='font-medium'>Total</span>
               <span className='bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-3xl text-transparent'>
-                ${total.toFixed(2)}
+                {formatIDR(total)}
               </span>
             </div>
 

@@ -13,6 +13,7 @@ apiRouter.use(authMiddleware);
 
 // API Routes for user
 apiRouter.get('/api/users/current', userController.get);
+apiRouter.get('/api/users/my-dashboard-purchases-info', userController.getMyDashboardPurchasesInfo);
 apiRouter.get('/api/users/my-purchases', userController.getMyPurchases);
 apiRouter.put('/api/users/current', formDataMiddleware, userController.update);
 apiRouter.patch('/api/users/current/password', userController.changePassword);

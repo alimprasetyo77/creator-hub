@@ -49,7 +49,6 @@ const chargeMidtrans = async (
         qris: { acquirer: createOrderRequest.qris.acquirer },
       }),
   };
-  console.log(payload);
   const response = await fetch(`${process.env.MIDTRANS_BASE_URL}/charge`, {
     method: 'POST',
     ...midtransHeaders,

@@ -5,6 +5,7 @@ import { Badge } from './ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { IProduct } from '@/types/api/product-type';
 import Link from 'next/link';
+import { formatIDR } from '@/lib/utils';
 
 interface ProductCardProps {
   product: IProduct;
@@ -60,8 +61,8 @@ export function ProductCard({ product }: ProductCardProps) {
       </Link>
 
       <CardFooter className='flex items-center justify-between border-t p-4'>
-        <span className='text-xl'>${product.price}</span>
-        <Link href={'/checkout/' + product.id} replace>
+        <span className='text-xl'>{formatIDR(product.price)}</span>
+        <Link href={'/checkout/' + product.id}>
           <Button
             size='sm'
             className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 '

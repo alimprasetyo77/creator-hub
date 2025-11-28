@@ -1,6 +1,12 @@
 import axiosWithConfig from '../lib/axios-config';
 import { IResponse } from '../types';
-import { ChangePasswordType, IMyPurchases, IUser, ProfileType } from '../types/api/user-type';
+import {
+  ChangePasswordType,
+  IMyDashboardPurchasesInfo,
+  IMyPurchases,
+  IUser,
+  ProfileType,
+} from '../types/api/user-type';
 import { AxiosError } from 'axios';
 import { checkProperty } from '../lib/utils';
 
@@ -18,9 +24,24 @@ const getUser = async () => {
     throw Error('An unexpected error occurred');
   }
 };
-const getMyPurchases = async () => {
+const getMyDashboardPurchasesInfo = async () => {
   try {
-    const response = await axiosWithConfig.get('/api/users/my-purchases');
+    const response = await axiosWithConfig.get(`/api/users/my-dashboard-purchases-info`);
+    return response.data as IResponse<IMyDashboardPurchasesInfo>;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (error instanceof AxiosError && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+const getMyPurchases = async (page?: number, limit?: number) => {
+  const queryParams = `page=${page}&limit=${limit}`;
+  try {
+    const response = await axiosWithConfig.get(`/api/users/my-purchases?${queryParams}`);
     return response.data as IResponse<IMyPurchases>;
   } catch (error: unknown) {
     if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
@@ -83,4 +104,4 @@ const deleteUser = async () => {
     throw Error('An unexpected error occurred');
   }
 };
-export { getUser, getMyPurchases, updateUser, changePassword, deleteUser };
+export { getUser, getMyDashboardPurchasesInfo, getMyPurchases, updateUser, changePassword, deleteUser };

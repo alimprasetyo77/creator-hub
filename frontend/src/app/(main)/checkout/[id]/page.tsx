@@ -31,7 +31,6 @@ export default function Checkout(props: CheckoutProps) {
   const [isSuccess, setIsSuccess] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('card');
   const [selectedBank, setSelectedBank] = useState<BankOptionType>('bca');
-  const [selectedStore, setSelectedStore] = useState<StoreOptionType>('alfamart');
 
   useEffect(() => {
     const savedId = localStorage.getItem('orderId');
@@ -130,12 +129,6 @@ export default function Checkout(props: CheckoutProps) {
       description: 'Scan QR code to pay',
       icon: <QrCode className='h-5 w-5' />,
     },
-    {
-      id: 'convenience-store' as PaymentMethodType,
-      name: 'Convenience Store',
-      description: 'Alfamart, Indomaret',
-      icon: <Store className='h-5 w-5' />,
-    },
   ];
 
   const bankOptions = [
@@ -161,11 +154,6 @@ export default function Checkout(props: CheckoutProps) {
     },
   ];
 
-  const storeOptions = [
-    { id: 'alfamart', name: 'Alfamart', logo: '🏪' },
-    { id: 'indomaret', name: 'Indomaret', logo: '🏪' },
-  ];
-
   if (isSuccess) {
     return <PaymentSuccessScreen productTitle={product.title} />;
   }
@@ -178,10 +166,6 @@ export default function Checkout(props: CheckoutProps) {
         handleExpirePayment={handleExpirePayment}
         paymentLogo={{
           bank: bankOptions.map((option) => ({
-            [option.id]: option.logo,
-          })),
-
-          store: storeOptions.map((option) => ({
             [option.id]: option.logo,
           })),
         }}
@@ -272,36 +256,6 @@ export default function Checkout(props: CheckoutProps) {
                           />
                           <span className='font-medium'>{bank.name}</span>
                           {selectedBank === bank.id && (
-                            <CheckCircle className='ml-auto h-4 w-4 text-blue-600' />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Store Selection */}
-              {paymentMethod === 'convenience-store' && (
-                <Card className='border-none shadow-sm'>
-                  <CardHeader>
-                    <CardTitle>Select Store</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className='grid grid-cols-2 gap-3'>
-                      {storeOptions.map((store) => (
-                        <button
-                          key={store.id}
-                          onClick={() => setSelectedStore(store.id as StoreOptionType)}
-                          className={`flex items-center gap-3 rounded-lg border-2 p-4 transition-all hover:border-blue-300 ${
-                            selectedStore === store.id
-                              ? 'border-blue-600 bg-linear-to-br from-blue-50 to-purple-50'
-                              : 'border-border bg-white'
-                          }`}
-                        >
-                          <span className='text-2xl'>{store.logo}</span>
-                          <span className='font-medium'>{store.name}</span>
-                          {selectedStore === store.id && (
                             <CheckCircle className='ml-auto h-4 w-4 text-blue-600' />
                           )}
                         </button>

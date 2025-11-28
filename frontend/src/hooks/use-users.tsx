@@ -1,8 +1,15 @@
 import { ProfileType, IUser, ChangePasswordType } from '@/types/api/user-type';
 import { IResponse } from '@/types';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { changePassword, deleteUser, getMyPurchases, getUser, updateUser } from '@/services/user-api';
+import {
+  changePassword,
+  deleteUser,
+  getMyDashboardPurchasesInfo,
+  getMyPurchases,
+  getUser,
+  updateUser,
+} from '@/services/user-api';
 import { toast } from 'sonner';
 
 interface IOptionsProps {
@@ -11,19 +18,39 @@ interface IOptionsProps {
   enabled?: boolean;
 }
 
-export const useMyPurchases = () => {
+export const useMyDashboardPurchasesInfo = () => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['my-purchases'],
-    queryFn: () => getMyPurchases(),
+    queryKey: ['my-purchases-info'],
+    queryFn: () => getMyDashboardPurchasesInfo(),
     retry: false,
     refetchOnWindowFocus: false,
   });
   return {
-    myPurchases: data?.data,
+    dashboardInfo: data?.data,
     isLoading,
     error,
   };
 };
+
+export const useMyPurchases = () => {
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
+    queryKey: ['my-purchases'],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => getMyPurchases(pageParam, 5),
+    getNextPageParam: (lastPage) => {
+      return lastPage.data.hasMore ? lastPage.data.page + 1 : undefined;
+    },
+    refetchOnWindowFocus: false,
+  });
+  return {
+    myPurchases: data?.pages.flatMap((page) => page.data.data),
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+  };
+};
+
 export const useGetUser = (options?: IOptionsProps) => {
   const { data, isLoading, error } = useQuery<IResponse<IUser>, AxiosError>({
     queryKey: ['user'],

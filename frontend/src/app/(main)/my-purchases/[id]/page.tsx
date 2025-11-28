@@ -240,7 +240,7 @@ export default function PurchaseDetail({ params }: PurchaseDetailProps) {
                       <CreditCard className='h-5 w-5 text-muted-foreground' />
                       <div className='flex-1'>
                         <div className='text-sm text-muted-foreground'>Payment Method</div>
-                        <div>Stripe</div>
+                        <div className='capitalize'>{order.paymentInfo.paymentType.replace('_', ' ')}</div>
                       </div>
                     </div>
                   </div>

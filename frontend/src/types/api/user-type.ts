@@ -58,10 +58,10 @@ export interface IUser {
 }
 
 export type IMyPurchases = {
-  totalPurchases: number;
-  totalSpent: number;
-  lastPurchase: string;
-  orders: Array<{
+  totalOrder: number;
+  page: number;
+  hasMore: boolean;
+  data: Array<{
     id: string;
     orderStatus: string;
     createdAt: string;
@@ -92,3 +92,9 @@ export type IMyPurchases = {
     };
   }>;
 };
+
+export interface IMyDashboardPurchasesInfo {
+  totalPurchases: number;
+  totalSpent: number;
+  lastPurchase: Date;
+}

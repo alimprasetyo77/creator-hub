@@ -21,16 +21,13 @@ import Link from 'next/link';
 import Countdown from '@/hooks/use-countdown';
 import { useOrder } from '@/hooks/use-orders';
 import { useEffect, useState } from 'react';
+import { formatIDR } from '@/lib/utils';
 
 interface PaymentDetailProps {
   onChangePaymentMethod: () => void;
   handleCompletePayment: () => void;
   paymentLogo: {
     bank: {
-      [key: string]: string;
-    }[];
-
-    store: {
       [key: string]: string;
     }[];
   };
@@ -147,25 +144,50 @@ export default function PaymentDetail({
                           </div>
                         </div>
 
-                        <div>
-                          <Label className='text-xs text-muted-foreground'>Account Number</Label>
-                          <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
-                            <span className='font-mono'>
-                              {order.paymentInfo.vaNumbers?.va_number ?? order.paymentInfo.billKey}
-                            </span>
-                            <Button
-                              size='sm'
-                              variant='ghost'
-                              onClick={() =>
-                                copyToClipboard(
-                                  order.paymentInfo.vaNumbers?.va_number ?? order.paymentInfo.billKey
-                                )
-                              }
-                            >
-                              <Copy className='h-4 w-4' />
-                            </Button>
+                        {order.paymentInfo.vaNumbers ? (
+                          <div>
+                            <Label className='text-xs text-muted-foreground'>Virtual Account Number</Label>
+                            <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
+                              <span className='font-mono'>{order.paymentInfo.vaNumbers.va_number}</span>
+                              <Button
+                                size='sm'
+                                variant='ghost'
+                                onClick={() => copyToClipboard(order.paymentInfo.vaNumbers.va_number)}
+                              >
+                                <Copy className='h-4 w-4' />
+                              </Button>
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>Biller Code</Label>
+                              <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
+                                <span className='font-mono'>{order.paymentInfo.billerCode}</span>
+                                <Button
+                                  size='sm'
+                                  variant='ghost'
+                                  onClick={() => copyToClipboard(order.paymentInfo.billerCode)}
+                                >
+                                  <Copy className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </div>
+                            <div>
+                              <Label className='text-xs text-muted-foreground'>Bill Key</Label>
+                              <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
+                                <span className='font-mono'>{order.paymentInfo.billKey}</span>
+                                <Button
+                                  size='sm'
+                                  variant='ghost'
+                                  onClick={() => copyToClipboard(order.paymentInfo.billKey)}
+                                >
+                                  <Copy className='h-4 w-4' />
+                                </Button>
+                              </div>
+                            </div>
+                          </>
+                        )}
 
                         <div>
                           <Label className='text-xs text-muted-foreground'>Account Name</Label>
@@ -178,7 +200,7 @@ export default function PaymentDetail({
                           <Label className='text-xs text-muted-foreground'>Transfer Amount</Label>
                           <div className='mt-1 flex items-center justify-between rounded-lg bg-white p-3'>
                             <span className='text-2xl font-bold text-blue-600'>
-                              {order.paymentInfo.grossAmount}
+                              {formatIDR(+order.paymentInfo.grossAmount)}
                             </span>
                             <Button
                               size='sm'
@@ -200,13 +222,26 @@ export default function PaymentDetail({
                         />
                       </div>
                     )}
-                    <div className='rounded-lg border bg-amber-50 p-4'>
-                      <p className='mb-2 text-sm font-medium text-amber-900'>Important Instructions:</p>
+
+                    <div className=' rounded-lg border bg-amber-50 p-4'>
+                      <p className='mb-2 text-sm font-medium text-amber-900'>How to Pay:</p>
                       <ol className='space-y-1 text-sm text-amber-800'>
-                        <li>1. Transfer the exact amount shown above</li>
-                        <li>2. Complete transfer within 24 hours</li>
-                        <li>3. Payment will be verified automatically</li>
-                        <li>4. Access granted immediately after verification</li>
+                        <li>
+                          1. Open{' '}
+                          <Link
+                            target='_blank'
+                            href='https://simulator.sandbox.midtrans.com/'
+                            className='underline'
+                          >
+                            Midtrans Payment Simulator
+                          </Link>
+                        </li>
+                        <li>2. Find "Virtual Account" menu</li>
+                        <li>
+                          3. Copy the{' '}
+                          {order.paymentInfo.vaNumbers.bank ? 'VA Number' : 'Biller Code and Bill Key'} above
+                        </li>
+                        <li>4. Verify amount and complete payment</li>
                       </ol>
                     </div>
                   </CardContent>
@@ -237,7 +272,7 @@ export default function PaymentDetail({
                       <div className='rounded-lg bg-white p-4 text-center'>
                         <Label className='text-xs text-muted-foreground'>Amount:</Label>
                         <div className='mt-1 text-3xl font-bold text-cyan-600'>
-                          {order.paymentInfo.grossAmount}
+                          {formatIDR(+order.paymentInfo.grossAmount)}
                         </div>
                       </div>
 
@@ -285,77 +320,10 @@ export default function PaymentDetail({
                     </div>
 
                     <div className='flex flex-wrap gap-2'>
-                      <Badge variant='secondary'>💚 GoPay</Badge>
-                      <Badge variant='secondary'>💜 OVO</Badge>
-                      <Badge variant='secondary'>💙 DANA</Badge>
-                      <Badge variant='secondary'>🧡 ShopeePay</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Convenience Store */}
-              {order?.paymentInfo.paymentType === 'convenience-store' && (
-                <Card className='border-none shadow-sm'>
-                  <CardHeader>
-                    <CardTitle className='flex items-center gap-2'>
-                      <Store className='h-5 w-5' />
-                      {order.paymentInfo.paymentType} Payment
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className='space-y-6'>
-                    <div className='rounded-lg border-2 border-orange-200 bg-linear-to-br from-orange-50 to-red-50 p-6 text-center'>
-                      <div className='mb-4 text-6xl'>
-                        {paymentLogo.store[order.paymentInfo.paymentType as any] as any}
-                      </div>
-
-                      <div className='space-y-4'>
-                        <div>
-                          <Label className='text-xs text-muted-foreground'>Payment Code:</Label>
-                          <div className='mt-2 flex items-center justify-center gap-2 rounded-lg bg-white p-4'>
-                            <span className='text-2xl font-mono font-bold tracking-wider'>
-                              CRTR-
-                              {Math.random().toString(36).substring(2, 10).toUpperCase()}
-                            </span>
-                            <Button
-                              size='sm'
-                              variant='ghost'
-                              onClick={() =>
-                                copyToClipboard(
-                                  `CRTR-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
-                                )
-                              }
-                            >
-                              <Copy className='h-4 w-4' />
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label className='text-xs text-muted-foreground'>Amount to Pay:</Label>
-                          <div className='mt-2 rounded-lg bg-white p-4'>
-                            <span className='text-3xl font-bold text-orange-600'>
-                              {order.paymentInfo.grossAmount}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className='rounded-lg border bg-orange-50 p-4'>
-                      <p className='mb-2 text-sm font-medium text-orange-900'>Payment Instructions:</p>
-                      <ol className='space-y-1 text-sm text-orange-800'>
-                        <li>1. Visit nearest {order.paymentInfo.paymentType.toUpperCase()} store</li>
-                        <li>2. Show payment code to cashier</li>
-                        <li>3. Pay the exact amount in cash</li>
-                        <li>4. Keep your receipt</li>
-                        <li>5. Payment verified automatically</li>
-                      </ol>
-                    </div>
-
-                    <div className='rounded-lg border-2 border-amber-300 bg-amber-50 p-4 text-center'>
-                      <p className='text-sm font-medium text-amber-900'>⏰ Valid for 24 hours</p>
-                      <p className='text-xs text-amber-700'>Pay before expiration to complete purchase</p>
+                      <Badge variant='secondary'>GoPay</Badge>
+                      <Badge variant='secondary'>OVO</Badge>
+                      <Badge variant='secondary'>DANA</Badge>
+                      <Badge variant='secondary'>ShopeePay</Badge>
                     </div>
                   </CardContent>
                 </Card>
