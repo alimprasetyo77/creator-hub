@@ -1,7 +1,7 @@
 'use client';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Building2, Copy, QrCode, Store, Wallet } from 'lucide-react';
+import { Building2, Copy, QrCode } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Badge } from './ui/badge';
 import { toast } from 'sonner';
@@ -20,7 +20,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Countdown from '@/hooks/use-countdown';
 import { useOrder } from '@/hooks/use-orders';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { formatIDR } from '@/lib/utils';
 
 interface PaymentDetailProps {
@@ -32,49 +32,35 @@ interface PaymentDetailProps {
     }[];
   };
   handleExpirePayment: () => void;
+  orderId: string;
 }
 
 export default function PaymentDetail({
   onChangePaymentMethod,
-  paymentLogo,
   handleCompletePayment,
   handleExpirePayment,
+  orderId,
 }: PaymentDetailProps) {
-  const [orderId, setOrderId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const id = localStorage.getItem('orderId');
-    setOrderId(id);
-  }, []);
-
-  const { order, isLoading } = useOrder(orderId ?? '', { staleTime: 45000, refetchInterval: 45000 });
+  const { order, isLoading } = useOrder(orderId ?? '', { staleTime: 15000, refetchInterval: 15000 });
 
   useEffect(() => {
     if (!order) return;
 
-    if (order.orderStatus === 'PAID') {
+    if (order.orderStatus === 'paid') {
       handleCompletePayment();
       return;
     }
 
-    if (order.paymentInfo.transactionStatus === 'expire') {
+    if (order.paymentInfo.transactionStatus === 'expired') {
       handleExpirePayment();
       return;
     }
   }, [order]);
 
-  if (!orderId || isLoading) {
+  if (isLoading) {
     return (
       <div className='flex min-h-screen items-center justify-center'>
         <h2>Loading...</h2>
-      </div>
-    );
-  }
-
-  if (!order) {
-    return (
-      <div className='p-10 text-center'>
-        <p>No order found.</p>
       </div>
     );
   }
@@ -238,8 +224,8 @@ export default function PaymentDetail({
                         </li>
                         <li>2. Find "Virtual Account" menu</li>
                         <li>
-                          3. Copy the{' '}
-                          {order.paymentInfo.vaNumbers.bank ? 'VA Number' : 'Biller Code and Bill Key'} above
+                          3. Copy the {order.paymentInfo.vaNumbers ? 'VA Number' : 'Biller Code and Bill Key'}{' '}
+                          above
                         </li>
                         <li>4. Verify amount and complete payment</li>
                       </ol>

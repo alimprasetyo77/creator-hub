@@ -1,11 +1,17 @@
 import z from 'zod';
 import { OrderGetPayload } from '../generated/prisma/models';
 
-const createOrderSchema = z
+const createOrderSchema = z.object({
+  product_id: z.uuid({ error: 'Invalid product id' }).nonempty('Product id is required'),
+});
+
+const createCompleteOrderSchema = z
   .object({
     payment_type: z.enum(['echannel', 'bank_transfer', 'qris']),
-    // total_amount: z.number().min(1, 'Amount must be greater than 0'),
-    product_id: z.uuid({ error: 'Invalid product id' }).nonempty('Product id is required'),
+    order_id: z
+      .uuid({ error: 'Invalid order id' })
+      .nonempty('Order id is required')
+      .or(z.cuid().nonempty('Order id is required')),
     bank_transfer: z
       .object({
         bank: z.enum(['bca', 'bni', 'bri', 'mandiri']),
@@ -54,9 +60,9 @@ const createOrderSchema = z
     }
   });
 
-const checkoutSchema = createOrderSchema
+const checkoutSchema = createCompleteOrderSchema
   .omit({
-    product_id: true,
+    order_id: true,
   })
   .extend({
     transaction_details: z.object({
@@ -74,8 +80,9 @@ const checkoutSchema = createOrderSchema
   });
 
 export type CreateOrderType = z.infer<typeof createOrderSchema>;
+export type CreateCompleteOrderType = z.infer<typeof createCompleteOrderSchema>;
 export type CheckoutType = z.infer<typeof checkoutSchema>;
-export default { createOrderSchema, checkoutSchema };
+export default { createOrderSchema, createCompleteOrderSchema, checkoutSchema };
 
 export interface ICheckoutOrderSuccessResponse {
   status_code: string;

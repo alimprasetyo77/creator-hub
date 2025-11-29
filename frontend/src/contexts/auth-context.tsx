@@ -5,7 +5,6 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { IUser } from '@/types/api/user-type';
 import { useGetUser } from '@/hooks/use-users';
 import axiosWithConfig from '@/lib/axios-config';
-import { toast } from 'sonner';
 
 interface AuthContextValue {
   user: IUser | null;

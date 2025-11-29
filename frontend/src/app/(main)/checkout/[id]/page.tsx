@@ -1,45 +1,47 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import { CheckCircle, Lock, Building2, Wallet, QrCode, Store, ChevronRight } from 'lucide-react';
+import { CheckCircle, Lock, Building2, QrCode, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useGetProduct } from '@/hooks/use-products';
 import { useRouter } from 'next/navigation';
 import PaymentDetail from '@/components/payment-detail';
 import OrderSummary from '@/components/order-summary';
 import PaymentSuccessScreen from '@/components/payment-success-screen';
 import Image from 'next/image';
-import { CreateOrderType } from '@/types/api/order-type';
-import { useCancelOrder, useCreateOrder } from '@/hooks/use-orders';
+import { CreateCompleteOrderType } from '@/types/api/order-type';
+import { useCreateCompleteOrder, useCancelOrder, useOrder } from '@/hooks/use-orders';
 import { toast } from 'sonner';
 
-export type PaymentMethodType = 'card' | 'bank-transfer' | 'ewallet' | 'qris' | 'convenience-store';
+export type PaymentMethodType = 'bank-transfer' | 'qris';
 export type BankOptionType = 'bca' | 'mandiri' | 'bni' | 'bri';
-export type EwalletOptionType = 'gopay' | 'ovo' | 'dana' | 'shopeepay';
-export type StoreOptionType = 'alfamart' | 'indomaret';
 
 interface CheckoutProps {
   params: Promise<{ id: string }>;
 }
 export default function Checkout(props: CheckoutProps) {
-  const { id } = use(props.params);
+  const { id: orderId } = use(props.params);
   const router = useRouter();
-  const { product, isLoading: isLoadingProduct } = useGetProduct({ id });
-  const { createOrder, isPending } = useCreateOrder();
-  const { cancelOrder } = useCancelOrder();
+  const { order, isLoading, refetch } = useOrder(orderId);
+  const { createCompleteOrder, isPending } = useCreateCompleteOrder();
+  const { cancelOrder, isPending: isCancelOrderPaymentPending } = useCancelOrder();
+
   const [showPaymentDetails, setShowPaymentDetails] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('card');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('bank-transfer');
   const [selectedBank, setSelectedBank] = useState<BankOptionType>('bca');
 
   useEffect(() => {
-    const savedId = localStorage.getItem('orderId');
-    if (savedId) {
+    if (!order) return;
+    if (order.orderStatus === 'expired') {
+      toast('Order expired, please try again.');
+      router.push('/explore');
+    }
+    if (order.paymentInfo) {
       setShowPaymentDetails(true);
     }
-  }, []);
+  }, [order, refetch, showPaymentDetails]);
 
-  if (isLoadingProduct) {
+  if (isLoading || isCancelOrderPaymentPending) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
         <div className='text-center'>
@@ -49,7 +51,7 @@ export default function Checkout(props: CheckoutProps) {
     );
   }
 
-  if (!product) {
+  if (!order) {
     return (
       <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
         <div className='text-center'>
@@ -61,12 +63,14 @@ export default function Checkout(props: CheckoutProps) {
       </div>
     );
   }
-  const processingFee = Math.round(product.price * 0.029 + 0.3);
-  const total = product.price + processingFee;
+
+  const processingFee = Math.round(order.items[0].price * 0.3);
+  const total = order.items[0].price + processingFee;
 
   const handleProceedPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    let payment_type: CreateOrderType['payment_type'] = 'bank_transfer';
+
+    let payment_type: CreateCompleteOrderType['payment_type'] = 'bank_transfer';
 
     if (paymentMethod === 'bank-transfer') {
       if (selectedBank === 'mandiri') {
@@ -79,20 +83,20 @@ export default function Checkout(props: CheckoutProps) {
     }
 
     try {
-      const { data } = await createOrder({
+      await createCompleteOrder({
         payment_type,
-        product_id: product.id,
+        order_id: order.id,
         ...(payment_type === 'bank_transfer' && { bank_transfer: { bank: selectedBank } }),
         ...(payment_type === 'echannel' && {
           echannel: {
-            bill_info1: `Payment for : ${product.title}`,
+            bill_info1: `Payment for : ${order.items[0].title}`,
             bill_info2: 'debt',
             bill_key: '081211111111',
           },
         }),
         ...(payment_type === 'qris' && { qris: { acquirer: 'gopay' } }),
       });
-      localStorage.setItem('orderId', data.orderId);
+      await refetch();
       setShowPaymentDetails(true);
     } catch (error) {
       toast.error((error as Error).message);
@@ -100,19 +104,16 @@ export default function Checkout(props: CheckoutProps) {
   };
   const handleExpirePayment = () => {
     toast('QR Code expired, please try again.');
-    localStorage.removeItem('orderId');
     setShowPaymentDetails(false);
   };
 
   const handleCompletePayment = () => {
-    localStorage.removeItem('orderId');
     setIsSuccess(true);
   };
 
-  const onChangePaymentMethod = () => {
-    setShowPaymentDetails(false);
-    cancelOrder(localStorage.getItem('orderId') as string);
-    localStorage.removeItem('orderId');
+  const onChangePaymentMethod = async () => {
+    const newOrder = await cancelOrder(order.id);
+    router.push(`/checkout/${newOrder.data.orderId}`);
   };
 
   const paymentMethods = [
@@ -155,12 +156,13 @@ export default function Checkout(props: CheckoutProps) {
   ];
 
   if (isSuccess) {
-    return <PaymentSuccessScreen productTitle={product.title} />;
+    return <PaymentSuccessScreen productTitle={order.items[0].title} />;
   }
 
   if (showPaymentDetails) {
     return (
       <PaymentDetail
+        orderId={order.id}
         onChangePaymentMethod={onChangePaymentMethod}
         handleCompletePayment={handleCompletePayment}
         handleExpirePayment={handleExpirePayment}
@@ -172,12 +174,12 @@ export default function Checkout(props: CheckoutProps) {
       />
     );
   }
-  // Main Checkout Screen - Payment Method Selection
+
   return (
     <div className='min-h-screen bg-linear-to-b from-blue-50 to-white py-8 md:py-12'>
       <div className='container mx-auto px-4 md:px-6'>
         <div className='mb-6'>
-          <Button variant='ghost' onClick={() => router.back()}>
+          <Button variant='ghost' onClick={() => router.push(`/product/${order.items[0].slug}`)}>
             ← Back to Product
           </Button>
         </div>
@@ -289,7 +291,7 @@ export default function Checkout(props: CheckoutProps) {
             </div>
 
             {/* Order Summary */}
-            <OrderSummary product={product} processingFee={processingFee} total={total} />
+            <OrderSummary product={order.items[0]} processingFee={processingFee} total={total} />
           </div>
         </div>
       </div>

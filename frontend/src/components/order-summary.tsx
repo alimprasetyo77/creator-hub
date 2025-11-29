@@ -1,15 +1,15 @@
-import { IProduct } from '@/types/api/product-type';
 import { CheckCircle } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { formatIDR } from '@/lib/utils';
+import { IOrder } from '@/types/api/order-type';
 
 export default function OrderSummary({
   product,
   processingFee,
   total,
 }: {
-  product: IProduct;
+  product: IOrder['items'][0];
   processingFee: number;
   total: number;
 }) {

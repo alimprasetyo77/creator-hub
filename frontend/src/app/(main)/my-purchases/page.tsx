@@ -97,7 +97,9 @@ export default function page() {
         <div className='space-y-4'>
           {myPurchases?.map((purchase, index) => (
             <Card key={index} className='overflow-hidden py-0'>
-              <CardContent className={`p-0 ${purchase.orderStatus === 'failed' && 'opacity-50'}`}>
+              <CardContent
+                className={`p-0 ${['failed', 'expired'].includes(purchase.orderStatus) && 'opacity-50'}`}
+              >
                 <div className='flex flex-col gap-4 p-6 md:flex-row md:items-center'>
                   <img
                     src={purchase.items[0].thumbnail}
@@ -127,7 +129,9 @@ export default function page() {
                   </div>
 
                   <div className='flex flex-col gap-2 md:items-end'>
-                    <p className='text-2xl'>{formatIDR(+purchase.paymentInfo.grossAmount)}</p>
+                    <p className='text-2xl'>
+                      {formatIDR(+purchase.paymentInfo?.grossAmount || purchase.items[0].price)}
+                    </p>
                     <div className='flex gap-2'>
                       {purchase.orderStatus === 'paid' && (
                         <Button
@@ -145,7 +149,7 @@ export default function page() {
                             if (purchase.orderStatus === 'paid') {
                               router.push(`/my-purchases/${purchase.id}`);
                             } else {
-                              router.push(`/checkout/${purchase.items[0].id}`);
+                              router.push(`/checkout/${purchase.id}`);
                             }
                           }}
                         >

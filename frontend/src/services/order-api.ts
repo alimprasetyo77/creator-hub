@@ -1,4 +1,4 @@
-import { CreateOrderType, IOrder } from '@/types/api/order-type';
+import { CreateCompleteOrderType, CreateOrderType, IOrder } from '@/types/api/order-type';
 import axiosWithConfig from '../lib/axios-config';
 import { IResponse } from '@/types';
 import { isAxiosError } from 'axios';
@@ -32,12 +32,10 @@ const createOrder = async (body: CreateOrderType) => {
     throw Error('An unexpected error occurred');
   }
 };
-
-const cancelOrder = async (transactionIdOrOrderId: string) => {
+const createCompleteOrder = async (body: CreateCompleteOrderType) => {
   try {
-    if (!transactionIdOrOrderId) throw new Error('Transaction or order id is required');
-    const response = await axiosWithConfig.post(`/api/orders/cancel/${transactionIdOrOrderId}`);
-    return response.data as IResponse<{}>;
+    const response = await axiosWithConfig.post('/api/orders/complete', body);
+    return response.data as IResponse<{ orderId: string }>;
   } catch (error) {
     if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
       throw Error(error.message);
@@ -49,4 +47,20 @@ const cancelOrder = async (transactionIdOrOrderId: string) => {
   }
 };
 
-export { getOrder, createOrder, cancelOrder };
+const cancelOrder = async (orderId: string) => {
+  try {
+    if (!orderId) throw new Error('Order id is required');
+    const response = await axiosWithConfig.post(`/api/orders/cancel/${orderId}`);
+    return response.data as IResponse<{ orderId: string }>;
+  } catch (error) {
+    if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (isAxiosError(error) && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
+export { getOrder, createOrder, createCompleteOrder, cancelOrder };

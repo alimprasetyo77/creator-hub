@@ -4,10 +4,10 @@ import { UserRequest } from '../middlewares/auth-middleware';
 
 const get = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const request = req.params.transactionOrOrderId;
+    const request = req.params.orderId;
     const response = await orderServices.get(request);
     res.status(200).json({
-      message: 'Get status successfully',
+      message: 'Get order successfully',
       data: response,
     });
   } catch (error) {
@@ -41,10 +41,22 @@ const create = async (req: UserRequest, res: Response, next: NextFunction): Prom
     next(error);
   }
 };
+const createComplete = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const request = req.body;
+    const response = await orderServices.createComplete(request);
+    res.status(201).json({
+      message: 'Completed Order created successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 const cancel = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const request = req.params.transactionOrOrderId;
+    const request = req.params.orderId;
     const response = await orderServices.cancel(request);
     res.status(200).json({
       message: 'Order canceled successfully',
@@ -65,4 +77,11 @@ const paymentNotificationHandler = async (req: Request, res: Response, next: Nex
   }
 };
 
-export default { get, getAll, create, cancel, paymentNotificationHandler };
+export default {
+  get,
+  getAll,
+  create,
+  createComplete,
+  cancel,
+  paymentNotificationHandler,
+};

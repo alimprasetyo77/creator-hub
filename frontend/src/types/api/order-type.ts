@@ -1,9 +1,13 @@
 import z from 'zod';
 
-const createOrderSchema = z
+const createOrderSchema = z.object({
+  product_id: z.uuid({ error: 'Invalid product id' }).nonempty('Product id is required'),
+});
+
+const createCompleteOrderSchema = z
   .object({
     payment_type: z.enum(['echannel', 'bank_transfer', 'qris']),
-    product_id: z.uuid({ error: 'Invalid product id' }).nonempty('Product id is required'),
+    order_id: z.uuid({ error: 'Invalid order id' }).nonempty('order id is required'),
     bank_transfer: z
       .object({
         bank: z.enum(['bca', 'bni', 'bri', 'mandiri']),
@@ -60,32 +64,28 @@ const createOrderSchema = z
   });
 
 export type CreateOrderType = z.infer<typeof createOrderSchema>;
-export default { createOrderSchema };
+export type CreateCompleteOrderType = z.infer<typeof createCompleteOrderSchema>;
+export default { createCompleteOrderSchema, createOrderSchema };
 
 export interface IOrder {
   id: string;
   orderStatus: string;
   createdAt: string;
   items: Array<{
-    product: {
-      id: string;
-      title: string;
-      description: string;
-      price: number;
-      thumbnail: string;
-      slug: string;
-      category: {
-        id: string;
-        name: string;
-      };
-      user: {
-        avatar: string;
-        full_name: string;
-      };
-    };
+    id: string;
+    title: string;
+    description: string;
     price: number;
-    quantity: number;
-    subtotal: number;
+    thumbnail: string;
+    slug: string;
+    category: {
+      id: string;
+      name: string;
+    };
+    user: {
+      avatar: string;
+      full_name: string;
+    };
   }>;
   paymentInfo: {
     paymentType: string;

@@ -1,6 +1,7 @@
-import { cancelOrder, createOrder, getOrder } from '@/services/order-api';
-import { CreateOrderType } from '@/types/api/order-type';
+import { cancelOrder, createCompleteOrder, createOrder, getOrder } from '@/services/order-api';
+import { CreateCompleteOrderType, CreateOrderType } from '@/types/api/order-type';
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 type OrderResponse = Awaited<ReturnType<typeof getOrder>>;
@@ -8,11 +9,8 @@ type OrderResponse = Awaited<ReturnType<typeof getOrder>>;
 export function useOrder(
   orderId: string,
   options?: Omit<UseQueryOptions<OrderResponse, Error, OrderResponse, any[]>, 'queryKey' | 'queryFn'>
-): {
-  order: OrderResponse['data'] | undefined;
-  isLoading: boolean;
-} {
-  const { data, isLoading } = useQuery({
+) {
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['orders', orderId],
     queryFn: () => getOrder(orderId),
     enabled: !!orderId,
@@ -23,16 +21,19 @@ export function useOrder(
 
   return {
     order: data?.data,
+    refetch,
     isLoading,
   };
 }
 
 export const useCreateOrder = () => {
+  const router = useRouter();
   const queryClient = useQueryClient();
-  const { mutateAsync, isPending } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (data: CreateOrderType) => createOrder(data),
-    onSuccess: async () => {
+    onSuccess: async ({ data }) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      router.replace(`/checkout/${data.orderId}`);
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -40,15 +41,32 @@ export const useCreateOrder = () => {
   });
 
   return {
-    createOrder: mutateAsync,
+    createOrder: mutate,
+    isPending,
+  };
+};
+export const useCreateCompleteOrder = () => {
+  const queryClient = useQueryClient();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (data: CreateCompleteOrderType) => createCompleteOrder(data),
+    onSuccess: ({ data }) => {
+      queryClient.invalidateQueries({ queryKey: ['orders', data.orderId] });
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+
+  return {
+    createCompleteOrder: mutateAsync,
     isPending,
   };
 };
 
 export const useCancelOrder = () => {
   const queryClient = useQueryClient();
-  const { mutate, isPending } = useMutation({
-    mutationFn: (transactionIdOrOrderId: string) => cancelOrder(transactionIdOrOrderId),
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: (orderId: string) => cancelOrder(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
     },
@@ -58,7 +76,7 @@ export const useCancelOrder = () => {
   });
 
   return {
-    cancelOrder: mutate,
+    cancelOrder: mutateAsync,
     isPending,
   };
 };

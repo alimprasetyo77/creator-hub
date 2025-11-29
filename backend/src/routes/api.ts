@@ -34,13 +34,10 @@ apiRouter.get('/api/categories', categoryController.getAll);
 apiRouter.post('/api/categories', allowedRoles(['ADMIN']), categoryController.create);
 
 // API routes for order
-apiRouter.get('/api/orders/:transactionOrOrderId', orderController.get);
+apiRouter.get('/api/orders/:orderId', orderController.get);
 apiRouter.get('/api/orders', allowedRoles(['USER', 'CREATOR']), orderController.getAll);
 apiRouter.post('/api/orders', allowedRoles(['USER', 'CREATOR']), orderController.create);
-apiRouter.post(
-  '/api/orders/cancel/:transactionOrOrderId',
-  allowedRoles(['USER', 'CREATOR']),
-  orderController.cancel
-);
+apiRouter.post('/api/orders/complete', allowedRoles(['USER', 'CREATOR']), orderController.createComplete);
+apiRouter.post('/api/orders/cancel/:orderId', allowedRoles(['USER', 'CREATOR']), orderController.cancel);
 
 export default apiRouter;

@@ -1,32 +1,21 @@
-import { Order, OrderItem, OrderPayment, OrderStatus } from '../generated/prisma/client';
-import { OrderGetPayload, OrderInclude, OrderWhereUniqueInput } from '../generated/prisma/models';
+import { Order, OrderStatus } from '../generated/prisma/client';
 import { UserRequest } from '../middlewares/auth-middleware';
-import { cancelMidtrans, chargeMidtrans, getStatusMidtrans } from '../utils/midtrans';
+import { cancelMidtrans, chargeMidtrans } from '../utils/midtrans';
 import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
 import orderValidation, {
+  CreateCompleteOrderType,
   CreateOrderType,
   INotificationSampleRequest,
 } from '../validations/order-validation';
 import { validate } from '../validations/validation';
 import { createHash } from 'crypto';
 
-const get = async (
-  transactionIdOrOrderId: string
-): Promise<OrderGetPayload<{ include: { paymentInfo: true } }>> => {
-  if (!transactionIdOrOrderId) throw new ResponseError(400, 'Transaction or order id is required');
+const get = async (orderId: string): Promise<{}> => {
+  if (!orderId) throw new ResponseError(400, 'Transaction or order id is required');
   const order = await prisma.order.findFirst({
     where: {
-      OR: [
-        {
-          id: transactionIdOrOrderId,
-        },
-        {
-          paymentInfo: {
-            transactionId: transactionIdOrOrderId,
-          },
-        },
-      ],
+      id: orderId,
     },
     select: {
       id: true,
@@ -80,7 +69,22 @@ const get = async (
   });
 
   if (!order) throw new ResponseError(404, 'Order not found');
-  return order as any;
+
+  const fifteenMinutes = 5 * 60 * 1000;
+  const isExpired = new Date(order.createdAt as Date).getTime() + fifteenMinutes < Date.now();
+  if (isExpired) {
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { orderStatus: OrderStatus.EXPIRED },
+    });
+  }
+
+  const response = {
+    ...order,
+    items: order.items.map((item) => item.product),
+    orderStatus: order.orderStatus.toLowerCase(),
+  };
+  return response;
 };
 
 const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
@@ -126,31 +130,43 @@ const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
 
 const create = async (user: UserRequest['user'], request: CreateOrderType): Promise<{ orderId: string }> => {
   const createOrderRequest = validate(orderValidation.createOrderSchema, request);
-
   const product = await prisma.product.findUnique({
     where: { id: createOrderRequest.product_id },
   });
 
   if (!product) throw new ResponseError(404, 'Failed to create order. Product not found.');
 
-  const result = await prisma.$transaction(async (tx) => {
-    const order = await tx.order.create({
-      data: {
-        userId: user!.id,
-        orderStatus: 'PENDING',
-        items: {
-          create: {
-            price: product.price,
-            productId: product.id,
-            quantity: 1,
-            subtotal: product.price,
-          },
+  const order = await prisma.order.create({
+    data: {
+      userId: user!.id,
+      orderStatus: 'PENDING',
+      items: {
+        create: {
+          price: product!.price,
+          productId: product!.id,
+          quantity: 1,
+          subtotal: product!.price,
         },
       },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  return { orderId: order.id };
+};
+
+const createComplete = async (request: CreateCompleteOrderType): Promise<{ orderId: string }> => {
+  const createCompleteOrder = validate(orderValidation.createCompleteOrderSchema, request);
+  const result = await prisma.$transaction(async (tx) => {
+    const order = await tx.order.findUnique({
+      where: { id: createCompleteOrder.order_id },
       include: { items: true },
     });
+    if (!order) throw new ResponseError(404, 'Order not found.');
 
-    const midtransData = await chargeMidtrans(createOrderRequest, order);
+    const midtransData = await chargeMidtrans(createCompleteOrder, order);
 
     if (!midtransData) throw new ResponseError(500, 'Midtrans response invalid.');
 
@@ -199,14 +215,15 @@ const create = async (user: UserRequest['user'], request: CreateOrderType): Prom
   return result;
 };
 
-const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
-  if (!transactionIdOrOrderId) throw new ResponseError(400, 'Transaction or order id is required');
-  await prisma.$transaction(async (tx) => {
-    const midtransData = await cancelMidtrans(transactionIdOrOrderId);
+const cancel = async (orderId: string): Promise<{ orderId: string }> => {
+  if (!orderId) throw new ResponseError(400, 'Transaction or order id is required');
+
+  const result = await prisma.$transaction(async (tx) => {
+    const midtransData = await cancelMidtrans(orderId);
 
     if (!midtransData) throw new ResponseError(500, 'Midtrans response invalid.');
 
-    await tx.order.update({
+    const oldOrder = await tx.order.update({
       where: { id: midtransData.order_id },
       data: {
         orderStatus: 'FAILED',
@@ -216,8 +233,39 @@ const cancel = async (transactionIdOrOrderId: string): Promise<void> => {
           },
         },
       },
+      select: {
+        userId: true,
+        items: {
+          select: {
+            price: true,
+            productId: true,
+            quantity: true,
+            subtotal: true,
+          },
+        },
+      },
     });
+
+    const newOrder = await tx.order.create({
+      data: {
+        userId: oldOrder.userId,
+        orderStatus: 'PENDING',
+        items: {
+          create: {
+            price: oldOrder.items[0].price,
+            productId: oldOrder.items[0].productId,
+            quantity: oldOrder.items[0].quantity,
+            subtotal: oldOrder.items[0].subtotal,
+          },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+    return newOrder;
   });
+  return { orderId: result.id };
 };
 
 const paymentNotificationHandler = async (
@@ -296,4 +344,11 @@ const paymentNotificationHandler = async (
   return { status: 200, message: 'OK' };
 };
 
-export default { get, getAll, create, cancel, paymentNotificationHandler };
+export default {
+  get,
+  getAll,
+  create,
+  createComplete,
+  cancel,
+  paymentNotificationHandler,
+};

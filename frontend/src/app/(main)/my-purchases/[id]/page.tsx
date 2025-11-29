@@ -82,28 +82,25 @@ export default function PurchaseDetail({ params }: PurchaseDetailProps) {
                 <h2 className='mb-4'>Purchased Product</h2>
                 <div className='flex flex-col gap-4 sm:flex-row'>
                   <img
-                    src={order.items[0].product.thumbnail}
-                    alt={order.items[0].product.title}
+                    src={order.items[0].thumbnail}
+                    alt={order.items[0].title}
                     className='h-32 w-32 rounded-lg object-cover'
                   />
                   <div className='flex-1'>
                     <div className='mb-2 flex items-center gap-2'>
                       <Badge className='bg-linear-to-r from-blue-600 to-purple-600 text-white'>
-                        {order.items[0].product.category.name.replace('-', ' ').toUpperCase()}
+                        {order.items[0].category.name.replace('-', ' ').toUpperCase()}
                       </Badge>
                     </div>
-                    <h3 className='mb-2'>{order.items[0].product.title}</h3>
-                    <p className='mb-3 text-sm text-muted-foreground'>{order.items[0].product.description}</p>
+                    <h3 className='mb-2'>{order.items[0].title}</h3>
+                    <p className='mb-3 text-sm text-muted-foreground'>{order.items[0].description}</p>
                     <div className='flex items-center gap-2'>
                       <Avatar className='h-6 w-6'>
-                        <AvatarImage
-                          src={order.items[0].product.user.avatar}
-                          alt={order.items[0].product.user.full_name}
-                        />
-                        <AvatarFallback>{order.items[0].product.user.full_name.charAt(0)}</AvatarFallback>
+                        <AvatarImage src={order.items[0].user.avatar} alt={order.items[0].user.full_name} />
+                        <AvatarFallback>{order.items[0].user.full_name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <span className='text-sm text-muted-foreground'>
-                        by {order.items[0].product.user.full_name}
+                        by {order.items[0].user.full_name}
                       </span>
                     </div>
                   </div>
@@ -250,7 +247,7 @@ export default function PurchaseDetail({ params }: PurchaseDetailProps) {
                   <div className='space-y-2'>
                     <div className='flex justify-between text-sm'>
                       <span className='text-muted-foreground'>Product Price</span>
-                      <span>{formatIDR(order.items[0].product.price)}</span>
+                      <span>{formatIDR(order.items[0].price)}</span>
                     </div>
                     <div className='flex justify-between text-sm'>
                       <span className='text-muted-foreground'>Processing Fee</span>

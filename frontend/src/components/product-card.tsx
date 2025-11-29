@@ -1,3 +1,5 @@
+'use client';
+
 import { Star, ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardFooter } from './ui/card';
 import { Button } from './ui/button';
@@ -6,18 +8,25 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { IProduct } from '@/types/api/product-type';
 import Link from 'next/link';
 import { formatIDR } from '@/lib/utils';
+import { useCreateOrder } from '@/hooks/use-orders';
 
 interface ProductCardProps {
   product: IProduct;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { createOrder, isPending } = useCreateOrder();
   const categoryColors: any = {
     'E-Book': 'bg-blue-100 text-blue-700',
     template: 'bg-purple-100 text-purple-700',
     'Ui-Kit': 'bg-pink-100 text-pink-700',
     asset: 'bg-green-100 text-green-700',
     course: 'bg-orange-100 text-orange-700',
+  };
+  const onClickBuyProduct = async () => {
+    createOrder({
+      product_id: product.id,
+    });
   };
 
   return (
@@ -62,15 +71,16 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <CardFooter className='flex items-center justify-between border-t p-4'>
         <span className='text-xl'>{formatIDR(product.price)}</span>
-        <Link href={'/checkout/' + product.id}>
-          <Button
-            size='sm'
-            className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 '
-          >
-            <ShoppingCart className='mr-2 h-4 w-4' />
-            Buy Now
-          </Button>
-        </Link>
+
+        <Button
+          size='sm'
+          className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 '
+          onClick={onClickBuyProduct}
+          disabled={isPending}
+        >
+          <ShoppingCart className='mr-2 h-4 w-4' />
+          Buy Now
+        </Button>
       </CardFooter>
     </Card>
   );

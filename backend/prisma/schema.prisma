@@ -71,7 +71,7 @@ enum ProductStatus {
 }
 
 model Order {
-  id          String        @id @default(cuid())
+  id          String        @id @default(uuid())
   user        User          @relation(fields: [userId], references: [id])
   userId      String
   createdAt   DateTime      @default(now())
@@ -91,7 +91,7 @@ enum OrderStatus {
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
+  id        String  @id @default(uuid())
   order     Order   @relation(fields: [orderId], references: [id])
   orderId   String
   product   Product @relation(fields: [productId], references: [id])
@@ -104,7 +104,7 @@ model OrderItem {
 }
 
 model OrderPayment {
-  id String @id @default(cuid())
+  id String @id @default(uuid())
 
   transactionId   String?
   midtransOrderId String?

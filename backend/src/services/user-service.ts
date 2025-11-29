@@ -182,6 +182,7 @@ const getMyDashboardPurchasesInfo = async (user: UserRequest['user']): Promise<I
   const orders = await prisma.order.findMany({
     where: {
       userId: user?.id,
+      orderStatus: 'PAID',
     },
     orderBy: {
       createdAt: 'desc',
@@ -195,13 +196,9 @@ const getMyDashboardPurchasesInfo = async (user: UserRequest['user']): Promise<I
       },
     },
   });
-  const totalOrder = await prisma.order.count({
-    where: {
-      userId: user?.id,
-    },
-  });
+
   const response: IMyDashboardPurchasesInfo = {
-    totalPurchases: totalOrder,
+    totalPurchases: orders.length,
     totalSpent: orders.reduce((total, order) => {
       if (!order.paymentInfo?.grossAmount) return total;
       return total + +order.paymentInfo?.grossAmount;

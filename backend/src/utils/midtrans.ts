@@ -1,5 +1,9 @@
 import { OrderGetPayload } from '../generated/prisma/models';
-import { CreateOrderType, ICheckoutOrderSuccessResponse } from '../validations/order-validation';
+import {
+  CreateCompleteOrderType,
+  CreateOrderType,
+  ICheckoutOrderSuccessResponse,
+} from '../validations/order-validation';
 import { ResponseError } from './response-error';
 const midtransHeaders = {
   headers: {
@@ -23,7 +27,7 @@ const getStatusMidtrans = async (transactionIdOrOrderId: string): Promise<ICheck
 };
 
 const chargeMidtrans = async (
-  createOrderRequest: CreateOrderType,
+  createOrderRequest: CreateCompleteOrderType,
   order: OrderGetPayload<{ include: { items: true } }>
 ): Promise<ICheckoutOrderSuccessResponse> => {
   const payload = {
