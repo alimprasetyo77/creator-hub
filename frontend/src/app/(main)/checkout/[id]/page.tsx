@@ -32,10 +32,7 @@ export default function Checkout(props: CheckoutProps) {
 
   useEffect(() => {
     if (!order) return;
-    if (order.orderStatus === 'expired') {
-      toast('Order expired, please try again.');
-      router.push('/explore');
-    }
+
     if (order.paymentInfo) {
       setShowPaymentDetails(true);
     }
@@ -64,25 +61,19 @@ export default function Checkout(props: CheckoutProps) {
     );
   }
 
-  const processingFee = Math.round(order.items[0].price * 0.3);
-  const total = order.items[0].price + processingFee;
-
   const handleProceedPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    let payment_type: CreateCompleteOrderType['payment_type'] = 'bank_transfer';
-
-    if (paymentMethod === 'bank-transfer') {
-      if (selectedBank === 'mandiri') {
-        payment_type = 'echannel';
-      } else {
-        payment_type = 'bank_transfer';
-      }
-    } else if (paymentMethod === 'qris') {
-      payment_type = 'qris';
-    }
-
     try {
+      let payment_type: CreateCompleteOrderType['payment_type'] = 'bank_transfer';
+      if (paymentMethod === 'bank-transfer') {
+        if (selectedBank === 'mandiri') {
+          payment_type = 'echannel';
+        } else {
+          payment_type = 'bank_transfer';
+        }
+      } else {
+        payment_type = 'qris';
+      }
       await createCompleteOrder({
         payment_type,
         order_id: order.id,
@@ -99,6 +90,9 @@ export default function Checkout(props: CheckoutProps) {
       await refetch();
       setShowPaymentDetails(true);
     } catch (error) {
+      if ((error as Error).message === 'Order expired.') {
+        router.replace('/explore');
+      }
       toast.error((error as Error).message);
     }
   };
@@ -291,7 +285,7 @@ export default function Checkout(props: CheckoutProps) {
             </div>
 
             {/* Order Summary */}
-            <OrderSummary product={order.items[0]} processingFee={processingFee} total={total} />
+            <OrderSummary product={order.items[0]} />
           </div>
         </div>
       </div>

@@ -32,6 +32,7 @@ export default function page() {
     paid: ' bg-green-500 text-white hover:bg-green-600',
     pending: 'border-transparent bg-yellow-500 text-white hover:bg-yellow-600',
     failed: 'bg-red-500 text-white hover:bg-red-600',
+    expired: 'bg-gray-500 text-white hover:bg-gray-600',
   };
 
   return status === 'pending' || isLoading ? (

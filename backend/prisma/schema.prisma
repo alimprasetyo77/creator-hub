@@ -98,7 +98,8 @@ model OrderItem {
   productId String
   price     Int
   quantity  Int     @default(1)
-  subtotal  Int
+  fee       Int     @default(0)
+  total     Int     @default(0)
 
   @@map("order_items")
 }
@@ -114,8 +115,7 @@ model OrderPayment {
   transactionTime   DateTime?
   transactionStatus String?
 
-  // Untuk semua jenis pembayaran (VA, QRIS, e-wallet)
-  vaNumbers  Json? // array VA (lebih fleksibel)
+  vaNumbers  Json?
   billKey    String?
   billerCode String?
   acquirer   String?

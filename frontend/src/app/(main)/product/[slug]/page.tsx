@@ -7,7 +7,6 @@ import {
   Shield,
   RefreshCw,
   Heart,
-  ThumbsUp,
   Check,
   ChevronLeft,
   FileText,
@@ -25,6 +24,7 @@ import { ProductCard } from '@/components/product-card';
 import { useGetProduct, useGetProducts } from '@/hooks/use-products';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
+import { useCreateOrder } from '@/hooks/use-orders';
 
 interface Params {
   params: Promise<{ slug: string }>; // Or a union type if multiple dynamic segments
@@ -34,6 +34,8 @@ export default function page({ params }: Params) {
   const [activeTab, setActiveTab] = useState('overview');
   const { product, isLoading: isLoadingProduct } = useGetProduct({ slug });
   const { products, isLoading: isLoadingProducts } = useGetProducts();
+  const { createOrder, isPending } = useCreateOrder();
+
   const { user } = useAuth();
   const router = useRouter();
   const isAdmin = user?.role === 'admin';
@@ -438,7 +440,8 @@ export default function page({ params }: Params) {
                         <Button
                           className='w-full bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
                           size='lg'
-                          onClick={() => router.push(product.id)}
+                          onClick={() => createOrder({ product_id: product.id })}
+                          disabled={isPending}
                         >
                           <ShoppingCart className='mr-2 h-5 w-5' />
                           Buy Now

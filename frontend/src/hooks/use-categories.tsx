@@ -1,4 +1,4 @@
-import { createCategory, getCategories } from '@/services/category-api';
+import { createCategory, getCategories } from '@/services/category-service';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 

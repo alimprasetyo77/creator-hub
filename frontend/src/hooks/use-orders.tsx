@@ -1,4 +1,4 @@
-import { cancelOrder, createCompleteOrder, createOrder, getOrder } from '@/services/order-api';
+import { cancelOrder, createCompleteOrder, createOrder, getOrder } from '@/services/order-service';
 import { CreateCompleteOrderType, CreateOrderType } from '@/types/api/order-type';
 import { useMutation, useQuery, useQueryClient, UseQueryOptions } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
@@ -32,7 +32,7 @@ export const useCreateOrder = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: CreateOrderType) => createOrder(data),
     onSuccess: async ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', 'my-purchases'] });
       router.replace(`/checkout/${data.orderId}`);
     },
     onError: ({ message }) => {
@@ -50,10 +50,12 @@ export const useCreateCompleteOrder = () => {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: CreateCompleteOrderType) => createCompleteOrder(data),
     onSuccess: ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ['orders', data.orderId] });
+      queryClient.invalidateQueries({ queryKey: ['orders', data.orderId, 'my-purchases'] });
     },
-    onError: ({ message }) => {
-      toast.error(message);
+    onSettled(data, error, _variables, _onMutateResult, _context) {
+      if (error) {
+        queryClient.invalidateQueries({ queryKey: ['orders', data?.data.orderId, 'my-purchases'] });
+      }
     },
   });
 

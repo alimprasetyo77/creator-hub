@@ -4,7 +4,7 @@ import {
   getProductById,
   getProductBySlug,
   getProducts,
-} from '@/services/product-api';
+} from '@/services/product-service';
 import { ProductCreateType } from '@/types/api/product-type';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';

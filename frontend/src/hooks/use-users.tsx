@@ -9,7 +9,7 @@ import {
   getMyPurchases,
   getUser,
   updateUser,
-} from '@/services/user-api';
+} from '@/services/user-service';
 import { toast } from 'sonner';
 
 interface IOptionsProps {
@@ -36,7 +36,7 @@ export const useMyPurchases = () => {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
     queryKey: ['my-purchases'],
     initialPageParam: 1,
-    queryFn: ({ pageParam }) => getMyPurchases(pageParam, 5),
+    queryFn: ({ pageParam }) => getMyPurchases(pageParam, 8),
     getNextPageParam: (lastPage) => {
       return lastPage.data.hasMore ? lastPage.data.page + 1 : undefined;
     },

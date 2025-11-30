@@ -47,7 +47,8 @@ const get = async (orderId: string): Promise<{}> => {
           },
           price: true,
           quantity: true,
-          subtotal: true,
+          fee: true,
+          total: true,
         },
       },
       paymentInfo: {
@@ -70,19 +71,16 @@ const get = async (orderId: string): Promise<{}> => {
 
   if (!order) throw new ResponseError(404, 'Order not found');
 
-  const fifteenMinutes = 5 * 60 * 1000;
-  const isExpired = new Date(order.createdAt as Date).getTime() + fifteenMinutes < Date.now();
-  if (isExpired) {
-    await prisma.order.update({
-      where: { id: order.id },
-      data: { orderStatus: OrderStatus.EXPIRED },
-    });
-  }
-
   const response = {
     ...order,
-    items: order.items.map((item) => item.product),
     orderStatus: order.orderStatus.toLowerCase(),
+    items: order.items.map((item) => {
+      return {
+        ...item.product,
+        total: item.total,
+        fee: item.fee,
+      };
+    }),
   };
   return response;
 };
@@ -101,6 +99,8 @@ const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
                 featured: true,
               },
             },
+            fee: true,
+            total: true,
           },
         },
       },
@@ -121,11 +121,26 @@ const getAll = async (user: UserRequest['user']): Promise<Order[]> => {
               featured: true,
             },
           },
+          fee: true,
+          total: true,
         },
       },
     },
   });
-  return orders.map((order) => ({ ...order, items: order.items.map((item) => item.product) }));
+
+  const response = orders.map((order) => ({
+    ...order,
+    orderStatus: order.orderStatus.toLowerCase(),
+    items: order.items.map((item) => {
+      return {
+        ...item.product,
+        total: item.total,
+        fee: item.fee,
+      };
+    }),
+  })) as Order[];
+
+  return response;
 };
 
 const create = async (user: UserRequest['user'], request: CreateOrderType): Promise<{ orderId: string }> => {
@@ -136,16 +151,32 @@ const create = async (user: UserRequest['user'], request: CreateOrderType): Prom
 
   if (!product) throw new ResponseError(404, 'Failed to create order. Product not found.');
 
+  const orderPending = await prisma.order.findFirst({
+    where: {
+      userId: user!.id,
+      items: { some: { productId: product!.id } },
+      orderStatus: 'PENDING',
+    },
+  });
+
+  if (orderPending) {
+    return { orderId: orderPending.id };
+  }
+
+  const fee = Math.round(product.price * 0.02);
+  const total = product.price + fee;
   const order = await prisma.order.create({
     data: {
       userId: user!.id,
       orderStatus: 'PENDING',
+
       items: {
         create: {
           price: product!.price,
           productId: product!.id,
           quantity: 1,
-          subtotal: product!.price,
+          fee: fee,
+          total: total,
         },
       },
     },
@@ -165,6 +196,16 @@ const createComplete = async (request: CreateCompleteOrderType): Promise<{ order
       include: { items: true },
     });
     if (!order) throw new ResponseError(404, 'Order not found.');
+
+    const fifteenMinutes = 5 * 60 * 1000;
+    const isExpired = new Date(order.createdAt as Date).getTime() + fifteenMinutes < Date.now();
+    if (isExpired && order.orderStatus === 'PENDING') {
+      await prisma.order.update({
+        where: { id: order.id },
+        data: { orderStatus: OrderStatus.EXPIRED },
+      });
+      throw new ResponseError(400, 'Order expired.');
+    }
 
     const midtransData = await chargeMidtrans(createCompleteOrder, order);
 
@@ -240,7 +281,8 @@ const cancel = async (orderId: string): Promise<{ orderId: string }> => {
             price: true,
             productId: true,
             quantity: true,
-            subtotal: true,
+            fee: true,
+            total: true,
           },
         },
       },
@@ -255,7 +297,8 @@ const cancel = async (orderId: string): Promise<{ orderId: string }> => {
             price: oldOrder.items[0].price,
             productId: oldOrder.items[0].productId,
             quantity: oldOrder.items[0].quantity,
-            subtotal: oldOrder.items[0].subtotal,
+            fee: oldOrder.items[0].fee,
+            total: oldOrder.items[0].total,
           },
         },
       },
@@ -286,7 +329,7 @@ const paymentNotificationHandler = async (
 
   const order = await prisma.order.findUnique({
     where: { id: order_id },
-    include: { paymentInfo: true },
+    select: { orderStatus: true, paymentInfo: true, items: true },
   });
 
   if (!order) {
@@ -295,6 +338,16 @@ const paymentNotificationHandler = async (
 
   const updatePaymentStatus = async (status: Order['orderStatus']) => {
     try {
+      if (status === 'PAID') {
+        await prisma.product.update({
+          where: { id: order.items[0].productId },
+          data: {
+            sales: {
+              increment: order.items[0].quantity,
+            },
+          },
+        });
+      }
       await prisma.order.update({
         where: { id: order_id },
         data: {

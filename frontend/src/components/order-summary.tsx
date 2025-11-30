@@ -4,15 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { formatIDR } from '@/lib/utils';
 import { IOrder } from '@/types/api/order-type';
 
-export default function OrderSummary({
-  product,
-  processingFee,
-  total,
-}: {
-  product: IOrder['items'][0];
-  processingFee: number;
-  total: number;
-}) {
+export default function OrderSummary({ product }: { product: IOrder['items'][0] }) {
   return (
     <div className='lg:col-span-1'>
       <div className='sticky top-20'>
@@ -42,7 +34,7 @@ export default function OrderSummary({
               </div>
               <div className='flex justify-between text-sm'>
                 <span className='text-muted-foreground'>Processing Fee</span>
-                <span>{formatIDR(processingFee)}</span>
+                <span>{formatIDR(product.fee)}</span>
               </div>
             </div>
 
@@ -51,7 +43,7 @@ export default function OrderSummary({
             <div className='flex justify-between items-center'>
               <span className='font-medium'>Total</span>
               <span className='bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-3xl text-transparent'>
-                {formatIDR(total)}
+                {formatIDR(product.total)}
               </span>
             </div>
 

@@ -33,7 +33,7 @@ const chargeMidtrans = async (
   const payload = {
     payment_type: createOrderRequest.payment_type,
     transaction_details: {
-      gross_amount: order.items[0].subtotal,
+      gross_amount: order.items[0].total,
       order_id: order.id,
     },
     ...(createOrderRequest.payment_type === 'bank_transfer' &&

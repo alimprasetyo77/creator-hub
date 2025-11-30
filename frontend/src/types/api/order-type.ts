@@ -86,6 +86,8 @@ export interface IOrder {
       avatar: string;
       full_name: string;
     };
+    fee: number;
+    total: number;
   }>;
   paymentInfo: {
     paymentType: string;
