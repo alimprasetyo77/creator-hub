@@ -1,4 +1,4 @@
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/layouts/navbar';
 import { AuthProvider } from '@/contexts/auth-context';
 import { cookies } from 'next/headers';
 

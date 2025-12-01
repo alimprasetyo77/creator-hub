@@ -1,16 +1,17 @@
 'use client';
 import { use, useEffect, useState } from 'react';
-import { CheckCircle, Lock, Building2, QrCode, ChevronRight } from 'lucide-react';
+import { Lock, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
-import PaymentDetail from '@/components/payment-detail';
-import OrderSummary from '@/components/order-summary';
-import PaymentSuccessScreen from '@/components/payment-success-screen';
-import Image from 'next/image';
+import PaymentDetail from '@/components/checkout/payment-detail';
+import OrderSummary from '@/components/checkout/order-summary';
+import PaymentSuccessScreen from '@/components/checkout/payment-success-screen';
 import { CreateCompleteOrderType } from '@/types/api/order-type';
 import { useCreateCompleteOrder, useCancelOrder, useOrder } from '@/hooks/use-orders';
 import { toast } from 'sonner';
+import { bankOptions } from '@/constants/checkout';
+import BankOptions from '@/components/checkout/bank-options';
+import PaymentMethod from '@/components/checkout/payment-method';
 
 export type PaymentMethodType = 'bank-transfer' | 'qris';
 export type BankOptionType = 'bca' | 'mandiri' | 'bni' | 'bri';
@@ -36,7 +37,7 @@ export default function Checkout(props: CheckoutProps) {
     if (order.paymentInfo) {
       setShowPaymentDetails(true);
     }
-  }, [order, refetch, showPaymentDetails]);
+  }, [order]);
 
   if (isLoading || isCancelOrderPaymentPending) {
     return (
@@ -110,45 +111,6 @@ export default function Checkout(props: CheckoutProps) {
     router.push(`/checkout/${newOrder.data.orderId}`);
   };
 
-  const paymentMethods = [
-    {
-      id: 'bank-transfer' as PaymentMethodType,
-      name: 'Bank Transfer',
-      description: 'BCA, Mandiri, BNI, BRI',
-      icon: <Building2 className='h-5 w-5' />,
-    },
-
-    {
-      id: 'qris' as PaymentMethodType,
-      name: 'QRIS',
-      description: 'Scan QR code to pay',
-      icon: <QrCode className='h-5 w-5' />,
-    },
-  ];
-
-  const bankOptions = [
-    {
-      id: 'bca',
-      name: 'BCA',
-      logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bca_va.png',
-    },
-    {
-      id: 'mandiri',
-      name: 'Mandiri',
-      logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/mandiri_bill.png',
-    },
-    {
-      id: 'bni',
-      name: 'BNI',
-      logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bni_va.png',
-    },
-    {
-      id: 'bri',
-      name: 'BRI',
-      logo: 'https://simulator.sandbox.midtrans.com/assets/images/payment_partners/bank_transfer/bri_va.png',
-    },
-  ];
-
   if (isSuccess) {
     return <PaymentSuccessScreen productTitle={order.items[0].title} />;
   }
@@ -187,78 +149,11 @@ export default function Checkout(props: CheckoutProps) {
           <div className='grid gap-8 lg:grid-cols-3'>
             {/* Payment Method Selection */}
             <div className='lg:col-span-2 space-y-6'>
-              <Card className='border-none shadow-sm'>
-                <CardHeader>
-                  <CardTitle>Payment Methods</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className='grid gap-3 sm:grid-cols-2'>
-                    {paymentMethods.map((method) => (
-                      <button
-                        key={method.id}
-                        onClick={() => setPaymentMethod(method.id)}
-                        className={`flex items-start gap-3 rounded-xl border-2 p-4 text-left transition-all hover:border-blue-300 hover:bg-blue-50/50 ${
-                          paymentMethod === method.id
-                            ? 'border-blue-600 bg-linear-to-br from-blue-50 to-purple-50'
-                            : 'border-border bg-white'
-                        }`}
-                      >
-                        <div
-                          className={`rounded-lg p-2 ${
-                            paymentMethod === method.id
-                              ? 'bg-linear-to-br from-blue-600 to-purple-600 text-white'
-                              : 'bg-muted text-muted-foreground'
-                          }`}
-                        >
-                          {method.icon}
-                        </div>
-                        <div className='flex-1'>
-                          <div className='font-medium'>{method.name}</div>
-                          <p className='text-sm text-muted-foreground'>{method.description}</p>
-                        </div>
-                        {paymentMethod === method.id && (
-                          <CheckCircle className='h-5 w-5 shrink-0 text-blue-600' />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              <PaymentMethod paymentMethod={paymentMethod} onSelectPaymentMethod={setPaymentMethod} />
 
               {/* Bank Selection for Bank Transfer */}
               {paymentMethod === 'bank-transfer' && (
-                <Card className='border-none shadow-sm'>
-                  <CardHeader>
-                    <CardTitle>Select Bank</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className='grid grid-cols-2 gap-3'>
-                      {bankOptions.map((bank) => (
-                        <button
-                          key={bank.id}
-                          onClick={() => setSelectedBank(bank.id as BankOptionType)}
-                          className={`flex items-center gap-3 rounded-lg border-2 p-4 transition-all hover:border-blue-300 ${
-                            selectedBank === bank.id
-                              ? 'border-blue-600 bg-linear-to-br from-blue-50 to-purple-50'
-                              : 'border-border bg-white'
-                          }`}
-                        >
-                          <Image
-                            src={bank.logo}
-                            alt={bank.name}
-                            width={80}
-                            height={80}
-                            className='h-6 object-contain object-left'
-                          />
-                          <span className='font-medium'>{bank.name}</span>
-                          {selectedBank === bank.id && (
-                            <CheckCircle className='ml-auto h-4 w-4 text-blue-600' />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <BankOptions selectedBank={selectedBank} onSelectBank={setSelectedBank} />
               )}
 
               {/* Security Notice */}

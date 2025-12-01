@@ -247,6 +247,7 @@ const getMyPurchases = async (user: UserRequest['user'], query: IQueryMyPurchase
                 },
               },
             },
+            total: true,
           },
         },
         paymentInfo: {
@@ -273,7 +274,12 @@ const getMyPurchases = async (user: UserRequest['user'], query: IQueryMyPurchase
       id: order.id,
       orderStatus: order.orderStatus.toLowerCase(),
       createdAt: order.createdAt,
-      items: order.items.map((item) => item.product),
+      items: order.items.map((item) => {
+        return {
+          ...item.product,
+          total: item.total,
+        };
+      }),
       paymentInfo: order.paymentInfo,
     })),
     page: page,

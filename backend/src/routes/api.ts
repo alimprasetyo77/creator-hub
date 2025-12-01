@@ -6,6 +6,7 @@ import productController from '../controllers/product-controller';
 import categoryController from '../controllers/category-controller';
 import { allowedRoles } from '../middlewares/role-middleware';
 import orderController from '../controllers/order-controller';
+import creatorController from '../controllers/creator-controller';
 
 const apiRouter = express.Router();
 
@@ -40,4 +41,6 @@ apiRouter.post('/api/orders', allowedRoles(['USER', 'CREATOR']), orderController
 apiRouter.post('/api/orders/complete', allowedRoles(['USER', 'CREATOR']), orderController.createComplete);
 apiRouter.post('/api/orders/cancel/:orderId', allowedRoles(['USER', 'CREATOR']), orderController.cancel);
 
+// API routes for CREATOR
+apiRouter.get('/api/creators/dashboard-overview', allowedRoles(['CREATOR']), creatorController.getOverview);
 export default apiRouter;

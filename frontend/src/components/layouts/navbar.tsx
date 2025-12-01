@@ -1,18 +1,18 @@
 'use client';
 
 import { ShoppingBag, User, LogOut, LayoutDashboard, Menu } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { useLogout } from '@/hooks/use-auth';
-import { Button } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
+import { Button } from '../ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
 export default function Navbar() {
   const pathname = usePathname();

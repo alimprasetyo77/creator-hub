@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import { Search, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,14 @@ export default function Explore() {
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
-  const { products } = useGetProducts();
+  const { products, isLoading } = useGetProducts();
+
+  if (isLoading)
+    return (
+      <div className='flex items-center justify-center h-screen'>
+        <div className='animate-spin rounded-full h-32 w-32 border-t-4 border-blue-500'></div>
+      </div>
+    );
 
   if (!products || products?.length === 0) return <div>No products found</div>;
 
@@ -51,17 +58,15 @@ export default function Explore() {
 
         {/* Filters */}
         <div className='mb-8 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between'>
-          <Suspense fallback={<div>Loading...</div>}>
-            <div className='relative flex-1 lg:max-w-md'>
-              <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
-              <Input
-                placeholder='Search products...'
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className='pl-9'
-              />
-            </div>
-          </Suspense>
+          <div className='relative flex-1 lg:max-w-md'>
+            <Search className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
+            <Input
+              placeholder='Search products...'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className='pl-9'
+            />
+          </div>
 
           <div className='flex flex-wrap gap-3'>
             <Select value={category} onValueChange={setCategory}>

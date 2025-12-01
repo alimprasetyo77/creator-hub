@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import SidebarNav from '../../../components/sidebar';
+import SidebarNav from '../../../components/layouts/sidebar';
 import { LayoutDashboard, Package, Receipt, Upload, Wallet } from 'lucide-react';
 
 interface DashboardLayoutProps {

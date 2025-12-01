@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent } from '../ui/card';
 import { CheckCircle } from 'lucide-react';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 import { redirect } from 'next/navigation';
 
 export default function PaymentSuccessScreen({ productTitle }: { productTitle: string }) {

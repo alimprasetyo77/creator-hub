@@ -1,9 +1,9 @@
 'use client';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Building2, Copy, QrCode } from 'lucide-react';
 import { Label } from '@/components/ui/label';
-import { Badge } from './ui/badge';
+import { Badge } from '../ui/badge';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from './ui/alert-dialog';
+} from '../ui/alert-dialog';
 import Image from 'next/image';
 import Link from 'next/link';
 import Countdown from '@/hooks/use-countdown';
