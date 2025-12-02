@@ -42,5 +42,5 @@ apiRouter.post('/api/orders/complete', allowedRoles(['USER', 'CREATOR']), orderC
 apiRouter.post('/api/orders/cancel/:orderId', allowedRoles(['USER', 'CREATOR']), orderController.cancel);
 
 // API routes for CREATOR
-apiRouter.get('/api/creators/dashboard-overview', allowedRoles(['CREATOR']), creatorController.getOverview);
+apiRouter.get('/api/creators/overview', allowedRoles(['CREATOR']), creatorController.getOverview);
 export default apiRouter;

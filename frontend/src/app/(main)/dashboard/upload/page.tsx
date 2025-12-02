@@ -2,20 +2,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Trash2 } from 'lucide-react';
 import { Upload as UploadIcon } from 'lucide-react';
-import {
-  Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-  FieldTitle,
-} from '@/components/ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel, FieldTitle } from '@/components/ui/field';
 import { Controller, useForm } from 'react-hook-form';
 import { ProductCreateSchema, ProductCreateType } from '@/types/api/product-type';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -44,6 +35,7 @@ export default function Upload() {
   const onSubmit = form.handleSubmit(async (data: ProductCreateType) => {
     await createProduct(data).then(() => {
       form.reset();
+      setPreviewImg('');
     });
   });
 

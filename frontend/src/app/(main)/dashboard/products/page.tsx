@@ -1,4 +1,6 @@
 'use client';
+import DialogEditProduct from '@/components/dashboard/creator/my-product/dialog-edit-product';
+import DialogViewProduct from '@/components/dashboard/creator/my-product/dialog-view-product';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -9,13 +11,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useGetMyProducts } from '@/hooks/use-products';
+import { useMyProducts } from '@/hooks/use-products';
+import { formatIDR } from '@/lib/utils';
+import { IProduct } from '@/types/api/product-type';
 import { Edit, Eye, MoreVertical, Trash2, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Products() {
   const router = useRouter();
-  const { myProducts } = useGetMyProducts();
+  const { myProducts } = useMyProducts();
+  const [viewProduct, setViewProduct] = useState<IProduct | null>(null);
+  const [editProduct, setEditProduct] = useState<IProduct | null>(null);
+  const [deleteProduct, setDeleteProduct] = useState<IProduct | null>(null);
   return (
     <div className='space-y-6'>
       <div className='flex items-center justify-between'>
@@ -64,9 +72,9 @@ export default function Products() {
                 <TableCell>
                   <Badge variant='secondary'>{product.category.name}</Badge>
                 </TableCell>
-                <TableCell>${product.price}</TableCell>
+                <TableCell>{formatIDR(product.price)}</TableCell>
                 <TableCell>{product.sales}</TableCell>
-                <TableCell>${product.price * product.sales}</TableCell>
+                <TableCell>{formatIDR(product.price * product.sales)}</TableCell>
                 <TableCell>
                   <Badge
                     variant={
@@ -88,15 +96,18 @@ export default function Products() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setViewProduct(product)}>
                         <Eye className='mr-2 h-4 w-4' />
                         View
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setEditProduct(product)}>
                         <Edit className='mr-2 h-4 w-4' />
                         Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem className='text-destructive'>
+                      <DropdownMenuItem
+                        className='text-destructive'
+                        onClick={() => setDeleteProduct(product)}
+                      >
                         <Trash2 className='mr-2 h-4 w-4' />
                         Delete
                       </DropdownMenuItem>
@@ -108,6 +119,17 @@ export default function Products() {
           </TableBody>
         </Table>
       </Card>
+
+      {/* Section Dialog */}
+      <DialogViewProduct
+        viewProduct={viewProduct}
+        setViewProduct={setViewProduct}
+        onNavigateEdit={(product) => {
+          setViewProduct(null);
+          setEditProduct(product);
+        }}
+      />
+      <DialogEditProduct editProduct={editProduct} setEditProduct={setEditProduct} />
     </div>
   );
 }

@@ -2,7 +2,9 @@
 import StatsCard from '@/components/stats-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { useGetMyProducts } from '@/hooks/use-products';
+import { useOverview } from '@/hooks/use-creator';
+import { useMyProducts } from '@/hooks/use-products';
+import { formatIDR } from '@/lib/utils';
 import { DollarSign, Package, TrendingUp, Users } from 'lucide-react';
 import {
   Bar,
@@ -17,15 +19,10 @@ import {
 } from 'recharts';
 
 export default function Overview() {
-  const { myProducts } = useGetMyProducts();
-  const monthlyData: any[] = [
-    { month: 'May', revenue: 1200, sales: 24 },
-    { month: 'Jun', revenue: 1900, sales: 38 },
-    { month: 'Jul', revenue: 2400, sales: 48 },
-    { month: 'Aug', revenue: 2100, sales: 42 },
-    { month: 'Sep', revenue: 2800, sales: 56 },
-    { month: 'Oct', revenue: 3200, sales: 64 },
-  ];
+  const { overview, isLoading } = useOverview();
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className='space-y-6'>
       <div>
@@ -36,26 +33,26 @@ export default function Overview() {
       <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-4'>
         <StatsCard
           title='Total Revenue'
-          value={`$${999}`}
+          value={formatIDR(overview?.summary.totalRevenue || 0)}
           icon={<DollarSign className='h-6 w-6 text-blue-600' />}
           trend={{ value: 12.5, isPositive: true }}
         />
         <StatsCard
           title='Total Sales'
-          value={99}
+          value={overview?.summary.totalSales || 0}
           icon={<TrendingUp className='h-6 w-6 text-purple-600' />}
           trend={{ value: 8.2, isPositive: true }}
         />
         <StatsCard
           title='Products'
-          value={myProducts?.length || 0}
+          value={overview?.summary.products || 0}
           icon={<Package className='h-6 w-6 text-blue-600' />}
         />
         <StatsCard
           title='Customers'
-          value='1,234'
+          value={overview?.summary.customers || 0}
           icon={<Users className='h-6 w-6 text-purple-600' />}
-          trend={{ value: 5.1, isPositive: true }}
+          trend={{ value: 5.1, isPositive: false }}
         />
       </div>
 
@@ -66,7 +63,7 @@ export default function Overview() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width='100%' height={300}>
-              <BarChart data={monthlyData}>
+              <BarChart data={overview?.overview}>
                 <CartesianGrid strokeDasharray='3 3' stroke='#e5e7eb' />
                 <XAxis dataKey='month' stroke='#6b7280' />
                 <YAxis stroke='#6b7280' />
@@ -89,7 +86,7 @@ export default function Overview() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width='100%' height={300}>
-              <LineChart data={monthlyData}>
+              <LineChart data={overview?.overview}>
                 <CartesianGrid strokeDasharray='3 3' stroke='#e5e7eb' />
                 <XAxis dataKey='month' stroke='#6b7280' />
                 <YAxis stroke='#6b7280' />
@@ -113,30 +110,34 @@ export default function Overview() {
         </CardHeader>
         <CardContent>
           <div className='space-y-4'>
-            {myProducts?.map((product) => (
-              <div key={product.id} className='flex items-center gap-4'>
-                <img
-                  src={product.thumbnail}
-                  alt={product.title}
-                  className='h-16 w-16 rounded-lg object-cover'
-                />
-                <div className='flex-1'>
-                  <h4 className='text-sm'>{product.title}</h4>
-                  <p className='text-sm text-muted-foreground'>{product.sales} sales</p>
-                </div>
-                <div className='flex-1'>
-                  <div className='flex items-center justify-between text-sm'>
-                    <span className='text-muted-foreground'>Progress</span>
-                    <span>{Math.round((product.sales / 500) * 100)}%</span>
+            {overview?.topProducts && overview.topProducts.length > 0 ? (
+              overview?.topProducts?.map((product) => (
+                <div key={product.id} className='flex items-center gap-4'>
+                  <img
+                    src={product.thumbnail}
+                    alt={product.title}
+                    className='h-16 w-16 rounded-lg object-cover'
+                  />
+                  <div className='flex-1'>
+                    <h4 className='text-sm'>{product.title}</h4>
+                    <p className='text-sm text-muted-foreground'>{product.sales} sales</p>
                   </div>
-                  <Progress value={(product.sales / 500) * 100} className='mt-2' />
+                  <div className='flex-1'>
+                    <div className='flex items-center justify-between text-sm'>
+                      <span className='text-muted-foreground'>Progress</span>
+                      <span>{Math.round((product.sales / 500) * 100)}%</span>
+                    </div>
+                    <Progress value={(product.sales / 500) * 100} className='mt-2' />
+                  </div>
+                  <div className='text-right w-1/6'>
+                    <p className='text-sm'>{formatIDR(product.revenue)}</p>
+                    <p className='text-sm text-muted-foreground'>Revenue</p>
+                  </div>
                 </div>
-                <div className='text-right'>
-                  <p className='text-sm'>${product.price * product.sales}</p>
-                  <p className='text-sm text-muted-foreground'>Revenue</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className='text-sm text-center text-muted-foreground'>No products found.</p>
+            )}
           </div>
         </CardContent>
       </Card>

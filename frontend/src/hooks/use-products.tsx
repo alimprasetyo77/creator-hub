@@ -28,6 +28,7 @@ export const useGetProduct = ({ slug, id }: Partial<{ slug: string; id: string }
     queryFn: () => (slug ? getProductBySlug(slug) : getProductById(id!)),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
+    enabled: !!slug || !!id,
   });
 
   return {
@@ -36,7 +37,7 @@ export const useGetProduct = ({ slug, id }: Partial<{ slug: string; id: string }
   };
 };
 
-export const useGetMyProducts = () => {
+export const useMyProducts = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['my-products'],
     queryFn: () => getMyProducts(),

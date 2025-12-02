@@ -41,7 +41,15 @@ const ProductCreateSchema = base.pick({
   files: true,
 });
 
-const ProductUpdateSchema = base.partial();
+const ProductUpdateSchema = base
+  .pick({
+    title: true,
+    description: true,
+    price: true,
+    thumbnail: true,
+    categoryId: true,
+  })
+  .partial();
 
 export type ProductCreateType = z.infer<typeof ProductCreateSchema>;
 export type ProductUpdateType = z.infer<typeof ProductUpdateSchema>;
