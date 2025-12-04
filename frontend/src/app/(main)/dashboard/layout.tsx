@@ -6,7 +6,7 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function Layout({ children }: DashboardLayoutProps) {
   const sidebarItems = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard className='size-5' /> },
     { id: 'products', label: 'My Products', icon: <Package className='size-5' /> },

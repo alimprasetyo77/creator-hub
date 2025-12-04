@@ -1,14 +1,20 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { IProduct, ProductUpdateType } from '@/types/api/product-type';
+import { useCategories } from '@/hooks/use-categories';
+import { useUpdateProduct } from '@/hooks/use-products';
+import { formatIDR } from '@/lib/utils';
+import { IProduct, ProductUpdateSchema, ProductUpdateType } from '@/types/api/product-type';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Sparkles } from 'lucide-react';
-import { useRef } from 'react';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 
 interface IDialogViewProductProps {
   editProduct: IProduct | null;
@@ -16,21 +22,44 @@ interface IDialogViewProductProps {
 }
 
 export default function DialogEditProduct({ editProduct, setEditProduct }: IDialogViewProductProps) {
+  if (!editProduct) {
+    return <div>Product not found</div>;
+  }
+
+  const [previewThumbnail, setPreviewThumbnail] = useState(editProduct?.thumbnail ?? '');
+  const { categories, isLoading: isLoadingCategories } = useCategories();
+  const { updateProduct, isPending } = useUpdateProduct(editProduct?.id!);
+
   const form = useForm<ProductUpdateType>({
-    values: {
-      title: editProduct?.title || '',
-      description: editProduct?.description || '',
-      price: editProduct?.price.toString() || '0',
-      thumbnail: editProduct?.thumbnail || '',
-      categoryId: editProduct?.category.id || '',
-    },
+    resolver: zodResolver(ProductUpdateSchema),
+    defaultValues: editProduct
+      ? {
+          title: editProduct.title,
+          description: editProduct.description,
+          price: editProduct.price.toString(),
+          thumbnail: '',
+          categoryId: editProduct.category.id,
+        }
+      : undefined,
   });
-  const onSubmit = form.handleSubmit(async (data: ProductUpdateType) => {
-    console.log(data);
+
+  const onSubmit = form.handleSubmit((data: ProductUpdateType) => {
+    updateProduct(data, {
+      onSuccess: ({ message }) => {
+        toast.success(message);
+        setTimeout(() => {
+          setEditProduct(null);
+        }, 2000);
+      },
+      onSettled: () => {
+        form.reset();
+      },
+    });
   });
+
   return (
     <Dialog open={editProduct !== null} onOpenChange={() => setEditProduct(null)}>
-      <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
+      <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-scroll customScrollBar'>
         <DialogHeader>
           <DialogTitle>Edit Product</DialogTitle>
           <DialogDescription>Make changes to your product details.</DialogDescription>
@@ -40,27 +69,29 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
             <Controller
               control={form.control}
               name='thumbnail'
-              render={({ field }) => (
-                <Field className='relative gap-y-0 h-48 w-full overflow-hidden rounded-lg group'>
-                  <img
-                    src={field.value || editProduct?.thumbnail}
-                    alt={field.name}
-                    className='h-full w-full object-cover '
-                  />
-                  <Input
-                    type='file'
-                    className='hidden'
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        field.onChange(URL.createObjectURL(file));
-                      }
-                    }}
-                    id={field.name}
-                  />
-                  <FieldLabel htmlFor={field.name}>
-                    <Edit className='absolute hidden group-hover:block right-2 top-2 size-5 cursor-pointer rounded-full bg-white p-1 text-black hover:bg-gray-200' />
-                  </FieldLabel>
+              render={({ field, fieldState }) => (
+                <Field className='space-y-0'>
+                  <Field className='relative gap-y-0 h-48 w-full overflow-hidden rounded-lg group'>
+                    {previewThumbnail ? (
+                      <img src={previewThumbnail!} alt={field.name} className='h-full w-full object-cover ' />
+                    ) : null}
+                    <Input
+                      type='file'
+                      className='hidden'
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setPreviewThumbnail(URL.createObjectURL(file));
+                          field.onChange(file);
+                        }
+                      }}
+                      id={field.name}
+                    />
+                    <FieldLabel htmlFor={field.name}>
+                      <Edit className='absolute hidden group-hover:block right-2 top-2 size-5 cursor-pointer rounded-full bg-white p-1 text-black hover:bg-gray-200' />
+                    </FieldLabel>
+                  </Field>
+                  {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                 </Field>
               )}
             />
@@ -69,7 +100,7 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
               <Controller
                 control={form.control}
                 name='title'
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <Field className='gap-y-2'>
                     <Label htmlFor={field.name}>Product Title</Label>
                     <Input
@@ -78,6 +109,7 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                       value={field.value!}
                       placeholder='Enter product title...'
                     />
+                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                   </Field>
                 )}
               />
@@ -86,21 +118,26 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                 <Controller
                   control={form.control}
                   name='categoryId'
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <Field className='gap-y-2'>
                       <Label htmlFor='edit-category'>Category</Label>
-                      <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => field.onChange(value)}
+                        disabled={isLoadingCategories}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder='Select category' />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value='ebook'>E-book</SelectItem>
-                          <SelectItem value='template'>Template</SelectItem>
-                          <SelectItem value='ui-kit'>UI Kit</SelectItem>
-                          <SelectItem value='asset'>Asset</SelectItem>
-                          <SelectItem value='course'>Course</SelectItem>
+                          {categories?.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
+                      {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                     </Field>
                   )}
                 />
@@ -133,9 +170,9 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
               <Controller
                 control={form.control}
                 name='price'
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <Field className='gap-y-2'>
-                    <Label htmlFor={field.name}>Price (USD)</Label>
+                    <Label htmlFor={field.name}>Price (IDR)</Label>
                     <Input
                       {...field}
                       id={field.name}
@@ -145,6 +182,7 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                       step='0.01'
                       value={field.value}
                     />
+                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                   </Field>
                 )}
               />
@@ -152,7 +190,7 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
               <Controller
                 control={form.control}
                 name='description'
-                render={({ field }) => (
+                render={({ field, fieldState }) => (
                   <Field className='gap-y-2'>
                     <Field className='flex items-center justify-between'>
                       <Label htmlFor='edit-description'>Description</Label>
@@ -168,6 +206,7 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                       rows={6}
                       value={field.value}
                     />
+                    {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                   </Field>
                 )}
               />
@@ -180,11 +219,11 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-muted-foreground'>Current Revenue:</span>
-                    <span>${editProduct?.price! * editProduct?.sales!}</span>
+                    <span>{formatIDR(editProduct?.price! * editProduct?.sales!)}</span>
                   </div>
                   <div className='flex justify-between border-t pt-2'>
                     <span className='text-muted-foreground'>Projected Revenue:</span>
-                    <span>${parseFloat(form.getValues('price') || '0') * editProduct?.sales!}</span>
+                    <span>{formatIDR(parseFloat(form.getValues('price') || '0') * editProduct?.sales!)}</span>
                   </div>
                 </div>
               </div>
@@ -192,11 +231,12 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
 
             <div className='flex gap-3'>
               <Button
-                type='button'
-                className='flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                type='submit'
+                className='flex-1 bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                disabled={isPending || !form.formState.isDirty}
               >
                 <Edit className='mr-2 h-4 w-4' />
-                Save Changes
+                {isPending ? 'Updating...' : 'Update Product'}
               </Button>
               <Button
                 type='button'

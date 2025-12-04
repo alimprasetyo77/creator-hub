@@ -1,108 +1,59 @@
+import { Prisma } from '../generated/prisma/client';
 import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
+import { IOverview } from '../validations/creator-validation';
 
-const getOverview = async (user: UserRequest['user']): Promise<{}> => {
-  if (!user) throw new ResponseError(400, 'User not found');
+const getOverview = async (user: UserRequest['user']): Promise<IOverview> => {
+  const result = await prisma.$queryRaw`
+SELECT
+  -- total sales
+  (
+    SELECT COALESCE(SUM(p.sales), 0)
+    FROM products p
+    WHERE p."userId" = ${user?.id}
+  ) AS "totalSales",
 
-  const totalProducts = await prisma.product.count({
-    where: {
-      userId: user.id,
-    },
-  });
+  -- total revenue
+  (
+    SELECT COALESCE(SUM(p.sales * p.price), 0)
+    FROM products p
+    WHERE p."userId" = ${user?.id}
+  ) AS "totalRevenue",
 
-  const order = await prisma.order.findMany({
-    where: {
-      items: {
-        some: {
-          product: {
-            userId: user.id,
-          },
-        },
-      },
-    },
-    select: {
-      createdAt: true,
-      items: {
-        select: {
-          product: true,
-          total: true,
-        },
-      },
-    },
-  });
+  -- total products owned by seller
+  (
+    SELECT COUNT(*)
+    FROM products p
+    WHERE p."userId" = ${user?.id}
+  ) AS "totalProducts",
 
-  const monthlyData: { month: string; revenue: number; sales: number }[] = [];
-  const fullYear = Array.from({ length: 12 }, (_, i) => ({
-    key: `${i}`,
-    monthName: new Date(2025, i).toLocaleString('default', { month: 'short' }),
-    revenue: 0,
-    sales: 0,
-  }));
-  order.forEach((order) => {
-    const date = new Date(order.createdAt);
-    const monthIndex = date.getMonth();
+  -- total customers who bought the seller product
+  (
+    SELECT COUNT(DISTINCT o."userId")
+    FROM orders o
+    JOIN order_items oi ON oi."orderId" = o.id
+    JOIN products p ON p.id = oi."productId"
+    WHERE o."orderStatus" = 'PAID'
+      AND p."userId" = ${user?.id}
+  ) AS "totalCustomers",
 
-    const revenue = order.items[0]?.total || 0;
-    const sales = order.items[0]?.product?.sales || 0;
 
-    fullYear[monthIndex].revenue += revenue;
-    fullYear[monthIndex].sales += sales;
-  });
-  fullYear.forEach((m) => {
-    monthlyData.push({
-      month: m.monthName,
-      revenue: m.revenue,
-      sales: m.sales,
-    });
-  });
+`;
 
-  const topPeformingProducts: (Pick<
-    (typeof order)[0]['items'][0]['product'],
-    'id' | 'title' | 'sales' | 'thumbnail'
-  > & {
-    revenue: number;
-  })[] = [];
-  order.forEach((order) => {
-    const product = order.items[0]?.product;
-    if (!product) return;
-    const productIndex = topPeformingProducts.findIndex((p) => p.id === product.id);
-    const revenue = order.items[0]?.total || 0;
-    const sales = order.items[0]?.product?.sales || 0;
-    const thumbnail = order.items[0]?.product?.thumbnail || '';
-    if (productIndex === -1) {
-      topPeformingProducts.push({
-        id: product.id,
-        title: product.title,
-        sales,
-        revenue,
-        thumbnail,
-      });
-    } else {
-      topPeformingProducts[productIndex].sales += sales;
-      topPeformingProducts[productIndex].revenue += revenue;
-    }
-  });
+  const row = (result as any)[0];
 
-  const response = {
+  const response: IOverview = {
     summary: {
-      totalRevenue: order.reduce((total, order) => {
-        if (!order.items[0]?.total) return total;
-        return total + order.items[0].total;
-      }, 0),
-      totalSales: order.reduce((total, order) => {
-        if (!order.items[0]?.product?.sales) return total;
-        return total + order.items[0].product.sales;
-      }, 0),
-      products: totalProducts,
-      customers: order.reduce((total, order) => {
-        if (order.items[0]?.product?.userId !== user.id) return total;
-        return total + 1;
-      }, 0),
+      totalRevenue: Number(row.totalRevenue) || 0,
+      totalSales: Number(row.totalSales) || 0,
+      products: Number(row.totalProducts) || 0,
+      customers: Number(row.totalCustomers) || 0,
     },
-    overview: monthlyData,
-    topProducts: topPeformingProducts,
+    overview: row.overview ?? [],
+    topProducts: [],
   };
+
   return response;
 };
 

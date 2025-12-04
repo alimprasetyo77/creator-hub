@@ -11,7 +11,7 @@ export function useOrder(
   options?: Omit<UseQueryOptions<OrderResponse, Error, OrderResponse, any[]>, 'queryKey' | 'queryFn'>
 ) {
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ['orders', orderId],
+    queryKey: ['order', orderId],
     queryFn: () => getOrder(orderId),
     enabled: !!orderId,
     refetchOnWindowFocus: false,
@@ -32,7 +32,8 @@ export const useCreateOrder = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: CreateOrderType) => createOrder(data),
     onSuccess: async ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ['orders', 'my-purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['orders', data.orderId] });
+      queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
       router.replace(`/checkout/${data.orderId}`);
     },
     onError: ({ message }) => {
@@ -50,11 +51,13 @@ export const useCreateCompleteOrder = () => {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: CreateCompleteOrderType) => createCompleteOrder(data),
     onSuccess: ({ data }) => {
-      queryClient.invalidateQueries({ queryKey: ['orders', data.orderId, 'my-purchases'] });
+      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] });
+      queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
     },
     onSettled(data, error, _variables, _onMutateResult, _context) {
       if (error) {
-        queryClient.invalidateQueries({ queryKey: ['orders', data?.data.orderId, 'my-purchases'] });
+        queryClient.invalidateQueries({ queryKey: ['order', data?.data.orderId] });
+        queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
       }
     },
   });
@@ -69,8 +72,8 @@ export const useCancelOrder = () => {
   const queryClient = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (orderId: string) => cancelOrder(orderId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    onSuccess: ({ data }) => {
+      queryClient.invalidateQueries({ queryKey: ['order', data.orderId] });
     },
     onError: ({ message }) => {
       toast.error(message);

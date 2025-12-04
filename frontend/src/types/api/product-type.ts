@@ -22,7 +22,8 @@ const base = z.object({
       (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
       'Only .jpg, .jpeg, .png formats are supported'
     )
-    .refine((file) => file?.size <= MAX_UPLOAD_SIZE, `Max image size is 2MB`),
+    .refine((file) => file?.size <= MAX_UPLOAD_SIZE, `Max image size is 2MB`)
+    .or(z.literal('')),
   files: z
     .any()
     .refine((file) => ACCEPTED_FILE_TYPES.includes(file?.type), 'Only .pdf, .zip formats are supported')

@@ -1,11 +1,13 @@
 import {
   createProduct,
+  deleteProduct,
   getMyProducts,
   getProductById,
   getProductBySlug,
   getProducts,
+  updateProduct,
 } from '@/services/product-service';
-import { ProductCreateType } from '@/types/api/product-type';
+import { ProductCreateType, ProductUpdateType } from '@/types/api/product-type';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -55,7 +57,8 @@ export const useCreateProduct = () => {
   const { mutateAsync, isPending } = useMutation({
     mutationFn: (data: ProductCreateType) => createProduct(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['my-products', 'products', 'product'] });
+      queryClient.invalidateQueries({ queryKey: ['my-products'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -64,6 +67,44 @@ export const useCreateProduct = () => {
 
   return {
     createProduct: mutateAsync,
+    isPending,
+  };
+};
+
+export const useUpdateProduct = (productId: string) => {
+  const qc = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: ProductUpdateType) => updateProduct(productId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['my-products'] });
+      qc.invalidateQueries({ queryKey: ['product', productId] });
+      qc.invalidateQueries({ queryKey: ['products'] });
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+
+  return {
+    updateProduct: mutate,
+    isPending,
+  };
+};
+export const useDeleteProduct = () => {
+  const qc = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (productId: string) => deleteProduct(productId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['my-products'] });
+      qc.invalidateQueries({ queryKey: ['products'] });
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+
+  return {
+    mutate,
     isPending,
   };
 };

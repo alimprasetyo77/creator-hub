@@ -1,4 +1,5 @@
 'use client';
+import DialogDeleteProduct from '@/components/dashboard/creator/my-product/dialog-delete-product';
 import DialogEditProduct from '@/components/dashboard/creator/my-product/dialog-edit-product';
 import DialogViewProduct from '@/components/dashboard/creator/my-product/dialog-view-product';
 import { Badge } from '@/components/ui/badge';
@@ -120,7 +121,7 @@ export default function Products() {
         </Table>
       </Card>
 
-      {/* Section Dialog */}
+      {/* Dialog Section */}
       <DialogViewProduct
         viewProduct={viewProduct}
         setViewProduct={setViewProduct}
@@ -130,6 +131,7 @@ export default function Products() {
         }}
       />
       <DialogEditProduct editProduct={editProduct} setEditProduct={setEditProduct} />
+      <DialogDeleteProduct deleteProduct={deleteProduct} setDeleteProduct={setDeleteProduct} />
     </div>
   );
 }

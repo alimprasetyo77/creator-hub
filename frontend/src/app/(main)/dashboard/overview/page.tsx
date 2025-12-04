@@ -3,7 +3,6 @@ import StatsCard from '@/components/stats-card';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useOverview } from '@/hooks/use-creator';
-import { useMyProducts } from '@/hooks/use-products';
 import { formatIDR } from '@/lib/utils';
 import { DollarSign, Package, TrendingUp, Users } from 'lucide-react';
 import {
@@ -21,7 +20,11 @@ import {
 export default function Overview() {
   const { overview, isLoading } = useOverview();
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        <h2>Loading...</h2>
+      </div>
+    );
   }
   return (
     <div className='space-y-6'>

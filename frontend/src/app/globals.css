@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -111,7 +111,12 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
-
+.customScrollBar {
+  scrollbar-width: thin;
+}
+.customScrollBar::-webkit-scrollbar-button {
+  display: none;
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -24,7 +24,13 @@ export default function page() {
     },
   });
 
-  const onSubmit = form.handleSubmit((data: LoginType) => login(data));
+  const onSubmit = form.handleSubmit((data: LoginType) =>
+    login(data, {
+      onError: (error) => {
+        form.setError('root', { message: error.message });
+      },
+    })
+  );
 
   return (
     <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white px-4'>
@@ -63,7 +69,7 @@ export default function page() {
                         placeholder='you@example.com'
                         disabled={form.formState.isSubmitting}
                       />
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      {fieldState.error && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
@@ -98,10 +104,11 @@ export default function page() {
                           )}
                         </span>
                       </div>
-                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                      {fieldState.error && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />
+                {form.formState.errors.root && <FieldError errors={[form.formState.errors.root]} />}
               </FieldGroup>
 
               <Field>

@@ -14,7 +14,9 @@ export const useLogin = () => {
       router.replace('/');
     },
     onError: (error) => {
-      toast.error(error.message);
+      if (error.message !== 'Email or password is incorrect') {
+        toast.error(error.message);
+      }
     },
   });
 

@@ -1,3 +1,4 @@
+'use client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -118,7 +119,7 @@ export default function DialogViewProduct({
 
           <div className='flex gap-3'>
             <Button
-              className='flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+              className='flex-1 bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
               onClick={() => {
                 onNavigateEdit(viewProduct!);
               }}
