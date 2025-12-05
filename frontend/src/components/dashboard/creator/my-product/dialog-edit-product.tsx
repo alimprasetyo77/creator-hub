@@ -22,10 +22,6 @@ interface IDialogViewProductProps {
 }
 
 export default function DialogEditProduct({ editProduct, setEditProduct }: IDialogViewProductProps) {
-  if (!editProduct) {
-    return <div>Product not found</div>;
-  }
-
   const [previewThumbnail, setPreviewThumbnail] = useState(editProduct?.thumbnail ?? '');
   const { categories, isLoading: isLoadingCategories } = useCategories();
   const { updateProduct, isPending } = useUpdateProduct(editProduct?.id!);

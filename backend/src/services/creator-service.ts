@@ -1,60 +1,147 @@
-import { Prisma } from '../generated/prisma/client';
+import { Payout, Prisma } from '../generated/prisma/client';
 import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
-import { IOverview } from '../validations/creator-validation';
+import creatorValidation, { CreatePayoutType, IOverview } from '../validations/creator-validation';
+import { validate } from '../validations/validation';
 
 const getOverview = async (user: UserRequest['user']): Promise<IOverview> => {
-  const result = await prisma.$queryRaw`
+  const summary = await prisma.$queryRaw`
 SELECT
   -- total sales
   (
-    SELECT COALESCE(SUM(p.sales), 0)
+    SELECT CAST(COALESCE(SUM(p.sales), 0) AS INTEGER)
     FROM products p
     WHERE p."userId" = ${user?.id}
   ) AS "totalSales",
 
   -- total revenue
   (
-    SELECT COALESCE(SUM(p.sales * p.price), 0)
-    FROM products p
-    WHERE p."userId" = ${user?.id}
+    SELECT CAST(COALESCE(SUM(p.sales * p.price), 0) AS INTEGER)
+    FROM orders o
+    JOIN order_items oi ON oi."orderId" = o.id
+    JOIN products p ON p.id = oi."productId"
+    WHERE o."orderStatus" = 'PAID' AND p."userId" = ${user?.id}
   ) AS "totalRevenue",
 
   -- total products owned by seller
   (
-    SELECT COUNT(*)
+    SELECT CAST(COUNT(*) AS INTEGER)
     FROM products p
     WHERE p."userId" = ${user?.id}
   ) AS "totalProducts",
 
   -- total customers who bought the seller product
   (
-    SELECT COUNT(DISTINCT o."userId")
+    SELECT CAST(COUNT(DISTINCT o."userId") AS INTEGER)
     FROM orders o
     JOIN order_items oi ON oi."orderId" = o.id
     JOIN products p ON p.id = oi."productId"
     WHERE o."orderStatus" = 'PAID'
       AND p."userId" = ${user?.id}
-  ) AS "totalCustomers",
-
-
+  ) AS "totalCustomers"
 `;
 
-  const row = (result as any)[0];
+  const overview = await prisma.$queryRaw`
+    SELECT
+      to_char(make_date(${2025}, bulan, 1), 'Mon') AS month,
+      CAST(COALESCE(COUNT(oi.id), 0) AS INTEGER) AS sales,
+      CAST(COALESCE(SUM(oi.price * sales), 0) AS INTEGER) AS revenue
+    FROM generate_series(1, 12) AS bulan
+    LEFT JOIN orders o
+        ON EXTRACT(MONTH FROM o."createdAt") = bulan
+        AND EXTRACT(YEAR FROM o."createdAt") = ${2025}
+        AND o."orderStatus" = 'PAID'
+    LEFT JOIN order_items oi
+        ON oi."orderId" = o.id
+    LEFT JOIN products p
+        ON p.id = oi."productId"
+        AND p."userId" = ${user?.id}
+    GROUP BY bulan
+    ORDER BY bulan;
+`;
+
+  const topProducts = await prisma.$queryRaw`
+    SELECT  p.id AS "id", p.title AS "title", p.thumbnail AS "thumbnail", p.price AS "price",CAST(SUM(p.sales) AS INTEGER) AS "sales", CAST(SUM(p.sales * p.price) AS INTEGER) AS "revenue"
+    FROM products p
+    WHERE p."userId" = ${user?.id}
+    AND p.sales > 0
+    GROUP BY p.id
+    ORDER BY p.sales DESC
+    LIMIT 5
+`;
+
+  const row = (summary as any)[0];
 
   const response: IOverview = {
     summary: {
-      totalRevenue: Number(row.totalRevenue) || 0,
-      totalSales: Number(row.totalSales) || 0,
-      products: Number(row.totalProducts) || 0,
-      customers: Number(row.totalCustomers) || 0,
+      totalRevenue: row.totalRevenue || 0,
+      totalSales: row.totalSales || 0,
+      products: row.totalProducts || 0,
+      customers: row.totalCustomers || 0,
     },
-    overview: row.overview ?? [],
-    topProducts: [],
+    overview: (overview as any) ?? [],
+    topProducts: (topProducts as any) ?? [],
   };
 
   return response;
 };
 
-export default { getOverview };
+const getCustomerTransactions = async (user: UserRequest['user']) => {
+  const result = await prisma.$queryRaw`
+    SELECT
+        o."id",
+        p."title",
+        json_build_object(
+          'name', ou."full_name",
+          'email', ou.email
+        ) AS "customer",
+        p."price",
+        o."orderStatus",
+        o."createdAt"
+    FROM orders o
+    JOIN order_items oi ON oi."orderId" = o.id
+    JOIN products p ON p.id = oi."productId"
+    JOIN users ou ON ou.id = o."userId"
+    WHERE p."userId" = ${user?.id}
+    ORDER BY o."createdAt" DESC
+  `;
+
+  const response = (result as any) ?? [];
+
+  return response;
+};
+
+const createPayout = async (request: CreatePayoutType, user: UserRequest['user']): Promise<Payout> => {
+  const createPayoutRequest = validate(creatorValidation.createPayoutSchema, request);
+
+  const result = await prisma.payout.create({
+    data: {
+      creatorId: user?.id!,
+      amount: createPayoutRequest.amount,
+      method: createPayoutRequest.method,
+    },
+  });
+
+  return result;
+};
+
+const getPayoutHistory = async (user: UserRequest['user']): Promise<Omit<Payout, 'creatorId'>[]> => {
+  const result = await prisma.payout.findMany({
+    where: { creatorId: user?.id },
+    orderBy: {
+      date: 'desc',
+    },
+    select: {
+      id: true,
+      amount: true,
+      method: true,
+      date: true,
+      status: true,
+    },
+  });
+
+  return result;
+};
+
+export default { getOverview, getCustomerTransactions, getPayoutHistory, createPayout };

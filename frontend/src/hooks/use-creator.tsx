@@ -1,5 +1,12 @@
-import { getOverview } from '@/services/creator-service';
-import { useQuery } from '@tanstack/react-query';
+import {
+  createPayout,
+  getCustomerTransactions,
+  getOverview,
+  getPayoutHistory,
+} from '@/services/creator-service';
+import { CreatePayoutType } from '@/types/api/creator-type';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export const useOverview = () => {
   const { data, isLoading } = useQuery({
@@ -10,6 +17,51 @@ export const useOverview = () => {
   });
   return {
     overview: data?.data,
+    isLoading,
+  };
+};
+
+export const useCustomerTransactions = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['customer-transactions'],
+    queryFn: () => getCustomerTransactions(),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
+  });
+  return {
+    transactions: data?.data,
+    isLoading,
+  };
+};
+
+export const useCreatePayout = () => {
+  const qc = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: CreatePayoutType) => createPayout(data),
+    onSuccess: ({ message }) => {
+      qc.invalidateQueries({ queryKey: ['payout-history'] });
+      toast.error(message);
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+
+  return {
+    createPayout: mutate,
+    isPending,
+  };
+};
+
+export const usePayoutHistory = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['payout-history'],
+    queryFn: () => getPayoutHistory(),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
+  });
+  return {
+    payoutHistory: data?.data,
     isLoading,
   };
 };

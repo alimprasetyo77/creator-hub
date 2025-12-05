@@ -15,4 +15,48 @@ const getOverview = async (req: UserRequest, res: Response, next: NextFunction):
   }
 };
 
-export default { getOverview };
+const getCustomerTransactions = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const request = req.user;
+    const response = await creatorService.getCustomerTransactions(request);
+    res.status(200).json({
+      message: 'Get customer transactions successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createPayout = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const request = req.body;
+    const response = await creatorService.createPayout(request, user);
+    res.status(200).json({
+      message: 'Create payout successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getPayoutHistory = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const response = await creatorService.getPayoutHistory(user);
+    res.status(200).json({
+      message: 'Get payout history successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default { getOverview, getCustomerTransactions, createPayout, getPayoutHistory };

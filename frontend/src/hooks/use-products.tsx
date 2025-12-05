@@ -54,7 +54,7 @@ export const useMyProducts = () => {
 
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();
-  const { mutateAsync, isPending } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: (data: ProductCreateType) => createProduct(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-products'] });
@@ -66,7 +66,7 @@ export const useCreateProduct = () => {
   });
 
   return {
-    createProduct: mutateAsync,
+    createProduct: mutate,
     isPending,
   };
 };

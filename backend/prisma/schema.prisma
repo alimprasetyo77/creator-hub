@@ -25,6 +25,7 @@ model User {
   balance    Float?
   products   Product[]
   orders     Order[]
+  payouts    Payout[]
 
   @@map("users")
 }
@@ -131,4 +132,23 @@ model OrderPayment {
   order   Order  @relation(fields: [orderId], references: [id])
 
   @@map("order_payments")
+}
+
+model Payout {
+  id        String       @id @default(uuid())
+  amount    Float
+  method    String
+  date      DateTime     @default(now())
+  status    PayoutStatus @default(PENDING)
+  creatorId String
+  user      User         @relation(fields: [creatorId], references: [id])
+
+  @@map("payouts")
+}
+
+enum PayoutStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REJECTED
 }

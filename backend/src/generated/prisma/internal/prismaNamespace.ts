@@ -389,7 +389,8 @@ export const ModelName = {
   Product: 'Product',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  OrderPayment: 'OrderPayment'
+  OrderPayment: 'OrderPayment',
+  Payout: 'Payout'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -405,7 +406,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "category" | "product" | "order" | "orderItem" | "orderPayment"
+    modelProps: "user" | "category" | "product" | "order" | "orderItem" | "orderPayment" | "payout"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -853,6 +854,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Payout: {
+      payload: Prisma.$PayoutPayload<ExtArgs>
+      fields: Prisma.PayoutFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PayoutFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PayoutFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>
+        }
+        findFirst: {
+          args: Prisma.PayoutFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PayoutFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>
+        }
+        findMany: {
+          args: Prisma.PayoutFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>[]
+        }
+        create: {
+          args: Prisma.PayoutCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>
+        }
+        createMany: {
+          args: Prisma.PayoutCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PayoutCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>[]
+        }
+        delete: {
+          args: Prisma.PayoutDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>
+        }
+        update: {
+          args: Prisma.PayoutUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>
+        }
+        deleteMany: {
+          args: Prisma.PayoutDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PayoutUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PayoutUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>[]
+        }
+        upsert: {
+          args: Prisma.PayoutUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayoutPayload>
+        }
+        aggregate: {
+          args: Prisma.PayoutAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePayout>
+        }
+        groupBy: {
+          args: Prisma.PayoutGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PayoutGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PayoutCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PayoutCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -979,6 +1054,18 @@ export const OrderPaymentScalarFieldEnum = {
 } as const
 
 export type OrderPaymentScalarFieldEnum = (typeof OrderPaymentScalarFieldEnum)[keyof typeof OrderPaymentScalarFieldEnum]
+
+
+export const PayoutScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  method: 'method',
+  date: 'date',
+  status: 'status',
+  creatorId: 'creatorId'
+} as const
+
+export type PayoutScalarFieldEnum = (typeof PayoutScalarFieldEnum)[keyof typeof PayoutScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1146,6 +1233,20 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
+
+/**
+ * Reference to a field of type 'PayoutStatus'
+ */
+export type EnumPayoutStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PayoutStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'PayoutStatus[]'
+ */
+export type ListEnumPayoutStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PayoutStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -1231,6 +1332,7 @@ export type GlobalOmitConfig = {
   order?: Prisma.OrderOmit
   orderItem?: Prisma.OrderItemOmit
   orderPayment?: Prisma.OrderPaymentOmit
+  payout?: Prisma.PayoutOmit
 }
 
 /* Types for Logging */

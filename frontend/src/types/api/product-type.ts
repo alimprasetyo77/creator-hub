@@ -12,10 +12,7 @@ const base = z.object({
   price: z
     .string()
     .nonempty({ error: 'Price is required' })
-    .refine((value) => {
-      const parsedValue = parseFloat(value);
-      return !isNaN(parsedValue) && parsedValue >= 0;
-    }),
+    .transform((value) => value.replace(/[^0-9]/g, '')),
   thumbnail: z
     .any()
     .refine(

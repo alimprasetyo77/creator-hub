@@ -54,6 +54,7 @@ export interface IUser {
   role: string;
   avatar: string;
   token: string;
+  balance?: number;
   created_at: Date;
 }
 

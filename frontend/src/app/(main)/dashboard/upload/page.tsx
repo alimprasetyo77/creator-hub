@@ -14,10 +14,11 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct } from '@/hooks/use-products';
+import { formatIDR } from '@/lib/utils';
 
 export default function Upload() {
   const { categories } = useCategories();
-  const { createProduct } = useCreateProduct();
+  const { createProduct, isPending } = useCreateProduct();
   const [previewImg, setPreviewImg] = useState('');
 
   const form = useForm<ProductCreateType>({
@@ -32,10 +33,12 @@ export default function Upload() {
     },
   });
 
-  const onSubmit = form.handleSubmit(async (data: ProductCreateType) => {
-    await createProduct(data).then(() => {
-      form.reset();
-      setPreviewImg('');
+  const onSubmit = form.handleSubmit((data: ProductCreateType) => {
+    createProduct(data, {
+      onSuccess: () => {
+        form.reset();
+        setPreviewImg('');
+      },
     });
   });
 
@@ -92,8 +95,18 @@ export default function Upload() {
                   name='price'
                   render={({ field, fieldState }) => (
                     <Field>
-                      <FieldLabel htmlFor={field.name}>Price (USD)</FieldLabel>
-                      <Input id={field.name} type='text' placeholder='29' {...field} />
+                      <FieldLabel htmlFor={field.name}>Price (IDR)</FieldLabel>
+                      <Input
+                        id={field.name}
+                        type='text'
+                        placeholder='Enter product price...'
+                        {...field}
+                        onChange={(e) => {
+                          let raw = e.target.value.replace(/[^0-9]/g, '');
+                          if (!raw) return form.setValue('price', '');
+                          form.setValue('price', formatIDR(+raw));
+                        }}
+                      />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </Field>
                   )}
@@ -114,10 +127,6 @@ export default function Upload() {
                               {category.name}
                             </SelectItem>
                           ))}
-                          {/* <SelectItem value='30e5972d-206b-4bb8-8cdc-a30cf0bbf17b'>E-book</SelectItem>
-                          <SelectItem value='ui-kit'>UI Kit</SelectItem>
-                          <SelectItem value='asset'>Asset</SelectItem>
-                          <SelectItem value='course'>Course</SelectItem> */}
                         </SelectContent>
                       </Select>
                       <FieldError>{fieldState.error?.message}</FieldError>
@@ -250,8 +259,9 @@ export default function Upload() {
               <Button
                 type='submit'
                 className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                disabled={!form.formState.isValid || form.formState.isSubmitting || isPending}
               >
-                Publish Product
+                {isPending ? 'Publishing...' : 'Publish Product'}
               </Button>
               <Button type='button' variant='outline'>
                 Save as Draft

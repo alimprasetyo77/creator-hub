@@ -122,16 +122,20 @@ export default function Products() {
       </Card>
 
       {/* Dialog Section */}
-      <DialogViewProduct
-        viewProduct={viewProduct}
-        setViewProduct={setViewProduct}
-        onNavigateEdit={(product) => {
-          setViewProduct(null);
-          setEditProduct(product);
-        }}
-      />
-      <DialogEditProduct editProduct={editProduct} setEditProduct={setEditProduct} />
-      <DialogDeleteProduct deleteProduct={deleteProduct} setDeleteProduct={setDeleteProduct} />
+      {viewProduct && (
+        <DialogViewProduct
+          viewProduct={viewProduct}
+          setViewProduct={setViewProduct}
+          onNavigateEdit={(product) => {
+            setViewProduct(null);
+            setEditProduct(product);
+          }}
+        />
+      )}
+      {editProduct && <DialogEditProduct editProduct={editProduct} setEditProduct={setEditProduct} />}
+      {deleteProduct && (
+        <DialogDeleteProduct deleteProduct={deleteProduct} setDeleteProduct={setDeleteProduct} />
+      )}
     </div>
   );
 }
