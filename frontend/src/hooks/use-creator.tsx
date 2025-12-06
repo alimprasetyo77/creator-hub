@@ -3,6 +3,7 @@ import {
   getCustomerTransactions,
   getOverview,
   getPayoutHistory,
+  getPayoutSummary,
 } from '@/services/creator-service';
 import { CreatePayoutType } from '@/types/api/creator-type';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -39,7 +40,9 @@ export const useCreatePayout = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: CreatePayoutType) => createPayout(data),
     onSuccess: ({ message }) => {
+      qc.invalidateQueries({ queryKey: ['user'] });
       qc.invalidateQueries({ queryKey: ['payout-history'] });
+      qc.invalidateQueries({ queryKey: ['payout-summary'] });
       toast.error(message);
     },
     onError: ({ message }) => {
@@ -50,6 +53,19 @@ export const useCreatePayout = () => {
   return {
     createPayout: mutate,
     isPending,
+  };
+};
+
+export const usePayoutSummary = () => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['payout-summary'],
+    queryFn: () => getPayoutSummary(),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
+  });
+  return {
+    payoutSummary: data?.data,
+    isLoading,
   };
 };
 

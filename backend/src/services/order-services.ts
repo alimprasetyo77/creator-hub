@@ -329,7 +329,7 @@ const paymentNotificationHandler = async (
 
   const order = await prisma.order.findUnique({
     where: { id: order_id },
-    select: { orderStatus: true, paymentInfo: true, items: true },
+    select: { userId: true, orderStatus: true, paymentInfo: true, items: true },
   });
 
   if (!order) {
@@ -344,6 +344,14 @@ const paymentNotificationHandler = async (
           data: {
             sales: {
               increment: order.items[0].quantity,
+            },
+          },
+        });
+        await prisma.user.update({
+          where: { id: order.userId },
+          data: {
+            balance: {
+              increment: order.items[0].total,
             },
           },
         });

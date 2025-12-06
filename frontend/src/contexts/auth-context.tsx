@@ -3,7 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { IUser } from '@/types/api/user-type';
-import { useGetUser } from '@/hooks/use-users';
+import { useUser } from '@/hooks/use-users';
 import axiosWithConfig from '@/lib/axios-config';
 
 interface AuthContextValue {
@@ -37,7 +37,7 @@ export function AuthProvider({ children, hasToken }: { children: React.ReactNode
     };
   }, [queryClient]);
 
-  const { data: user, isLoading } = useGetUser({
+  const { data: user, isLoading } = useUser({
     enabled: isAuthenticated,
   });
 

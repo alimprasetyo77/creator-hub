@@ -51,7 +51,7 @@ export const useMyPurchases = () => {
   };
 };
 
-export const useGetUser = (options?: IOptionsProps) => {
+export const useUser = (options?: IOptionsProps) => {
   const { data, isLoading, error } = useQuery<IResponse<IUser>, AxiosError>({
     queryKey: ['user'],
     queryFn: getUser,

@@ -4,7 +4,8 @@ const createPayoutSchema = z.object({
   amount: z
     .string()
     .nonempty({ error: 'Price is required' })
-    .transform((value) => value.replace(/[^0-9]/g, '')),
+    .transform((value) => value.replace(/[^0-9]/g, ''))
+    .refine((value) => Number(value) >= 500000, 'Amount must be less than 500,000'),
   method: z.string().nonempty({ error: 'Payment method is required' }),
 });
 export type CreatePayoutType = z.infer<typeof createPayoutSchema>;
@@ -49,4 +50,10 @@ export interface IPayout {
   method: string;
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REJECTED';
   createdAt: string;
+}
+
+export interface IPayoutSummary {
+  availableBalance: number;
+  pendingBalance: number;
+  totalWithdrawal: number;
 }

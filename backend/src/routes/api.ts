@@ -49,5 +49,6 @@ apiRouter.get(
   creatorController.getCustomerTransactions
 );
 apiRouter.post('/api/creators/payout', allowedRoles(['CREATOR']), creatorController.createPayout);
+apiRouter.get('/api/creators/payout-summary', allowedRoles(['CREATOR']), creatorController.getPayoutSummary);
 apiRouter.get('/api/creators/payout-history', allowedRoles(['CREATOR']), creatorController.getPayoutHistory);
 export default apiRouter;

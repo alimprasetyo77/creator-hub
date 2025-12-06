@@ -3,9 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAuth } from '@/contexts/auth-context';
 import { useCreatePayout } from '@/hooks/use-creator';
 import { formatIDR } from '@/lib/utils';
 import { createPayoutSchema, CreatePayoutType } from '@/types/api/creator-type';
@@ -13,40 +11,27 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CreditCard } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
 const PayoutForm = () => {
-  const { user } = useAuth();
   const { createPayout, isPending } = useCreatePayout();
-  const availableBalance = user?.balance || 0;
   const [fee, setFee] = useState(0);
   const [total, setTotal] = useState(0);
   const form = useForm<CreatePayoutType>({
     resolver: zodResolver(createPayoutSchema),
     defaultValues: {
       amount: '0',
-      method: 'bank',
+      method: '',
     },
   });
 
   const onSubmit = form.handleSubmit((data: CreatePayoutType) => {
-    const amount = parseInt(data.amount);
-    if (amount && amount <= availableBalance && amount >= 50) {
-      createPayout(data, {
-        onSuccess: () => {
-          toast.success(`Withdrawal request for ${amount} submitted successfully!`);
-          form.reset();
-        },
-        onSettled: () => {
-          setFee(0);
-          setTotal(0);
-        },
-      });
-    } else if (amount < 50) {
-      toast.error('Minimum withdrawal amount is $50');
-    } else {
-      toast.error('Insufficient balance or invalid amount');
-    }
+    createPayout(data, {
+      onSettled: () => {
+        setFee(0);
+        setTotal(0);
+        form.reset();
+      },
+    });
   });
 
   return (
@@ -77,7 +62,7 @@ const PayoutForm = () => {
                     }}
                   />
                   <FieldDescription className='text-sm text-muted-foreground'>
-                    Minimum withdrawal: $50
+                    Minimum withdrawal: Rp 500,000
                   </FieldDescription>
                   {fieldState.error && <p className='text-sm text-destructive'>{fieldState.error.message}</p>}
                 </Field>
@@ -88,7 +73,7 @@ const PayoutForm = () => {
               name='method'
               render={({ field, fieldState }) => (
                 <Field className='space-y-0'>
-                  <Label htmlFor='method'>Withdrawal Method</Label>
+                  <FieldLabel htmlFor='method'>Withdrawal Method</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder='Select method' />

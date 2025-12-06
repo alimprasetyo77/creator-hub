@@ -38,7 +38,20 @@ const createPayout = async (req: UserRequest, res: Response, next: NextFunction)
     const request = req.body;
     const response = await creatorService.createPayout(request, user);
     res.status(200).json({
-      message: 'Create payout successfully',
+      message: 'Withdrawal request submitted successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getPayoutSummary = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const response = await creatorService.getPayoutSummary(user);
+    res.status(200).json({
+      message: 'Get payout summary successfully',
       data: response,
     });
   } catch (error) {
@@ -59,4 +72,4 @@ const getPayoutHistory = async (req: UserRequest, res: Response, next: NextFunct
   }
 };
 
-export default { getOverview, getCustomerTransactions, createPayout, getPayoutHistory };
+export default { getOverview, getCustomerTransactions, getPayoutSummary, createPayout, getPayoutHistory };

@@ -115,6 +115,20 @@ const getCustomerTransactions = async (user: UserRequest['user']) => {
 const createPayout = async (request: CreatePayoutType, user: UserRequest['user']): Promise<Payout> => {
   const createPayoutRequest = validate(creatorValidation.createPayoutSchema, request);
 
+  if (createPayoutRequest.amount < 500000) throw new ResponseError(400, 'Minimum amount is Rp 500,000');
+  if (user?.balance! < createPayoutRequest.amount) throw new ResponseError(400, 'Insufficient balance');
+
+  await prisma.user.update({
+    where: {
+      id: user?.id!,
+    },
+    data: {
+      balance: {
+        decrement: createPayoutRequest.amount,
+      },
+    },
+  });
+
   const result = await prisma.payout.create({
     data: {
       creatorId: user?.id!,
@@ -124,6 +138,26 @@ const createPayout = async (request: CreatePayoutType, user: UserRequest['user']
   });
 
   return result;
+};
+
+const getPayoutSummary = async (user: UserRequest['user']) => {
+  const payout = await prisma.payout.findMany({
+    where: {
+      creatorId: user?.id,
+    },
+    select: {
+      amount: true,
+      status: true,
+    },
+  });
+  const response = {
+    availableBalance: user?.balance,
+    pendingBalance:
+      payout.filter((p) => p.status === 'PENDING').reduce((acc, cur) => acc + cur.amount, 0) || 0,
+    totalWithdrawal:
+      payout.filter((p) => p.status === 'SUCCESS').reduce((acc, cur) => acc + cur.amount, 0) || 0,
+  };
+  return response;
 };
 
 const getPayoutHistory = async (user: UserRequest['user']): Promise<Omit<Payout, 'creatorId'>[]> => {
@@ -144,4 +178,4 @@ const getPayoutHistory = async (user: UserRequest['user']): Promise<Omit<Payout,
   return result;
 };
 
-export default { getOverview, getCustomerTransactions, getPayoutHistory, createPayout };
+export default { getOverview, getCustomerTransactions, getPayoutSummary, getPayoutHistory, createPayout };

@@ -1,14 +1,21 @@
+import { formatIDR } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { IPayout } from '@/types/api/creator-type';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { formatIDR } from '@/lib/utils';
-import { IPayout } from '@/types/api/creator-type';
 
 interface PayoutHistoryTableProps {
   payoutHistory: IPayout[];
 }
 
 export default function PayoutHistoryTable({ payoutHistory }: PayoutHistoryTableProps) {
+  const badgeVariantsForPayoutType = {
+    success: ' bg-green-500 text-white hover:bg-green-600',
+    pending: 'border-transparent bg-yellow-500 text-white hover:bg-yellow-600',
+    failed: 'bg-red-500 text-white hover:bg-red-600',
+    rejected: 'bg-gray-500 text-white hover:bg-gray-600',
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -42,7 +49,9 @@ export default function PayoutHistoryTable({ payoutHistory }: PayoutHistoryTable
                     })}
                   </TableCell>
                   <TableCell>
-                    <Badge variant='default'>{payout.status}</Badge>
+                    <Badge className={(badgeVariantsForPayoutType as any)[payout.status.toLowerCase()]}>
+                      {payout.status}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ))
