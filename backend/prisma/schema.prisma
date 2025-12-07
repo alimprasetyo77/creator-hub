@@ -14,18 +14,19 @@ datasource db {
 }
 
 model User {
-  id         String    @id @default(uuid())
-  full_name  String    @db.VarChar(100)
-  role       Role      @default(USER)
-  password   String    @db.VarChar(100)
-  email      String    @unique
-  created_at DateTime  @default(now())
-  avatar     String?   @db.VarChar(225)
-  token      String?   @db.Text()
-  balance    Float?
-  products   Product[]
-  orders     Order[]
-  payouts    Payout[]
+  id               String             @id @default(uuid())
+  full_name        String             @db.VarChar(100)
+  role             Role               @default(USER)
+  password         String             @db.VarChar(100)
+  email            String             @unique
+  created_at       DateTime           @default(now())
+  avatar           String?            @db.VarChar(225)
+  token            String?            @db.Text()
+  balance          Float?
+  products         Product[]
+  orders           Order[]
+  payouts          Payout[]
+  withdrawalMethod WithdrawalMethod[]
 
   @@map("users")
 }
@@ -146,9 +147,28 @@ model Payout {
   @@map("payouts")
 }
 
+model WithdrawalMethod {
+  id         String               @id @default(uuid())
+  name       String
+  type       WithdrawalMethodType
+  details    Json
+  // account_name   String
+  // account_number String
+  // bank_name      String
+  creatorId  String
+  is_default Boolean              @default(false)
+  user       User                 @relation(fields: [creatorId], references: [id])
+
+  @@map("withdrawal_methods")
+}
+
+enum WithdrawalMethodType {
+  BANK_TRANSFER
+  E_WALLET
+}
+
 enum PayoutStatus {
   PENDING
   SUCCESS
-  FAILED
   REJECTED
 }

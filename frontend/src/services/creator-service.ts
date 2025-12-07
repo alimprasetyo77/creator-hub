@@ -2,10 +2,12 @@ import axiosWithConfig from '@/lib/axios-config';
 import { IResponse } from '@/types';
 import {
   CreatePayoutType,
+  CreateWithdrawalMethodType,
   ICustomerTransactions,
   IOverview,
   IPayout,
   IPayoutSummary,
+  IWithdrawalMethod,
 } from '@/types/api/creator-type';
 import { isAxiosError } from 'axios';
 
@@ -84,4 +86,58 @@ const getPayoutHistory = async () => {
   }
 };
 
-export { getOverview, getCustomerTransactions, createPayout, getPayoutSummary, getPayoutHistory };
+const getWithdrawalMethods = async () => {
+  try {
+    const response = await axiosWithConfig.get('/api/creators/withdrawal-methods');
+    return response.data as IResponse<IWithdrawalMethod[]>;
+  } catch (error) {
+    if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (isAxiosError(error) && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
+const createWithdrawalMethod = async (request: CreateWithdrawalMethodType) => {
+  try {
+    const response = await axiosWithConfig.post('/api/creators/withdrawal-methods', request);
+    return response.data as IResponse<{}>;
+  } catch (error) {
+    if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (isAxiosError(error) && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
+const setDefaultWidrawalMethod = async (id: string) => {
+  try {
+    const response = await axiosWithConfig.post(`/api/creators/set-default-withdrawal-methods/${id}`);
+    return response.data as IResponse<{}>;
+  } catch (error) {
+    if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (isAxiosError(error) && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
+export {
+  getOverview,
+  getCustomerTransactions,
+  createPayout,
+  getPayoutSummary,
+  getPayoutHistory,
+  getWithdrawalMethods,
+  createWithdrawalMethod,
+  setDefaultWidrawalMethod,
+};

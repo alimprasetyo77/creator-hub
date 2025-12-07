@@ -36,10 +36,17 @@ export const OrderStatus = {
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 
+export const WithdrawalMethodType = {
+  BANK_TRANSFER: 'BANK_TRANSFER',
+  E_WALLET: 'E_WALLET'
+} as const
+
+export type WithdrawalMethodType = (typeof WithdrawalMethodType)[keyof typeof WithdrawalMethodType]
+
+
 export const PayoutStatus = {
   PENDING: 'PENDING',
   SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
   REJECTED: 'REJECTED'
 } as const
 

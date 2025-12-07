@@ -1,14 +1,14 @@
+'use client';
 import { formatIDR } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { IPayout } from '@/types/api/creator-type';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { usePayoutHistory } from '@/hooks/use-creator';
+import { PayoutHistorySkeleton } from './payout-history-skeleton';
 
-interface PayoutHistoryTableProps {
-  payoutHistory: IPayout[];
-}
+export default function PayoutHistoryTable() {
+  const { payoutHistory, isLoading: historyLoading } = usePayoutHistory();
 
-export default function PayoutHistoryTable({ payoutHistory }: PayoutHistoryTableProps) {
   const badgeVariantsForPayoutType = {
     success: ' bg-green-500 text-white hover:bg-green-600',
     pending: 'border-transparent bg-yellow-500 text-white hover:bg-yellow-600',
@@ -16,10 +16,13 @@ export default function PayoutHistoryTable({ payoutHistory }: PayoutHistoryTable
     rejected: 'bg-gray-500 text-white hover:bg-gray-600',
   };
 
-  return (
+  return historyLoading ? (
+    <PayoutHistorySkeleton />
+  ) : (
     <Card>
-      <CardHeader>
+      <CardHeader className='gap-0'>
         <CardTitle>Payout History</CardTitle>
+        <p className='text-sm text-muted-foreground mt-1'>View all your completed and pending withdrawals</p>
       </CardHeader>
       <CardContent>
         <Table>
@@ -33,7 +36,7 @@ export default function PayoutHistoryTable({ payoutHistory }: PayoutHistoryTable
             </TableRow>
           </TableHeader>
           <TableBody>
-            {payoutHistory?.length > 0 ? (
+            {payoutHistory && payoutHistory?.length > 0 ? (
               payoutHistory?.map((payout: any) => (
                 <TableRow key={payout.id}>
                   <TableCell className='font-mono text-sm'>{payout.id}</TableCell>

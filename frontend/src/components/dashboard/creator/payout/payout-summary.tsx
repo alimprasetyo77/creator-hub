@@ -8,7 +8,7 @@ interface PayoutSummaryProps {
 }
 export default function PayoutSummary({ payoutSummary }: PayoutSummaryProps) {
   return (
-    <div className='grid gap-6 md:grid-cols-3'>
+    <div className='grid gap-6 md:grid-cols-3 *:py-0'>
       <Card>
         <CardContent className='p-6'>
           <div className='mb-2 flex items-center justify-between'>

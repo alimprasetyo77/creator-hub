@@ -1,16 +1,15 @@
 'use client';
 import PayoutForm from '@/components/dashboard/creator/payout/payout-form';
-import { PayoutHistorySkeleton } from '@/components/dashboard/creator/payout/payout-history-skeleton';
+
 import PayoutHistoryTable from '@/components/dashboard/creator/payout/payout-history-table';
 import PayoutSummary from '@/components/dashboard/creator/payout/payout-summary';
 import { PayoutSummarySkeleton } from '@/components/dashboard/creator/payout/payout-summary-skeleton';
-import { usePayoutHistory, usePayoutSummary } from '@/hooks/use-creator';
+import { usePayoutSummary } from '@/hooks/use-creator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Clock, CreditCard } from 'lucide-react';
 import PaymentMethod from '@/components/dashboard/creator/payout/payment-method';
 export default function Payouts() {
   const { payoutSummary, isLoading: summaryLoading } = usePayoutSummary();
-  const { payoutHistory, isLoading: historyLoading } = usePayoutHistory();
 
   return (
     <div className='space-y-6'>
@@ -34,14 +33,14 @@ export default function Payouts() {
             History
           </TabsTrigger>
         </TabsList>
-        <TabsContent value='withdraw'>
+        <TabsContent value='withdraw' className='mt-6 space-y-0'>
           <PayoutForm />
         </TabsContent>
-        <TabsContent value='methods'>
+        <TabsContent value='methods' className='mt-6 space-y-0'>
           <PaymentMethod />
         </TabsContent>
-        <TabsContent value='history'>
-          {historyLoading ? <PayoutHistorySkeleton /> : <PayoutHistoryTable payoutHistory={payoutHistory!} />}
+        <TabsContent value='history' className='mt-6 space-y-0'>
+          <PayoutHistoryTable />
         </TabsContent>
       </Tabs>
     </div>

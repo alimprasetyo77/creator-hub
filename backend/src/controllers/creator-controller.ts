@@ -72,4 +72,67 @@ const getPayoutHistory = async (req: UserRequest, res: Response, next: NextFunct
   }
 };
 
-export default { getOverview, getCustomerTransactions, getPayoutSummary, createPayout, getPayoutHistory };
+const getWithdrawalMethods = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const response = await creatorService.getWithdrawalMethods(user);
+    res.status(200).json({
+      message: 'Get withdrawal methods successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const createWithdrawalMethod = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user;
+    const request = req.body;
+    await creatorService.createWithdrawalMethod(request, user);
+    res.status(200).json({
+      message: 'Create withdrawal method successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+const setDefaultWidrawalMethod = async (
+  req: UserRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const request = req.params.id;
+    await creatorService.setDefaultWidrawalMethod(request);
+    res.status(200).json({
+      message: 'Set default withdrawal method successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteWithdrawalMethod = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const request = req.params.id;
+    await creatorService.deleteWithdrawalMethod(request);
+    res.status(200).json({
+      message: 'Delete withdrawal method successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default {
+  getOverview,
+  getCustomerTransactions,
+  getPayoutSummary,
+  createPayout,
+  getPayoutHistory,
+  createWithdrawalMethod,
+  setDefaultWidrawalMethod,
+  getWithdrawalMethods,
+  deleteWithdrawalMethod,
+};

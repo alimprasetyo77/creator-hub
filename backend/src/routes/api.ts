@@ -51,4 +51,24 @@ apiRouter.get(
 apiRouter.post('/api/creators/payout', allowedRoles(['CREATOR']), creatorController.createPayout);
 apiRouter.get('/api/creators/payout-summary', allowedRoles(['CREATOR']), creatorController.getPayoutSummary);
 apiRouter.get('/api/creators/payout-history', allowedRoles(['CREATOR']), creatorController.getPayoutHistory);
+apiRouter.get(
+  '/api/creators/withdrawal-methods',
+  allowedRoles(['CREATOR']),
+  creatorController.getWithdrawalMethods
+);
+apiRouter.post(
+  '/api/creators/withdrawal-methods',
+  allowedRoles(['CREATOR']),
+  creatorController.createWithdrawalMethod
+);
+apiRouter.patch(
+  '/api/creators/set-default-withdrawal-methods/:id',
+  allowedRoles(['CREATOR']),
+  creatorController.setDefaultWidrawalMethod
+);
+apiRouter.delete(
+  '/api/creators/withdrawal-methods/:id',
+  allowedRoles(['CREATOR']),
+  creatorController.deleteWithdrawalMethod
+);
 export default apiRouter;

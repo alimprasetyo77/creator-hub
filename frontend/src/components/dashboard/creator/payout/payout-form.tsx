@@ -36,8 +36,9 @@ const PayoutForm = () => {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className='gap-0'>
         <CardTitle>Request Withdrawal</CardTitle>
+        <p className='text-sm text-muted-foreground mt-1'>Manage your payment methods for withdrawals</p>
       </CardHeader>
       <CardContent>
         <form className='space-y-6' onSubmit={onSubmit}>

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import SidebarNav from '../../../components/layouts/sidebar';
-import { LayoutDashboard, Package, Receipt, Upload, Wallet } from 'lucide-react';
+import { LayoutDashboard, Package, Receipt, Upload, Wallet, Settings } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -13,6 +13,8 @@ export default function Layout({ children }: DashboardLayoutProps) {
     { id: 'upload', label: 'Upload Product', icon: <Upload className='size-5' /> },
     { id: 'transactions', label: 'Transactions', icon: <Receipt className='size-5' /> },
     { id: 'payouts', label: 'Payouts', icon: <Wallet className='size-5' /> },
+    { id: 'payouts-requests', label: 'Payouts Requests', icon: <Wallet className='size-5' /> },
+    { id: 'platform-settings', label: 'Platform Settings', icon: <Settings className='size-5' /> },
   ];
 
   return (

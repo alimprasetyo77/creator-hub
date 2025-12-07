@@ -72,3 +72,8 @@ export type OrderPayment = Prisma.OrderPaymentModel
  * 
  */
 export type Payout = Prisma.PayoutModel
+/**
+ * Model WithdrawalMethod
+ * 
+ */
+export type WithdrawalMethod = Prisma.WithdrawalMethodModel

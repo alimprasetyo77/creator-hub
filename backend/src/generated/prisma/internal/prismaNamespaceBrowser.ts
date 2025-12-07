@@ -57,7 +57,8 @@ export const ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   OrderPayment: 'OrderPayment',
-  Payout: 'Payout'
+  Payout: 'Payout',
+  WithdrawalMethod: 'WithdrawalMethod'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -177,6 +178,18 @@ export const PayoutScalarFieldEnum = {
 export type PayoutScalarFieldEnum = (typeof PayoutScalarFieldEnum)[keyof typeof PayoutScalarFieldEnum]
 
 
+export const WithdrawalMethodScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  details: 'details',
+  creatorId: 'creatorId',
+  is_default: 'is_default'
+} as const
+
+export type WithdrawalMethodScalarFieldEnum = (typeof WithdrawalMethodScalarFieldEnum)[keyof typeof WithdrawalMethodScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -191,6 +204,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: 'JsonNull'
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
