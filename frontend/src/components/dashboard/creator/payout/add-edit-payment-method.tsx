@@ -30,47 +30,44 @@ export default function AddEditPaymentMethod({
 
   const form = useForm<CreateWithdrawalMethodType>({
     resolver: zodResolver(createWithdrawalMethodSchema),
+    shouldUnregister: true,
     defaultValues: {
       name: '',
       type: 'BANK_TRANSFER',
-      details: {},
+      details: {
+        account_name: '',
+        account_number: '',
+        bank_name: '',
+        provider: '',
+        phone: '',
+      },
     },
   });
 
+  const type = form.watch('type');
+
   useEffect(() => {
-    if (paymentMethod) {
+    if (isOpenAddEditPaymentMethod === 'edit' && paymentMethod) {
       form.reset(paymentMethod);
     }
   }, [isOpenAddEditPaymentMethod, paymentMethod]);
 
-  useEffect(() => {
-    if (!paymentMethod && form.watch('type') === 'BANK_TRANSFER') {
-      form.setValue('details', {
-        account_name: '',
-        account_number: '',
-        bank_name: '',
-      });
-    }
-    if (!paymentMethod && form.watch('type') === 'E_WALLET') {
-      form.setValue('details', {
-        provider: '',
-        phone: '',
-      });
-    }
-  }, [form.watch('type')]);
-
-  const onSubmit = form.handleSubmit((data: CreateWithdrawalMethodType) => {
-    console.log(data);
-    // createWithdrawalMethod(data);
-    // setIsOpenAddEditPaymentMethod(null);
+  const onSubmit = form.handleSubmit((values: CreateWithdrawalMethodType) => {
+    createWithdrawalMethod(values, {
+      onSettled: () => {
+        setIsOpenAddEditPaymentMethod(null);
+        form.reset();
+      },
+    });
   });
-
   return (
     <Dialog
       open={isOpenAddEditPaymentMethod !== null}
-      onOpenChange={() => {
-        setIsOpenAddEditPaymentMethod(null);
-        form.reset();
+      onOpenChange={(v) => {
+        if (!v) {
+          setIsOpenAddEditPaymentMethod(null);
+          form.reset();
+        }
       }}
     >
       <DialogContent className='max-w-2xl max-h-[90vh] overflow-y-auto'>
@@ -104,7 +101,7 @@ export default function AddEditPaymentMethod({
               render={({ field, fieldState }) => (
                 <Field>
                   <FieldLabel htmlFor='pm-type'>Type</FieldLabel>
-                  <Select defaultValue={paymentMethod?.type ?? undefined} onValueChange={field.onChange}>
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder='Select type' />
                     </SelectTrigger>
@@ -117,7 +114,8 @@ export default function AddEditPaymentMethod({
                 </Field>
               )}
             />
-            {form.watch('type') === 'BANK_TRANSFER' && (
+
+            {type === 'BANK_TRANSFER' && (
               <>
                 <Controller
                   control={form.control}
@@ -156,7 +154,7 @@ export default function AddEditPaymentMethod({
                 />
               </>
             )}
-            {form.watch('type') === 'E_WALLET' && (
+            {type === 'E_WALLET' && (
               <>
                 <Controller
                   control={form.control}
@@ -187,7 +185,7 @@ export default function AddEditPaymentMethod({
               <Button
                 type='submit'
                 className='flex-1 bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
-                onClick={() => {}}
+                disabled={createWithdrawalMethodPending || !form.formState.isDirty}
               >
                 <CreditCard className='mr-2 h-4 w-4' />
                 {isOpenAddEditPaymentMethod === 'edit' ? 'Save Changes' : 'Add Payment Method'}

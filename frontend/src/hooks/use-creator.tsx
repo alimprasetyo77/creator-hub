@@ -1,6 +1,7 @@
 import {
   createPayout,
   createWithdrawalMethod,
+  deleteWithdrawalMethod,
   getCustomerTransactions,
   getOverview,
   getPayoutHistory,
@@ -130,6 +131,24 @@ export const useSetDefaultWithdrawalMethod = () => {
   });
   return {
     setDefaultWidrawalMethod: mutate,
+    isPending,
+  };
+};
+
+export const useDeleteWithdrawalMethod = () => {
+  const qc = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: string) => deleteWithdrawalMethod(data),
+    onSuccess: ({ message }) => {
+      qc.invalidateQueries({ queryKey: ['withdrawal-methods'] });
+      toast.error(message);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+  return {
+    deleteWithdrawalMethod: mutate,
     isPending,
   };
 };

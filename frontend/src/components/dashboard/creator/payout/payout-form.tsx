@@ -6,13 +6,17 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCreatePayout } from '@/hooks/use-creator';
 import { formatIDR } from '@/lib/utils';
-import { createPayoutSchema, CreatePayoutType } from '@/types/api/creator-type';
+import { createPayoutSchema, CreatePayoutType, IWithdrawalMethod } from '@/types/api/creator-type';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreditCard } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
-const PayoutForm = () => {
+interface PayoutFormProps {
+  withdrawalMethods: IWithdrawalMethod[];
+}
+
+const PayoutForm = ({ withdrawalMethods }: PayoutFormProps) => {
   const { createPayout, isPending } = useCreatePayout();
   const [fee, setFee] = useState(0);
   const [total, setTotal] = useState(0);
@@ -20,7 +24,7 @@ const PayoutForm = () => {
     resolver: zodResolver(createPayoutSchema),
     defaultValues: {
       amount: '0',
-      method: '',
+      methodId: '',
     },
   });
 
@@ -48,7 +52,7 @@ const PayoutForm = () => {
               name='amount'
               render={({ field, fieldState }) => (
                 <Field className='space-y-0'>
-                  <FieldLabel htmlFor='amount'>Withdrawal Amount (IDR)</FieldLabel>
+                  <FieldLabel htmlFor='amount'>Amount (IDR)</FieldLabel>
                   <Input
                     id='amount'
                     type='text'
@@ -71,18 +75,26 @@ const PayoutForm = () => {
             />
             <Controller
               control={form.control}
-              name='method'
+              name='methodId'
               render={({ field, fieldState }) => (
                 <Field className='space-y-0'>
-                  <FieldLabel htmlFor='method'>Withdrawal Method</FieldLabel>
+                  <FieldLabel htmlFor='method'>Method</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
                       <SelectValue placeholder='Select method' />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value='bank'>Bank Transfer</SelectItem>
-                      <SelectItem value='paypal'>PayPal</SelectItem>
-                      <SelectItem value='stripe'>Stripe</SelectItem>
+                      {withdrawalMethods.length > 0 ? (
+                        withdrawalMethods.map((method) => (
+                          <SelectItem value={method.id} key={method.id}>
+                            {method.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value='no-method' disabled>
+                          No withdrawal method
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   {fieldState.error && <p className='text-sm text-destructive'>{fieldState.error.message}</p>}

@@ -13,11 +13,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Skeleton } from '../ui/skeleton';
 
 export default function Navbar() {
   const pathname = usePathname();
   const { logout } = useLogout();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   return (
     <nav className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60'>
@@ -44,7 +45,11 @@ export default function Navbar() {
         </div>
 
         <div className='flex items-center gap-2'>
-          {!user?.token ? (
+          {isLoading ? (
+            <>
+              <Skeleton className='size-10 rounded-full' />
+            </>
+          ) : !user?.token ? (
             <>
               <Button variant='ghost' onClick={() => router.push('/login')}>
                 Log in

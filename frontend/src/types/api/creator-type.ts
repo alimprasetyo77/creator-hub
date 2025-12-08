@@ -6,26 +6,25 @@ const createPayoutSchema = z.object({
     .nonempty({ error: 'Price is required' })
     .transform((value) => value.replace(/[^0-9]/g, ''))
     .refine((value) => Number(value) >= 500000, 'Amount must be less than 500,000'),
-  method: z.string().nonempty({ error: 'Payment method is required' }),
+  methodId: z.uuid({ error: 'Invalid payment method' }).nonempty({ error: 'Payment method is required' }),
+});
+
+const bankTransferDetails = z.object({
+  account_name: z.string(),
+  account_number: z.string(),
+  bank_name: z.string(),
+});
+
+const eWalletDetails = z.object({
+  provider: z.string(),
+  phone: z.string(),
 });
 
 const createWithdrawalMethodSchema = z.object({
   name: z.string().nonempty({ error: 'Name is required' }),
   type: z.enum(['BANK_TRANSFER', 'E_WALLET'], { error: 'Type is required' }),
-  details: z.union(
-    [
-      z.object({
-        account_name: z.string(),
-        account_number: z.string(),
-        bank_name: z.string(),
-      }),
-      z.object({
-        provider: z.string(),
-        phone: z.string(),
-      }),
-    ],
-    { error: 'Details is required' }
-  ),
+  details: z.union([bankTransferDetails, eWalletDetails]),
+
   is_default: z.boolean().optional(),
 });
 
@@ -72,9 +71,11 @@ export type ICustomerTransactions = {
 export interface IPayout {
   id: string;
   amount: number;
-  method: string;
+  method: {
+    name: string;
+  };
   status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REJECTED';
-  createdAt: string;
+  date: string;
 }
 
 export interface IPayoutSummary {

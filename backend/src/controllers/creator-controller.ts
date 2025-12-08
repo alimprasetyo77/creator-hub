@@ -103,10 +103,11 @@ const setDefaultWidrawalMethod = async (
   next: NextFunction
 ): Promise<void> => {
   try {
+    const userId = req.user?.id;
     const request = req.params.id;
-    await creatorService.setDefaultWidrawalMethod(request);
+    const response = await creatorService.setDefaultWithdrawalMethod(userId!, request);
     res.status(200).json({
-      message: 'Set default withdrawal method successfully',
+      message: `${response} set as default payment method`,
     });
   } catch (error) {
     next(error);
@@ -115,10 +116,11 @@ const setDefaultWidrawalMethod = async (
 
 const deleteWithdrawalMethod = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const userId = req.user?.id;
     const request = req.params.id;
-    await creatorService.deleteWithdrawalMethod(request);
+    const response = await creatorService.deleteWithdrawalMethod(userId!, request);
     res.status(200).json({
-      message: 'Delete withdrawal method successfully',
+      message: `Withdrawal method ${response} deleted`,
     });
   } catch (error) {
     next(error);

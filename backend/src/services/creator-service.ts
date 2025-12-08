@@ -9,6 +9,7 @@ import creatorValidation, {
   IOverview,
 } from '../validations/creator-validation';
 import { validate } from '../validations/validation';
+import { PayoutGetPayload } from '../generated/prisma/models';
 
 const getOverview = async (user: UserRequest['user']): Promise<IOverview> => {
   const summary = await prisma.$queryRaw`
@@ -138,7 +139,7 @@ const createPayout = async (request: CreatePayoutType, user: UserRequest['user']
     data: {
       creatorId: user?.id!,
       amount: createPayoutRequest.amount,
-      method: createPayoutRequest.method,
+      methodId: createPayoutRequest.methodId,
     },
   });
 
@@ -165,7 +166,23 @@ const getPayoutSummary = async (user: UserRequest['user']) => {
   return response;
 };
 
-const getPayoutHistory = async (user: UserRequest['user']): Promise<Omit<Payout, 'creatorId'>[]> => {
+const getPayoutHistory = async (
+  user: UserRequest['user']
+): Promise<
+  PayoutGetPayload<{
+    select: {
+      id: true;
+      amount: true;
+      method: {
+        select: {
+          name: true;
+        };
+      };
+      date: true;
+      status: true;
+    };
+  }>[]
+> => {
   const result = await prisma.payout.findMany({
     where: { creatorId: user?.id },
     orderBy: {
@@ -174,7 +191,11 @@ const getPayoutHistory = async (user: UserRequest['user']): Promise<Omit<Payout,
     select: {
       id: true,
       amount: true,
-      method: true,
+      method: {
+        select: {
+          name: true,
+        },
+      },
       date: true,
       status: true,
     },
@@ -184,59 +205,103 @@ const getPayoutHistory = async (user: UserRequest['user']): Promise<Omit<Payout,
 };
 
 const getWithdrawalMethods = async (user: UserRequest['user']): Promise<WithdrawalMethod[]> => {
-  const result = await prisma.withdrawalMethod.findMany({ where: { creatorId: user?.id } });
+  const result = await prisma.withdrawalMethod.findMany({
+    where: { creatorId: user?.id },
+    orderBy: { is_default: 'desc' },
+  });
   return result;
 };
 
 const createWithdrawalMethod = async (request: createWithdrawalMethodType, user: UserRequest['user']) => {
   const createWithdrawalRequest = validate(creatorValidation.createWithdrawalMethodSchema, request);
-  await prisma.withdrawalMethod.create({
-    data: {
-      creatorId: user?.id!,
-      name: createWithdrawalRequest.name,
-      type: createWithdrawalRequest.type,
-      details: createWithdrawalRequest.details,
-      is_default: createWithdrawalRequest.is_default,
-    },
-  });
-};
-
-const setDefaultWidrawalMethod = async (id: string) => {
-  const defaultWithdrawalMethod = await prisma.withdrawalMethod.findMany({
+  const checkWithdrawalMethods = await prisma.withdrawalMethod.count({
     where: {
-      is_default: true,
-    },
-    select: {
-      id: true,
+      creatorId: user?.id,
     },
   });
-
-  if (defaultWithdrawalMethod.length) {
-    await prisma.withdrawalMethod.updateMany({
-      where: {
-        id: defaultWithdrawalMethod[0].id,
-      },
+  if (checkWithdrawalMethods === 0) {
+    await prisma.withdrawalMethod.create({
       data: {
-        is_default: false,
+        creatorId: user?.id!,
+        name: createWithdrawalRequest.name,
+        type: createWithdrawalRequest.type,
+        details: createWithdrawalRequest.details,
+        is_default: true,
+      },
+    });
+  } else {
+    await prisma.withdrawalMethod.create({
+      data: {
+        creatorId: user?.id!,
+        name: createWithdrawalRequest.name,
+        type: createWithdrawalRequest.type,
+        details: createWithdrawalRequest.details,
+        is_default: createWithdrawalRequest.is_default,
       },
     });
   }
-  await prisma.withdrawalMethod.update({
-    where: {
-      id: id,
-    },
-    data: {
-      is_default: true,
-    },
-  });
 };
 
-const deleteWithdrawalMethod = async (id: string) => {
-  await prisma.withdrawalMethod.delete({
+const setDefaultWithdrawalMethod = async (userId: string, id: string): Promise<string> => {
+  const result = await prisma.$transaction(async (tx) => {
+    await tx.withdrawalMethod.updateMany({
+      where: { creatorId: userId, is_default: true, NOT: { id } },
+      data: { is_default: false },
+    });
+
+    const withdrawalMethod = await tx.withdrawalMethod.update({
+      where: { id },
+      data: { is_default: true },
+      select: {
+        name: true,
+      },
+    });
+    return withdrawalMethod;
+  });
+  return result.name;
+};
+
+const deleteWithdrawalMethod = async (userId: string, id: string): Promise<string> => {
+  const isPendingPayout = await prisma.payout.count({
+    where: {
+      creatorId: userId,
+      status: 'PENDING',
+      methodId: id,
+    },
+  });
+  if (isPendingPayout > 0)
+    throw new ResponseError(400, 'Cannot delete withdrawal method with pending payout');
+
+  const withdrawalMethods = await prisma.withdrawalMethod.findMany({
+    where: {
+      creatorId: userId,
+    },
+  });
+
+  if (withdrawalMethods.length === 2) {
+    const otherMethod = withdrawalMethods.find((method) => method.id !== id);
+    if (!otherMethod) throw new ResponseError(400, 'Cannot delete last withdrawal method');
+    await prisma.withdrawalMethod.update({
+      where: {
+        id: otherMethod?.id,
+      },
+      data: {
+        is_default: true,
+      },
+      select: {
+        name: true,
+      },
+    });
+  }
+  const result = await prisma.withdrawalMethod.delete({
     where: {
       id: id,
     },
+    select: {
+      name: true,
+    },
   });
+  return result.name;
 };
 
 export default {
@@ -246,7 +311,7 @@ export default {
   getPayoutHistory,
   createPayout,
   createWithdrawalMethod,
-  setDefaultWidrawalMethod,
+  setDefaultWithdrawalMethod,
   getWithdrawalMethods,
   deleteWithdrawalMethod,
 };

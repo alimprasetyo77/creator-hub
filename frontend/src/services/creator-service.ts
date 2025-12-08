@@ -118,7 +118,21 @@ const createWithdrawalMethod = async (request: CreateWithdrawalMethodType) => {
 
 const setDefaultWidrawalMethod = async (id: string) => {
   try {
-    const response = await axiosWithConfig.post(`/api/creators/set-default-withdrawal-methods/${id}`);
+    const response = await axiosWithConfig.patch(`/api/creators/set-default-withdrawal-methods/${id}`);
+    return response.data as IResponse<{}>;
+  } catch (error) {
+    if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (isAxiosError(error) && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+const deleteWithdrawalMethod = async (id: string) => {
+  try {
+    const response = await axiosWithConfig.delete(`/api/creators/withdrawal-methods/${id}`);
     return response.data as IResponse<{}>;
   } catch (error) {
     if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
@@ -140,4 +154,5 @@ export {
   getWithdrawalMethods,
   createWithdrawalMethod,
   setDefaultWidrawalMethod,
+  deleteWithdrawalMethod,
 };

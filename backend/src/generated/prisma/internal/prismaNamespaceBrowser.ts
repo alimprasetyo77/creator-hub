@@ -169,10 +169,10 @@ export type OrderPaymentScalarFieldEnum = (typeof OrderPaymentScalarFieldEnum)[k
 export const PayoutScalarFieldEnum = {
   id: 'id',
   amount: 'amount',
-  method: 'method',
   date: 'date',
   status: 'status',
-  creatorId: 'creatorId'
+  creatorId: 'creatorId',
+  methodId: 'methodId'
 } as const
 
 export type PayoutScalarFieldEnum = (typeof PayoutScalarFieldEnum)[keyof typeof PayoutScalarFieldEnum]
@@ -183,8 +183,8 @@ export const WithdrawalMethodScalarFieldEnum = {
   name: 'name',
   type: 'type',
   details: 'details',
-  creatorId: 'creatorId',
-  is_default: 'is_default'
+  is_default: 'is_default',
+  creatorId: 'creatorId'
 } as const
 
 export type WithdrawalMethodScalarFieldEnum = (typeof WithdrawalMethodScalarFieldEnum)[keyof typeof WithdrawalMethodScalarFieldEnum]

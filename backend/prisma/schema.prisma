@@ -136,13 +136,16 @@ model OrderPayment {
 }
 
 model Payout {
-  id        String       @id @default(uuid())
-  amount    Float
-  method    String
-  date      DateTime     @default(now())
-  status    PayoutStatus @default(PENDING)
+  id     String       @id @default(uuid())
+  amount Float
+  date   DateTime     @default(now())
+  status PayoutStatus @default(PENDING)
+
   creatorId String
-  user      User         @relation(fields: [creatorId], references: [id])
+  user      User   @relation(fields: [creatorId], references: [id])
+
+  methodId String
+  method   WithdrawalMethod @relation(fields: [methodId], references: [id])
 
   @@map("payouts")
 }
@@ -152,12 +155,12 @@ model WithdrawalMethod {
   name       String
   type       WithdrawalMethodType
   details    Json
-  // account_name   String
-  // account_number String
-  // bank_name      String
-  creatorId  String
   is_default Boolean              @default(false)
-  user       User                 @relation(fields: [creatorId], references: [id])
+
+  creatorId String
+  user      User   @relation(fields: [creatorId], references: [id])
+
+  payouts Payout[]
 
   @@map("withdrawal_methods")
 }

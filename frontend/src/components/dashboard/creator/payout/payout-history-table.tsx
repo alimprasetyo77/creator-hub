@@ -37,11 +37,11 @@ export default function PayoutHistoryTable() {
           </TableHeader>
           <TableBody>
             {payoutHistory && payoutHistory?.length > 0 ? (
-              payoutHistory?.map((payout: any) => (
+              payoutHistory?.map((payout) => (
                 <TableRow key={payout.id}>
                   <TableCell className='font-mono text-sm'>{payout.id}</TableCell>
                   <TableCell className='text-sm'>{formatIDR(payout.amount)}</TableCell>
-                  <TableCell className='text-sm'>{payout.method}</TableCell>
+                  <TableCell className='text-sm'>{payout.method.name}</TableCell>
                   <TableCell className='text-sm'>
                     {new Date(payout.date).toLocaleString('id-ID', {
                       day: 'numeric',

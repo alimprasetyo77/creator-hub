@@ -4,12 +4,13 @@ import PayoutForm from '@/components/dashboard/creator/payout/payout-form';
 import PayoutHistoryTable from '@/components/dashboard/creator/payout/payout-history-table';
 import PayoutSummary from '@/components/dashboard/creator/payout/payout-summary';
 import { PayoutSummarySkeleton } from '@/components/dashboard/creator/payout/payout-summary-skeleton';
-import { usePayoutSummary } from '@/hooks/use-creator';
+import { usePayoutSummary, useWithdrawalMethods } from '@/hooks/use-creator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Clock, CreditCard } from 'lucide-react';
 import PaymentMethod from '@/components/dashboard/creator/payout/payment-method';
 export default function Payouts() {
   const { payoutSummary, isLoading: summaryLoading } = usePayoutSummary();
+  const { withdrawalMethods } = useWithdrawalMethods();
 
   return (
     <div className='space-y-6'>
@@ -34,10 +35,10 @@ export default function Payouts() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value='withdraw' className='mt-6 space-y-0'>
-          <PayoutForm />
+          <PayoutForm withdrawalMethods={withdrawalMethods || []} />
         </TabsContent>
         <TabsContent value='methods' className='mt-6 space-y-0'>
-          <PaymentMethod />
+          <PaymentMethod data={withdrawalMethods || []} />
         </TabsContent>
         <TabsContent value='history' className='mt-6 space-y-0'>
           <PayoutHistoryTable />

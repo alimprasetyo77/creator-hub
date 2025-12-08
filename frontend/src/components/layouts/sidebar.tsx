@@ -3,13 +3,14 @@ import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
 import { ReactNode } from 'react';
+import SidebarSkeleton from './sidebar-skeleton';
 
 interface SidebarNavProps {
   items: { id: string; label: string; icon: ReactNode }[];
 }
 
 export default function SidebarNav({ items }: SidebarNavProps) {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const pathToCompare = pathname.split('/').pop();
@@ -20,6 +21,7 @@ export default function SidebarNav({ items }: SidebarNavProps) {
   const adminFeatures = ['payouts-requests', 'platform-settings'];
   const isAdmin = user?.role === 'ADMIN';
   const isCreator = user?.role === 'CREATOR';
+  if (isLoading) return <SidebarSkeleton />;
   return (
     <nav className='flex flex-col gap-1 p-4 '>
       {items.map((item) => {

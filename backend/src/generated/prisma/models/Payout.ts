@@ -37,28 +37,28 @@ export type PayoutSumAggregateOutputType = {
 export type PayoutMinAggregateOutputType = {
   id: string | null
   amount: number | null
-  method: string | null
   date: Date | null
   status: $Enums.PayoutStatus | null
   creatorId: string | null
+  methodId: string | null
 }
 
 export type PayoutMaxAggregateOutputType = {
   id: string | null
   amount: number | null
-  method: string | null
   date: Date | null
   status: $Enums.PayoutStatus | null
   creatorId: string | null
+  methodId: string | null
 }
 
 export type PayoutCountAggregateOutputType = {
   id: number
   amount: number
-  method: number
   date: number
   status: number
   creatorId: number
+  methodId: number
   _all: number
 }
 
@@ -74,28 +74,28 @@ export type PayoutSumAggregateInputType = {
 export type PayoutMinAggregateInputType = {
   id?: true
   amount?: true
-  method?: true
   date?: true
   status?: true
   creatorId?: true
+  methodId?: true
 }
 
 export type PayoutMaxAggregateInputType = {
   id?: true
   amount?: true
-  method?: true
   date?: true
   status?: true
   creatorId?: true
+  methodId?: true
 }
 
 export type PayoutCountAggregateInputType = {
   id?: true
   amount?: true
-  method?: true
   date?: true
   status?: true
   creatorId?: true
+  methodId?: true
   _all?: true
 }
 
@@ -188,10 +188,10 @@ export type PayoutGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type PayoutGroupByOutputType = {
   id: string
   amount: number
-  method: string
   date: Date
   status: $Enums.PayoutStatus
   creatorId: string
+  methodId: string
   _count: PayoutCountAggregateOutputType | null
   _avg: PayoutAvgAggregateOutputType | null
   _sum: PayoutSumAggregateOutputType | null
@@ -220,21 +220,23 @@ export type PayoutWhereInput = {
   NOT?: Prisma.PayoutWhereInput | Prisma.PayoutWhereInput[]
   id?: Prisma.StringFilter<"Payout"> | string
   amount?: Prisma.FloatFilter<"Payout"> | number
-  method?: Prisma.StringFilter<"Payout"> | string
   date?: Prisma.DateTimeFilter<"Payout"> | Date | string
   status?: Prisma.EnumPayoutStatusFilter<"Payout"> | $Enums.PayoutStatus
   creatorId?: Prisma.StringFilter<"Payout"> | string
+  methodId?: Prisma.StringFilter<"Payout"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  method?: Prisma.XOR<Prisma.WithdrawalMethodScalarRelationFilter, Prisma.WithdrawalMethodWhereInput>
 }
 
 export type PayoutOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  method?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  methodId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  method?: Prisma.WithdrawalMethodOrderByWithRelationInput
 }
 
 export type PayoutWhereUniqueInput = Prisma.AtLeast<{
@@ -243,20 +245,21 @@ export type PayoutWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PayoutWhereInput[]
   NOT?: Prisma.PayoutWhereInput | Prisma.PayoutWhereInput[]
   amount?: Prisma.FloatFilter<"Payout"> | number
-  method?: Prisma.StringFilter<"Payout"> | string
   date?: Prisma.DateTimeFilter<"Payout"> | Date | string
   status?: Prisma.EnumPayoutStatusFilter<"Payout"> | $Enums.PayoutStatus
   creatorId?: Prisma.StringFilter<"Payout"> | string
+  methodId?: Prisma.StringFilter<"Payout"> | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  method?: Prisma.XOR<Prisma.WithdrawalMethodScalarRelationFilter, Prisma.WithdrawalMethodWhereInput>
 }, "id">
 
 export type PayoutOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  method?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  methodId?: Prisma.SortOrder
   _count?: Prisma.PayoutCountOrderByAggregateInput
   _avg?: Prisma.PayoutAvgOrderByAggregateInput
   _max?: Prisma.PayoutMaxOrderByAggregateInput
@@ -270,61 +273,60 @@ export type PayoutScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PayoutScalarWhereWithAggregatesInput | Prisma.PayoutScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Payout"> | string
   amount?: Prisma.FloatWithAggregatesFilter<"Payout"> | number
-  method?: Prisma.StringWithAggregatesFilter<"Payout"> | string
   date?: Prisma.DateTimeWithAggregatesFilter<"Payout"> | Date | string
   status?: Prisma.EnumPayoutStatusWithAggregatesFilter<"Payout"> | $Enums.PayoutStatus
   creatorId?: Prisma.StringWithAggregatesFilter<"Payout"> | string
+  methodId?: Prisma.StringWithAggregatesFilter<"Payout"> | string
 }
 
 export type PayoutCreateInput = {
   id?: string
   amount: number
-  method: string
   date?: Date | string
   status?: $Enums.PayoutStatus
   user: Prisma.UserCreateNestedOneWithoutPayoutsInput
+  method: Prisma.WithdrawalMethodCreateNestedOneWithoutPayoutsInput
 }
 
 export type PayoutUncheckedCreateInput = {
   id?: string
   amount: number
-  method: string
   date?: Date | string
   status?: $Enums.PayoutStatus
   creatorId: string
+  methodId: string
 }
 
 export type PayoutUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
-  method?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
   user?: Prisma.UserUpdateOneRequiredWithoutPayoutsNestedInput
+  method?: Prisma.WithdrawalMethodUpdateOneRequiredWithoutPayoutsNestedInput
 }
 
 export type PayoutUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
-  method?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  methodId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PayoutCreateManyInput = {
   id?: string
   amount: number
-  method: string
   date?: Date | string
   status?: $Enums.PayoutStatus
   creatorId: string
+  methodId: string
 }
 
 export type PayoutUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
-  method?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
 }
@@ -332,10 +334,10 @@ export type PayoutUpdateManyMutationInput = {
 export type PayoutUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
-  method?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  methodId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PayoutListRelationFilter = {
@@ -351,10 +353,10 @@ export type PayoutOrderByRelationAggregateInput = {
 export type PayoutCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  method?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  methodId?: Prisma.SortOrder
 }
 
 export type PayoutAvgOrderByAggregateInput = {
@@ -364,19 +366,19 @@ export type PayoutAvgOrderByAggregateInput = {
 export type PayoutMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  method?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  methodId?: Prisma.SortOrder
 }
 
 export type PayoutMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   amount?: Prisma.SortOrder
-  method?: Prisma.SortOrder
   date?: Prisma.SortOrder
   status?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  methodId?: Prisma.SortOrder
 }
 
 export type PayoutSumOrderByAggregateInput = {
@@ -429,20 +431,62 @@ export type EnumPayoutStatusFieldUpdateOperationsInput = {
   set?: $Enums.PayoutStatus
 }
 
+export type PayoutCreateNestedManyWithoutMethodInput = {
+  create?: Prisma.XOR<Prisma.PayoutCreateWithoutMethodInput, Prisma.PayoutUncheckedCreateWithoutMethodInput> | Prisma.PayoutCreateWithoutMethodInput[] | Prisma.PayoutUncheckedCreateWithoutMethodInput[]
+  connectOrCreate?: Prisma.PayoutCreateOrConnectWithoutMethodInput | Prisma.PayoutCreateOrConnectWithoutMethodInput[]
+  createMany?: Prisma.PayoutCreateManyMethodInputEnvelope
+  connect?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+}
+
+export type PayoutUncheckedCreateNestedManyWithoutMethodInput = {
+  create?: Prisma.XOR<Prisma.PayoutCreateWithoutMethodInput, Prisma.PayoutUncheckedCreateWithoutMethodInput> | Prisma.PayoutCreateWithoutMethodInput[] | Prisma.PayoutUncheckedCreateWithoutMethodInput[]
+  connectOrCreate?: Prisma.PayoutCreateOrConnectWithoutMethodInput | Prisma.PayoutCreateOrConnectWithoutMethodInput[]
+  createMany?: Prisma.PayoutCreateManyMethodInputEnvelope
+  connect?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+}
+
+export type PayoutUpdateManyWithoutMethodNestedInput = {
+  create?: Prisma.XOR<Prisma.PayoutCreateWithoutMethodInput, Prisma.PayoutUncheckedCreateWithoutMethodInput> | Prisma.PayoutCreateWithoutMethodInput[] | Prisma.PayoutUncheckedCreateWithoutMethodInput[]
+  connectOrCreate?: Prisma.PayoutCreateOrConnectWithoutMethodInput | Prisma.PayoutCreateOrConnectWithoutMethodInput[]
+  upsert?: Prisma.PayoutUpsertWithWhereUniqueWithoutMethodInput | Prisma.PayoutUpsertWithWhereUniqueWithoutMethodInput[]
+  createMany?: Prisma.PayoutCreateManyMethodInputEnvelope
+  set?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+  disconnect?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+  delete?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+  connect?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+  update?: Prisma.PayoutUpdateWithWhereUniqueWithoutMethodInput | Prisma.PayoutUpdateWithWhereUniqueWithoutMethodInput[]
+  updateMany?: Prisma.PayoutUpdateManyWithWhereWithoutMethodInput | Prisma.PayoutUpdateManyWithWhereWithoutMethodInput[]
+  deleteMany?: Prisma.PayoutScalarWhereInput | Prisma.PayoutScalarWhereInput[]
+}
+
+export type PayoutUncheckedUpdateManyWithoutMethodNestedInput = {
+  create?: Prisma.XOR<Prisma.PayoutCreateWithoutMethodInput, Prisma.PayoutUncheckedCreateWithoutMethodInput> | Prisma.PayoutCreateWithoutMethodInput[] | Prisma.PayoutUncheckedCreateWithoutMethodInput[]
+  connectOrCreate?: Prisma.PayoutCreateOrConnectWithoutMethodInput | Prisma.PayoutCreateOrConnectWithoutMethodInput[]
+  upsert?: Prisma.PayoutUpsertWithWhereUniqueWithoutMethodInput | Prisma.PayoutUpsertWithWhereUniqueWithoutMethodInput[]
+  createMany?: Prisma.PayoutCreateManyMethodInputEnvelope
+  set?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+  disconnect?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+  delete?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+  connect?: Prisma.PayoutWhereUniqueInput | Prisma.PayoutWhereUniqueInput[]
+  update?: Prisma.PayoutUpdateWithWhereUniqueWithoutMethodInput | Prisma.PayoutUpdateWithWhereUniqueWithoutMethodInput[]
+  updateMany?: Prisma.PayoutUpdateManyWithWhereWithoutMethodInput | Prisma.PayoutUpdateManyWithWhereWithoutMethodInput[]
+  deleteMany?: Prisma.PayoutScalarWhereInput | Prisma.PayoutScalarWhereInput[]
+}
+
 export type PayoutCreateWithoutUserInput = {
   id?: string
   amount: number
-  method: string
   date?: Date | string
   status?: $Enums.PayoutStatus
+  method: Prisma.WithdrawalMethodCreateNestedOneWithoutPayoutsInput
 }
 
 export type PayoutUncheckedCreateWithoutUserInput = {
   id?: string
   amount: number
-  method: string
   date?: Date | string
   status?: $Enums.PayoutStatus
+  methodId: string
 }
 
 export type PayoutCreateOrConnectWithoutUserInput = {
@@ -477,42 +521,116 @@ export type PayoutScalarWhereInput = {
   NOT?: Prisma.PayoutScalarWhereInput | Prisma.PayoutScalarWhereInput[]
   id?: Prisma.StringFilter<"Payout"> | string
   amount?: Prisma.FloatFilter<"Payout"> | number
-  method?: Prisma.StringFilter<"Payout"> | string
   date?: Prisma.DateTimeFilter<"Payout"> | Date | string
   status?: Prisma.EnumPayoutStatusFilter<"Payout"> | $Enums.PayoutStatus
   creatorId?: Prisma.StringFilter<"Payout"> | string
+  methodId?: Prisma.StringFilter<"Payout"> | string
+}
+
+export type PayoutCreateWithoutMethodInput = {
+  id?: string
+  amount: number
+  date?: Date | string
+  status?: $Enums.PayoutStatus
+  user: Prisma.UserCreateNestedOneWithoutPayoutsInput
+}
+
+export type PayoutUncheckedCreateWithoutMethodInput = {
+  id?: string
+  amount: number
+  date?: Date | string
+  status?: $Enums.PayoutStatus
+  creatorId: string
+}
+
+export type PayoutCreateOrConnectWithoutMethodInput = {
+  where: Prisma.PayoutWhereUniqueInput
+  create: Prisma.XOR<Prisma.PayoutCreateWithoutMethodInput, Prisma.PayoutUncheckedCreateWithoutMethodInput>
+}
+
+export type PayoutCreateManyMethodInputEnvelope = {
+  data: Prisma.PayoutCreateManyMethodInput | Prisma.PayoutCreateManyMethodInput[]
+  skipDuplicates?: boolean
+}
+
+export type PayoutUpsertWithWhereUniqueWithoutMethodInput = {
+  where: Prisma.PayoutWhereUniqueInput
+  update: Prisma.XOR<Prisma.PayoutUpdateWithoutMethodInput, Prisma.PayoutUncheckedUpdateWithoutMethodInput>
+  create: Prisma.XOR<Prisma.PayoutCreateWithoutMethodInput, Prisma.PayoutUncheckedCreateWithoutMethodInput>
+}
+
+export type PayoutUpdateWithWhereUniqueWithoutMethodInput = {
+  where: Prisma.PayoutWhereUniqueInput
+  data: Prisma.XOR<Prisma.PayoutUpdateWithoutMethodInput, Prisma.PayoutUncheckedUpdateWithoutMethodInput>
+}
+
+export type PayoutUpdateManyWithWhereWithoutMethodInput = {
+  where: Prisma.PayoutScalarWhereInput
+  data: Prisma.XOR<Prisma.PayoutUpdateManyMutationInput, Prisma.PayoutUncheckedUpdateManyWithoutMethodInput>
 }
 
 export type PayoutCreateManyUserInput = {
   id?: string
   amount: number
-  method: string
   date?: Date | string
   status?: $Enums.PayoutStatus
+  methodId: string
 }
 
 export type PayoutUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
-  method?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
+  method?: Prisma.WithdrawalMethodUpdateOneRequiredWithoutPayoutsNestedInput
 }
 
 export type PayoutUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
-  method?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
+  methodId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type PayoutUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
-  method?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
+  methodId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type PayoutCreateManyMethodInput = {
+  id?: string
+  amount: number
+  date?: Date | string
+  status?: $Enums.PayoutStatus
+  creatorId: string
+}
+
+export type PayoutUpdateWithoutMethodInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
+  user?: Prisma.UserUpdateOneRequiredWithoutPayoutsNestedInput
+}
+
+export type PayoutUncheckedUpdateWithoutMethodInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type PayoutUncheckedUpdateManyWithoutMethodInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumPayoutStatusFieldUpdateOperationsInput | $Enums.PayoutStatus
+  creatorId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -520,65 +638,72 @@ export type PayoutUncheckedUpdateManyWithoutUserInput = {
 export type PayoutSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   amount?: boolean
-  method?: boolean
   date?: boolean
   status?: boolean
   creatorId?: boolean
+  methodId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  method?: boolean | Prisma.WithdrawalMethodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payout"]>
 
 export type PayoutSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   amount?: boolean
-  method?: boolean
   date?: boolean
   status?: boolean
   creatorId?: boolean
+  methodId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  method?: boolean | Prisma.WithdrawalMethodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payout"]>
 
 export type PayoutSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   amount?: boolean
-  method?: boolean
   date?: boolean
   status?: boolean
   creatorId?: boolean
+  methodId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  method?: boolean | Prisma.WithdrawalMethodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payout"]>
 
 export type PayoutSelectScalar = {
   id?: boolean
   amount?: boolean
-  method?: boolean
   date?: boolean
   status?: boolean
   creatorId?: boolean
+  methodId?: boolean
 }
 
-export type PayoutOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "amount" | "method" | "date" | "status" | "creatorId", ExtArgs["result"]["payout"]>
+export type PayoutOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "amount" | "date" | "status" | "creatorId" | "methodId", ExtArgs["result"]["payout"]>
 export type PayoutInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  method?: boolean | Prisma.WithdrawalMethodDefaultArgs<ExtArgs>
 }
 export type PayoutIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  method?: boolean | Prisma.WithdrawalMethodDefaultArgs<ExtArgs>
 }
 export type PayoutIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  method?: boolean | Prisma.WithdrawalMethodDefaultArgs<ExtArgs>
 }
 
 export type $PayoutPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Payout"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    method: Prisma.$WithdrawalMethodPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     amount: number
-    method: string
     date: Date
     status: $Enums.PayoutStatus
     creatorId: string
+    methodId: string
   }, ExtArgs["result"]["payout"]>
   composites: {}
 }
@@ -974,6 +1099,7 @@ readonly fields: PayoutFieldRefs;
 export interface Prisma__PayoutClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  method<T extends Prisma.WithdrawalMethodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WithdrawalMethodDefaultArgs<ExtArgs>>): Prisma.Prisma__WithdrawalMethodClient<runtime.Types.Result.GetResult<Prisma.$WithdrawalMethodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1005,10 +1131,10 @@ export interface Prisma__PayoutClient<T, Null = never, ExtArgs extends runtime.T
 export interface PayoutFieldRefs {
   readonly id: Prisma.FieldRef<"Payout", 'String'>
   readonly amount: Prisma.FieldRef<"Payout", 'Float'>
-  readonly method: Prisma.FieldRef<"Payout", 'String'>
   readonly date: Prisma.FieldRef<"Payout", 'DateTime'>
   readonly status: Prisma.FieldRef<"Payout", 'PayoutStatus'>
   readonly creatorId: Prisma.FieldRef<"Payout", 'String'>
+  readonly methodId: Prisma.FieldRef<"Payout", 'String'>
 }
     
 

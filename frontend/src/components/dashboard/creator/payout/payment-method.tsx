@@ -2,17 +2,20 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSetDefaultWithdrawalMethod, useWithdrawalMethods } from '@/hooks/use-creator';
-import { Building2, CircleDollarSign, CreditCard, Edit, Plus, Trash2, Wallet } from 'lucide-react';
+import { useDeleteWithdrawalMethod, useSetDefaultWithdrawalMethod } from '@/hooks/use-creator';
+import { Building2, Edit, Plus, Trash2, Wallet } from 'lucide-react';
 import { useState } from 'react';
-
-import { toast } from 'sonner';
 import AddEditPaymentMethod from './add-edit-payment-method';
 import { IWithdrawalMethod } from '@/types/api/creator-type';
 
-export default function PaymentMethod() {
-  const { withdrawalMethods } = useWithdrawalMethods();
+interface PaymentMethodProps {
+  data: IWithdrawalMethod[];
+}
 
+export default function PaymentMethod({ data }: PaymentMethodProps) {
+  const { deleteWithdrawalMethod, isPending: deleteWithdrawalMethodPending } = useDeleteWithdrawalMethod();
+  const { setDefaultWidrawalMethod, isPending: setDefaultWidrawalMethodPending } =
+    useSetDefaultWithdrawalMethod();
   const [isOpenAddEditPaymentMethod, setIsOpenAddEditPaymentMethod] = useState<'add' | 'edit' | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<IWithdrawalMethod | null>(null);
   return (
@@ -38,7 +41,7 @@ export default function PaymentMethod() {
           </div>
         </CardHeader>
         <CardContent>
-          {withdrawalMethods?.length === 0 ? (
+          {data?.length === 0 ? (
             <div className='rounded-lg border border-dashed p-12 text-center'>
               <Wallet className='mx-auto mb-4 h-12 w-12 text-muted-foreground' />
               <h3 className='mb-2'>No Payment Methods</h3>
@@ -48,16 +51,15 @@ export default function PaymentMethod() {
             </div>
           ) : (
             <div className='space-y-4'>
-              {withdrawalMethods?.map((method) => (
+              {data?.map((method) => (
                 <div
                   key={method.id}
                   className='flex items-center justify-between rounded-lg border p-4 hover:bg-muted/50 transition-colors'
                 >
                   <div className='flex items-center gap-4'>
                     <div className='flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-purple-600'>
-                      {method.type === 'bank' && <Building2 className='h-6 w-6 text-white' />}
-                      {method.type === 'paypal' && <CircleDollarSign className='h-6 w-6 text-white' />}
-                      {method.type === 'stripe' && <CreditCard className='h-6 w-6 text-white' />}
+                      {method.type === 'BANK_TRANSFER' && <Building2 className='h-6 w-6 text-white' />}
+                      {method.type === 'E_WALLET' && <Wallet className='h-6 w-6 text-white' />}
                     </div>
                     <div>
                       <div className='flex items-center gap-2'>
@@ -65,8 +67,8 @@ export default function PaymentMethod() {
                         {method.is_default && <Badge variant='default'>Default</Badge>}
                       </div>
                       <p className='text-sm text-muted-foreground'>
-                        {method.type === 'bank' &&
-                          `${method.bank_name} • ****${method.account_number?.slice(-4)}`}
+                        {method.type === 'BANK_TRANSFER' &&
+                          `${method.details.bank_name} • ****${method.details.account_number?.slice(-4)}`}
                       </p>
                     </div>
                   </div>
@@ -76,8 +78,9 @@ export default function PaymentMethod() {
                         type='button'
                         variant='outline'
                         size='sm'
+                        disabled={setDefaultWidrawalMethodPending}
                         onClick={() => {
-                          toast.success(`${method.name} set as default payment method`);
+                          setDefaultWidrawalMethod(method.id);
                         }}
                       >
                         Set Default
@@ -94,7 +97,13 @@ export default function PaymentMethod() {
                     >
                       <Edit className='h-4 w-4' />
                     </Button>
-                    <Button type='button' variant='outline' size='sm' onClick={() => {}}>
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      disabled={deleteWithdrawalMethodPending}
+                      onClick={() => deleteWithdrawalMethod(method.id)}
+                    >
                       <Trash2 className='h-4 w-4' />
                     </Button>
                   </div>
