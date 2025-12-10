@@ -5,11 +5,13 @@ import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
 import creatorValidation, {
   CreatePayoutType,
-  createWithdrawalMethodType,
+  CreateWithdrawalMethodType,
   IOverview,
+  UpdateWithdrawalMethodType,
 } from '../validations/creator-validation';
 import { validate } from '../validations/validation';
 import { PayoutGetPayload } from '../generated/prisma/models';
+import { IQueryPagination } from '../validations/user-validation';
 
 const getOverview = async (user: UserRequest['user']): Promise<IOverview> => {
   const summary = await prisma.$queryRaw`
@@ -93,7 +95,10 @@ SELECT
   return response;
 };
 
-const getCustomerTransactions = async (user: UserRequest['user']) => {
+const getCustomerTransactions = async (query: IQueryPagination, user: UserRequest['user']) => {
+  const page = parseInt(query.page as string) || 1;
+  const limit = parseInt(query.limit as string) || 10;
+  const skip = (page - 1) * limit;
   const result = await prisma.$queryRaw`
     SELECT
         o."id",
@@ -111,9 +116,15 @@ const getCustomerTransactions = async (user: UserRequest['user']) => {
     JOIN users ou ON ou.id = o."userId"
     WHERE p."userId" = ${user?.id}
     ORDER BY o."createdAt" DESC
+    LIMIT ${limit}
+    OFFSET ${skip}
   `;
-
-  const response = (result as any) ?? [];
+  const resultRow = (result as any) ?? [];
+  const response = {
+    data: resultRow,
+    page,
+    totalPages: Math.ceil(resultRow.length / limit),
+  };
 
   return response;
 };
@@ -212,7 +223,7 @@ const getWithdrawalMethods = async (user: UserRequest['user']): Promise<Withdraw
   return result;
 };
 
-const createWithdrawalMethod = async (request: createWithdrawalMethodType, user: UserRequest['user']) => {
+const createWithdrawalMethod = async (request: CreateWithdrawalMethodType, user: UserRequest['user']) => {
   const createWithdrawalRequest = validate(creatorValidation.createWithdrawalMethodSchema, request);
   const checkWithdrawalMethods = await prisma.withdrawalMethod.count({
     where: {
@@ -240,6 +251,27 @@ const createWithdrawalMethod = async (request: createWithdrawalMethodType, user:
       },
     });
   }
+};
+
+const updateWithdrawalMethod = async (withdrawalMethodId: string, request: UpdateWithdrawalMethodType) => {
+  const updateWithdrawalRequest = validate(creatorValidation.updateWithdrawalMethodSchema, request);
+
+  const result = await prisma.withdrawalMethod.update({
+    where: {
+      id: withdrawalMethodId,
+    },
+    data: {
+      name: updateWithdrawalRequest.name,
+      type: updateWithdrawalRequest.type,
+      details: updateWithdrawalRequest.details,
+      is_default: updateWithdrawalRequest.is_default,
+    },
+    select: {
+      name: true,
+    },
+  });
+
+  return result.name;
 };
 
 const setDefaultWithdrawalMethod = async (userId: string, id: string): Promise<string> => {
@@ -311,6 +343,7 @@ export default {
   getPayoutHistory,
   createPayout,
   createWithdrawalMethod,
+  updateWithdrawalMethod,
   setDefaultWithdrawalMethod,
   getWithdrawalMethods,
   deleteWithdrawalMethod,

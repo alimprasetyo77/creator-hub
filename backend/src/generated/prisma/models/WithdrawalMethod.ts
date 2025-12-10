@@ -27,26 +27,26 @@ export type AggregateWithdrawalMethod = {
 export type WithdrawalMethodMinAggregateOutputType = {
   id: string | null
   name: string | null
-  type: $Enums.WithdrawalMethodType | null
-  is_default: boolean | null
   creatorId: string | null
+  is_default: boolean | null
+  type: $Enums.WithdrawalMethodType | null
 }
 
 export type WithdrawalMethodMaxAggregateOutputType = {
   id: string | null
   name: string | null
-  type: $Enums.WithdrawalMethodType | null
-  is_default: boolean | null
   creatorId: string | null
+  is_default: boolean | null
+  type: $Enums.WithdrawalMethodType | null
 }
 
 export type WithdrawalMethodCountAggregateOutputType = {
   id: number
   name: number
-  type: number
-  details: number
-  is_default: number
   creatorId: number
+  is_default: number
+  details: number
+  type: number
   _all: number
 }
 
@@ -54,26 +54,26 @@ export type WithdrawalMethodCountAggregateOutputType = {
 export type WithdrawalMethodMinAggregateInputType = {
   id?: true
   name?: true
-  type?: true
-  is_default?: true
   creatorId?: true
+  is_default?: true
+  type?: true
 }
 
 export type WithdrawalMethodMaxAggregateInputType = {
   id?: true
   name?: true
-  type?: true
-  is_default?: true
   creatorId?: true
+  is_default?: true
+  type?: true
 }
 
 export type WithdrawalMethodCountAggregateInputType = {
   id?: true
   name?: true
-  type?: true
-  details?: true
-  is_default?: true
   creatorId?: true
+  is_default?: true
+  details?: true
+  type?: true
   _all?: true
 }
 
@@ -152,10 +152,10 @@ export type WithdrawalMethodGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type WithdrawalMethodGroupByOutputType = {
   id: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: runtime.JsonValue
-  is_default: boolean
   creatorId: string
+  is_default: boolean
+  details: runtime.JsonValue
+  type: $Enums.WithdrawalMethodType
   _count: WithdrawalMethodCountAggregateOutputType | null
   _min: WithdrawalMethodMinAggregateOutputType | null
   _max: WithdrawalMethodMaxAggregateOutputType | null
@@ -182,23 +182,23 @@ export type WithdrawalMethodWhereInput = {
   NOT?: Prisma.WithdrawalMethodWhereInput | Prisma.WithdrawalMethodWhereInput[]
   id?: Prisma.StringFilter<"WithdrawalMethod"> | string
   name?: Prisma.StringFilter<"WithdrawalMethod"> | string
-  type?: Prisma.EnumWithdrawalMethodTypeFilter<"WithdrawalMethod"> | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonFilter<"WithdrawalMethod">
-  is_default?: Prisma.BoolFilter<"WithdrawalMethod"> | boolean
   creatorId?: Prisma.StringFilter<"WithdrawalMethod"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  is_default?: Prisma.BoolFilter<"WithdrawalMethod"> | boolean
+  details?: Prisma.JsonFilter<"WithdrawalMethod">
+  type?: Prisma.EnumWithdrawalMethodTypeFilter<"WithdrawalMethod"> | $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutListRelationFilter
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type WithdrawalMethodOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  type?: Prisma.SortOrder
-  details?: Prisma.SortOrder
-  is_default?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
+  is_default?: Prisma.SortOrder
+  details?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   payouts?: Prisma.PayoutOrderByRelationAggregateInput
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type WithdrawalMethodWhereUniqueInput = Prisma.AtLeast<{
@@ -207,21 +207,21 @@ export type WithdrawalMethodWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.WithdrawalMethodWhereInput[]
   NOT?: Prisma.WithdrawalMethodWhereInput | Prisma.WithdrawalMethodWhereInput[]
   name?: Prisma.StringFilter<"WithdrawalMethod"> | string
-  type?: Prisma.EnumWithdrawalMethodTypeFilter<"WithdrawalMethod"> | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonFilter<"WithdrawalMethod">
-  is_default?: Prisma.BoolFilter<"WithdrawalMethod"> | boolean
   creatorId?: Prisma.StringFilter<"WithdrawalMethod"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  is_default?: Prisma.BoolFilter<"WithdrawalMethod"> | boolean
+  details?: Prisma.JsonFilter<"WithdrawalMethod">
+  type?: Prisma.EnumWithdrawalMethodTypeFilter<"WithdrawalMethod"> | $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutListRelationFilter
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type WithdrawalMethodOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  type?: Prisma.SortOrder
-  details?: Prisma.SortOrder
-  is_default?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  is_default?: Prisma.SortOrder
+  details?: Prisma.SortOrder
+  type?: Prisma.SortOrder
   _count?: Prisma.WithdrawalMethodCountOrderByAggregateInput
   _max?: Prisma.WithdrawalMethodMaxOrderByAggregateInput
   _min?: Prisma.WithdrawalMethodMinOrderByAggregateInput
@@ -233,76 +233,76 @@ export type WithdrawalMethodScalarWhereWithAggregatesInput = {
   NOT?: Prisma.WithdrawalMethodScalarWhereWithAggregatesInput | Prisma.WithdrawalMethodScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"WithdrawalMethod"> | string
   name?: Prisma.StringWithAggregatesFilter<"WithdrawalMethod"> | string
-  type?: Prisma.EnumWithdrawalMethodTypeWithAggregatesFilter<"WithdrawalMethod"> | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonWithAggregatesFilter<"WithdrawalMethod">
-  is_default?: Prisma.BoolWithAggregatesFilter<"WithdrawalMethod"> | boolean
   creatorId?: Prisma.StringWithAggregatesFilter<"WithdrawalMethod"> | string
+  is_default?: Prisma.BoolWithAggregatesFilter<"WithdrawalMethod"> | boolean
+  details?: Prisma.JsonWithAggregatesFilter<"WithdrawalMethod">
+  type?: Prisma.EnumWithdrawalMethodTypeWithAggregatesFilter<"WithdrawalMethod"> | $Enums.WithdrawalMethodType
 }
 
 export type WithdrawalMethodCreateInput = {
   id?: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: boolean
-  user: Prisma.UserCreateNestedOneWithoutWithdrawalMethodInput
+  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type: $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutCreateNestedManyWithoutMethodInput
+  user: Prisma.UserCreateNestedOneWithoutWithdrawalMethodInput
 }
 
 export type WithdrawalMethodUncheckedCreateInput = {
   id?: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  is_default?: boolean
   creatorId: string
+  is_default?: boolean
+  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type: $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutUncheckedCreateNestedManyWithoutMethodInput
 }
 
 export type WithdrawalMethodUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  user?: Prisma.UserUpdateOneRequiredWithoutWithdrawalMethodNestedInput
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutUpdateManyWithoutMethodNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutWithdrawalMethodNestedInput
 }
 
 export type WithdrawalMethodUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutUncheckedUpdateManyWithoutMethodNestedInput
 }
 
 export type WithdrawalMethodCreateManyInput = {
   id?: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  is_default?: boolean
   creatorId: string
+  is_default?: boolean
+  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type: $Enums.WithdrawalMethodType
 }
 
 export type WithdrawalMethodUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
 }
 
 export type WithdrawalMethodUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
 }
 
 export type WithdrawalMethodListRelationFilter = {
@@ -323,26 +323,26 @@ export type WithdrawalMethodScalarRelationFilter = {
 export type WithdrawalMethodCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  type?: Prisma.SortOrder
-  details?: Prisma.SortOrder
-  is_default?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  is_default?: Prisma.SortOrder
+  details?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type WithdrawalMethodMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  type?: Prisma.SortOrder
-  is_default?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  is_default?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type WithdrawalMethodMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  type?: Prisma.SortOrder
-  is_default?: Prisma.SortOrder
   creatorId?: Prisma.SortOrder
+  is_default?: Prisma.SortOrder
+  type?: Prisma.SortOrder
 }
 
 export type WithdrawalMethodCreateNestedManyWithoutUserInput = {
@@ -408,18 +408,18 @@ export type EnumWithdrawalMethodTypeFieldUpdateOperationsInput = {
 export type WithdrawalMethodCreateWithoutUserInput = {
   id?: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: boolean
+  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type: $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutCreateNestedManyWithoutMethodInput
 }
 
 export type WithdrawalMethodUncheckedCreateWithoutUserInput = {
   id?: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: boolean
+  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type: $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutUncheckedCreateNestedManyWithoutMethodInput
 }
 
@@ -455,28 +455,28 @@ export type WithdrawalMethodScalarWhereInput = {
   NOT?: Prisma.WithdrawalMethodScalarWhereInput | Prisma.WithdrawalMethodScalarWhereInput[]
   id?: Prisma.StringFilter<"WithdrawalMethod"> | string
   name?: Prisma.StringFilter<"WithdrawalMethod"> | string
-  type?: Prisma.EnumWithdrawalMethodTypeFilter<"WithdrawalMethod"> | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonFilter<"WithdrawalMethod">
-  is_default?: Prisma.BoolFilter<"WithdrawalMethod"> | boolean
   creatorId?: Prisma.StringFilter<"WithdrawalMethod"> | string
+  is_default?: Prisma.BoolFilter<"WithdrawalMethod"> | boolean
+  details?: Prisma.JsonFilter<"WithdrawalMethod">
+  type?: Prisma.EnumWithdrawalMethodTypeFilter<"WithdrawalMethod"> | $Enums.WithdrawalMethodType
 }
 
 export type WithdrawalMethodCreateWithoutPayoutsInput = {
   id?: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: boolean
+  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type: $Enums.WithdrawalMethodType
   user: Prisma.UserCreateNestedOneWithoutWithdrawalMethodInput
 }
 
 export type WithdrawalMethodUncheckedCreateWithoutPayoutsInput = {
   id?: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  is_default?: boolean
   creatorId: string
+  is_default?: boolean
+  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type: $Enums.WithdrawalMethodType
 }
 
 export type WithdrawalMethodCreateOrConnectWithoutPayoutsInput = {
@@ -498,53 +498,53 @@ export type WithdrawalMethodUpdateToOneWithWhereWithoutPayoutsInput = {
 export type WithdrawalMethodUpdateWithoutPayoutsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
   user?: Prisma.UserUpdateOneRequiredWithoutWithdrawalMethodNestedInput
 }
 
 export type WithdrawalMethodUncheckedUpdateWithoutPayoutsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
   creatorId?: Prisma.StringFieldUpdateOperationsInput | string
+  is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
 }
 
 export type WithdrawalMethodCreateManyUserInput = {
   id?: string
   name: string
-  type: $Enums.WithdrawalMethodType
-  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: boolean
+  details: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type: $Enums.WithdrawalMethodType
 }
 
 export type WithdrawalMethodUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutUpdateManyWithoutMethodNestedInput
 }
 
 export type WithdrawalMethodUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
   payouts?: Prisma.PayoutUncheckedUpdateManyWithoutMethodNestedInput
 }
 
 export type WithdrawalMethodUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
-  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   is_default?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  details?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  type?: Prisma.EnumWithdrawalMethodTypeFieldUpdateOperationsInput | $Enums.WithdrawalMethodType
 }
 
 
@@ -581,48 +581,48 @@ export type WithdrawalMethodCountOutputTypeCountPayoutsArgs<ExtArgs extends runt
 export type WithdrawalMethodSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  type?: boolean
-  details?: boolean
-  is_default?: boolean
   creatorId?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  is_default?: boolean
+  details?: boolean
+  type?: boolean
   payouts?: boolean | Prisma.WithdrawalMethod$payoutsArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.WithdrawalMethodCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["withdrawalMethod"]>
 
 export type WithdrawalMethodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  type?: boolean
-  details?: boolean
-  is_default?: boolean
   creatorId?: boolean
+  is_default?: boolean
+  details?: boolean
+  type?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["withdrawalMethod"]>
 
 export type WithdrawalMethodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
-  type?: boolean
-  details?: boolean
-  is_default?: boolean
   creatorId?: boolean
+  is_default?: boolean
+  details?: boolean
+  type?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["withdrawalMethod"]>
 
 export type WithdrawalMethodSelectScalar = {
   id?: boolean
   name?: boolean
-  type?: boolean
-  details?: boolean
-  is_default?: boolean
   creatorId?: boolean
+  is_default?: boolean
+  details?: boolean
+  type?: boolean
 }
 
-export type WithdrawalMethodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "details" | "is_default" | "creatorId", ExtArgs["result"]["withdrawalMethod"]>
+export type WithdrawalMethodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "creatorId" | "is_default" | "details" | "type", ExtArgs["result"]["withdrawalMethod"]>
 export type WithdrawalMethodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   payouts?: boolean | Prisma.WithdrawalMethod$payoutsArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.WithdrawalMethodCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WithdrawalMethodIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -635,16 +635,16 @@ export type WithdrawalMethodIncludeUpdateManyAndReturn<ExtArgs extends runtime.T
 export type $WithdrawalMethodPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WithdrawalMethod"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
     payouts: Prisma.$PayoutPayload<ExtArgs>[]
+    user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    type: $Enums.WithdrawalMethodType
-    details: runtime.JsonValue
-    is_default: boolean
     creatorId: string
+    is_default: boolean
+    details: runtime.JsonValue
+    type: $Enums.WithdrawalMethodType
   }, ExtArgs["result"]["withdrawalMethod"]>
   composites: {}
 }
@@ -1039,8 +1039,8 @@ readonly fields: WithdrawalMethodFieldRefs;
  */
 export interface Prisma__WithdrawalMethodClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   payouts<T extends Prisma.WithdrawalMethod$payoutsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WithdrawalMethod$payoutsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayoutPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1072,10 +1072,10 @@ export interface Prisma__WithdrawalMethodClient<T, Null = never, ExtArgs extends
 export interface WithdrawalMethodFieldRefs {
   readonly id: Prisma.FieldRef<"WithdrawalMethod", 'String'>
   readonly name: Prisma.FieldRef<"WithdrawalMethod", 'String'>
-  readonly type: Prisma.FieldRef<"WithdrawalMethod", 'WithdrawalMethodType'>
-  readonly details: Prisma.FieldRef<"WithdrawalMethod", 'Json'>
-  readonly is_default: Prisma.FieldRef<"WithdrawalMethod", 'Boolean'>
   readonly creatorId: Prisma.FieldRef<"WithdrawalMethod", 'String'>
+  readonly is_default: Prisma.FieldRef<"WithdrawalMethod", 'Boolean'>
+  readonly details: Prisma.FieldRef<"WithdrawalMethod", 'Json'>
+  readonly type: Prisma.FieldRef<"WithdrawalMethod", 'WithdrawalMethodType'>
 }
     
 

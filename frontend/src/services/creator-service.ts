@@ -4,17 +4,18 @@ import {
   CreatePayoutType,
   CreateWithdrawalMethodType,
   ICustomerTransactions,
-  IOverview,
+  IOverviewCreator,
   IPayout,
   IPayoutSummary,
   IWithdrawalMethod,
+  UpdateWithdrawalMethodType,
 } from '@/types/api/creator-type';
 import { isAxiosError } from 'axios';
 
-const getOverview = async () => {
+const getOverviewCreator = async () => {
   try {
     const response = await axiosWithConfig.get('/api/creators/overview');
-    return response.data as IResponse<IOverview>;
+    return response.data as IResponse<IOverviewCreator>;
   } catch (error) {
     if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
       throw Error(error.message);
@@ -29,7 +30,7 @@ const getOverview = async () => {
 const getCustomerTransactions = async () => {
   try {
     const response = await axiosWithConfig.get('/api/creators/transactions');
-    return response.data as IResponse<ICustomerTransactions[]>;
+    return response.data as IResponse<ICustomerTransactions>;
   } catch (error) {
     if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
       throw Error(error.message);
@@ -116,6 +117,24 @@ const createWithdrawalMethod = async (request: CreateWithdrawalMethodType) => {
   }
 };
 
+const updateWithdrawalMethod = async (withdrawalMethodId: string, request: UpdateWithdrawalMethodType) => {
+  try {
+    const response = await axiosWithConfig.put(
+      `/api/creators/withdrawal-methods/${withdrawalMethodId}`,
+      request
+    );
+    return response.data as IResponse<{}>;
+  } catch (error) {
+    if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (isAxiosError(error) && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
 const setDefaultWidrawalMethod = async (id: string) => {
   try {
     const response = await axiosWithConfig.patch(`/api/creators/set-default-withdrawal-methods/${id}`);
@@ -146,13 +165,14 @@ const deleteWithdrawalMethod = async (id: string) => {
 };
 
 export {
-  getOverview,
+  getOverviewCreator,
   getCustomerTransactions,
   createPayout,
   getPayoutSummary,
   getPayoutHistory,
   getWithdrawalMethods,
   createWithdrawalMethod,
+  updateWithdrawalMethod,
   setDefaultWidrawalMethod,
   deleteWithdrawalMethod,
 };

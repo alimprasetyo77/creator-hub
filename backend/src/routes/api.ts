@@ -7,6 +7,7 @@ import categoryController from '../controllers/category-controller';
 import { allowedRoles } from '../middlewares/role-middleware';
 import orderController from '../controllers/order-controller';
 import creatorController from '../controllers/creator-controller';
+import adminController from '../controllers/admin-controller';
 
 const apiRouter = express.Router();
 
@@ -27,12 +28,19 @@ apiRouter.get('/api/products/id/:id', productController.getById);
 apiRouter.get('/api/products', productController.getAll);
 apiRouter.get('/api/products/my-products', allowedRoles(['CREATOR']), productController.getMyProducts);
 apiRouter.post('/api/products', allowedRoles(['CREATOR']), formDataMiddleware, productController.create);
-apiRouter.put('/api/products/:id', allowedRoles(['CREATOR']), formDataMiddleware, productController.update);
-apiRouter.delete('/api/products/:id', allowedRoles(['CREATOR']), productController.remove);
+apiRouter.put(
+  '/api/products/:id',
+  allowedRoles(['CREATOR', 'ADMIN']),
+  formDataMiddleware,
+  productController.update
+);
+apiRouter.delete('/api/products/:id', allowedRoles(['CREATOR', 'ADMIN']), productController.remove);
 
 // API routes for category
 apiRouter.get('/api/categories', categoryController.getAll);
 apiRouter.post('/api/categories', allowedRoles(['ADMIN']), categoryController.create);
+apiRouter.put('/api/categories/:id', allowedRoles(['ADMIN']), categoryController.update);
+apiRouter.delete('/api/categories/:id', allowedRoles(['ADMIN']), categoryController.delete);
 
 // API routes for order
 apiRouter.get('/api/orders/:orderId', orderController.get);
@@ -61,6 +69,11 @@ apiRouter.post(
   allowedRoles(['CREATOR']),
   creatorController.createWithdrawalMethod
 );
+apiRouter.put(
+  '/api/creators/withdrawal-methods/:id',
+  allowedRoles(['CREATOR']),
+  creatorController.updateWithdrawalMethod
+);
 apiRouter.patch(
   '/api/creators/set-default-withdrawal-methods/:id',
   allowedRoles(['CREATOR']),
@@ -71,4 +84,20 @@ apiRouter.delete(
   allowedRoles(['CREATOR']),
   creatorController.deleteWithdrawalMethod
 );
+
+// API Routes For ADMIN
+apiRouter.get('/api/admin/overview', allowedRoles(['ADMIN']), adminController.getOverview);
+apiRouter.get('/api/admin/transactions', allowedRoles(['ADMIN']), adminController.getBuyerSellerTransactions);
+apiRouter.get('/api/admin/payouts-requests', allowedRoles(['ADMIN']), adminController.getPayoutsRequests);
+apiRouter.patch(
+  '/api/admin/payouts-requests/:id/approve',
+  allowedRoles(['ADMIN']),
+  adminController.approvePayout
+);
+apiRouter.patch(
+  '/api/admin/payouts-requests/:id/reject',
+  allowedRoles(['ADMIN']),
+  adminController.rejectPayout
+);
+apiRouter.get('/api/admin/categories', allowedRoles(['ADMIN']), adminController.getCategories);
 export default apiRouter;

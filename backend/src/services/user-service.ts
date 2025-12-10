@@ -1,7 +1,7 @@
 import {
   ChangePasswordType,
   IMyDashboardPurchasesInfo,
-  IQueryMyPurchases,
+  IQueryPagination,
   LoginType,
   RegisterType,
   UpdateUserType,
@@ -193,7 +193,7 @@ const getMyDashboardPurchasesInfo = async (user: UserRequest['user']): Promise<I
   return response;
 };
 
-const getMyPurchases = async (user: UserRequest['user'], query: IQueryMyPurchases): Promise<{}> => {
+const getMyPurchases = async (user: UserRequest['user'], query: IQueryPagination): Promise<{}> => {
   const page = parseInt(query.page as string) || 1;
   const limit = parseInt(query.limit as string) || 10;
 

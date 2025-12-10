@@ -45,7 +45,7 @@ export default function Upload() {
   return (
     <div className='space-y-6'>
       <div>
-        <h2>Upload New Product</h2>
+        <h2 className='text-lg font-medium'>Upload New Product</h2>
         <p className='text-muted-foreground'>Add a new digital product to your store</p>
       </div>
 

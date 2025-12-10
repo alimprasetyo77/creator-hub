@@ -150,6 +150,7 @@ const create = async (user: UserRequest['user'], request: CreateOrderType): Prom
   });
 
   if (!product) throw new ResponseError(404, 'Failed to create order. Product not found.');
+  if (product.userId === user?.id) throw new ResponseError(400, 'You cannot buy your own product.');
 
   const orderPending = await prisma.order.findFirst({
     where: {

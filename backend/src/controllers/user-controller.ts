@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import userService from '../services/user-service';
 import { UserRequest } from '../middlewares/auth-middleware';
-import { IQueryMyPurchases } from '../validations/user-validation';
+import { IQueryPagination } from '../validations/user-validation';
 
 const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -119,7 +119,7 @@ const getMyPurchases = async (req: UserRequest, res: Response, next: NextFunctio
     const query = {
       page: req.query.page ? req.query.page : 1,
       limit: req.query.limit ? req.query.limit : 10,
-    } as IQueryMyPurchases;
+    } as IQueryPagination;
 
     const response = await userService.getMyPurchases(user, query);
     res.status(200).json({

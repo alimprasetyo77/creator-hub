@@ -1,13 +1,13 @@
 'use client';
-import PayoutForm from '@/components/dashboard/creator/payout/payout-form';
+import PayoutForm from '@/components/dashboard/payouts/payout-form';
 
-import PayoutHistoryTable from '@/components/dashboard/creator/payout/payout-history-table';
-import PayoutSummary from '@/components/dashboard/creator/payout/payout-summary';
-import { PayoutSummarySkeleton } from '@/components/dashboard/creator/payout/payout-summary-skeleton';
+import PayoutHistoryTable from '@/components/dashboard/payouts/payout-history-table';
+import PayoutSummary from '@/components/dashboard/payouts/payout-summary';
+import { PayoutSummarySkeleton } from '@/components/dashboard/payouts/payout-summary-skeleton';
 import { usePayoutSummary, useWithdrawalMethods } from '@/hooks/use-creator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Clock, CreditCard } from 'lucide-react';
-import PaymentMethod from '@/components/dashboard/creator/payout/payment-method';
+import PaymentMethod from '@/components/dashboard/payouts/payment-method';
 export default function Payouts() {
   const { payoutSummary, isLoading: summaryLoading } = usePayoutSummary();
   const { withdrawalMethods } = useWithdrawalMethods();
@@ -15,7 +15,7 @@ export default function Payouts() {
   return (
     <div className='space-y-6'>
       <div>
-        <h2>Payouts & Withdrawals</h2>
+        <h2 className='text-lg font-medium'>Payouts & Withdrawals</h2>
         <p className='text-muted-foreground'>Manage your earnings and withdraw funds</p>
       </div>
       {summaryLoading ? <PayoutSummarySkeleton /> : <PayoutSummary payoutSummary={payoutSummary!} />}

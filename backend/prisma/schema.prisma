@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -21,14 +15,121 @@ model User {
   email            String             @unique
   created_at       DateTime           @default(now())
   avatar           String?            @db.VarChar(225)
-  token            String?            @db.Text()
+  token            String?
   balance          Float?
-  products         Product[]
   orders           Order[]
   payouts          Payout[]
+  products         Product[]
   withdrawalMethod WithdrawalMethod[]
 
   @@map("users")
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String
+  label    String
+  products Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  title       String
+  description String
+  price       Float
+  thumbnail   String
+  sales       Int           @default(0)
+  rating      Float         @default(0)
+  featured    Boolean
+  created_at  DateTime      @default(now())
+  userId      String
+  categoryId  String
+  slug        String        @unique
+  status      ProductStatus @default(ACTIVE)
+  orderItems  OrderItem[]
+  category    Category      @relation(fields: [categoryId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@map("products")
+}
+
+model Order {
+  id          String        @id @default(uuid())
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  orderStatus OrderStatus   @default(PENDING)
+  items       OrderItem[]
+  paymentInfo OrderPayment?
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  price     Int
+  quantity  Int     @default(1)
+  fee       Int     @default(0)
+  total     Int     @default(0)
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model OrderPayment {
+  id                String    @id @default(uuid())
+  transactionId     String?
+  midtransOrderId   String?
+  grossAmount       String?
+  paymentType       String?
+  transactionTime   DateTime?
+  transactionStatus String?
+  vaNumbers         Json?
+  billKey           String?
+  billerCode        String?
+  acquirer          String?
+  actions           Json?
+  expiryTime        DateTime?
+  fraudStatus       String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  orderId           String    @unique
+  order             Order     @relation(fields: [orderId], references: [id])
+
+  @@map("order_payments")
+}
+
+model Payout {
+  id        String           @id @default(uuid())
+  amount    Float
+  date      DateTime         @default(now())
+  creatorId String
+  status    PayoutStatus     @default(PENDING)
+  methodId  String
+  fee       Int              @default(0)
+  user      User             @relation(fields: [creatorId], references: [id])
+  method    WithdrawalMethod @relation(fields: [methodId], references: [id])
+
+  @@map("payouts")
+}
+
+model WithdrawalMethod {
+  id         String               @id @default(uuid())
+  name       String
+  creatorId  String
+  is_default Boolean              @default(false)
+  details    Json
+  type       WithdrawalMethodType
+  payouts    Payout[]
+  user       User                 @relation(fields: [creatorId], references: [id])
+
+  @@map("withdrawal_methods")
 }
 
 enum Role {
@@ -37,52 +138,9 @@ enum Role {
   CREATOR
 }
 
-model Category {
-  id       String    @id @default(uuid())
-  name     String
-  products Product[]
-
-  @@map("categories")
-}
-
-model Product {
-  id          String        @id @default(uuid())
-  slug        String        @unique
-  title       String
-  description String
-  price       Float
-  thumbnail   String
-  sales       Int           @default(0)
-  rating      Float         @default(0)
-  featured    Boolean
-  status      ProductStatus @default(ACTIVE)
-  created_at  DateTime      @default(now())
-
-  user       User        @relation(fields: [userId], references: [id])
-  userId     String
-  category   Category    @relation(fields: [categoryId], references: [id])
-  categoryId String
-  orderItems OrderItem[]
-
-  @@map("products")
-}
-
 enum ProductStatus {
   ACTIVE
   INACTIVE
-}
-
-model Order {
-  id          String        @id @default(uuid())
-  user        User          @relation(fields: [userId], references: [id])
-  userId      String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  orderStatus OrderStatus   @default(PENDING)
-  items       OrderItem[]
-  paymentInfo OrderPayment?
-
-  @@map("orders")
 }
 
 enum OrderStatus {
@@ -90,79 +148,6 @@ enum OrderStatus {
   PAID
   FAILED
   EXPIRED
-}
-
-model OrderItem {
-  id        String  @id @default(uuid())
-  order     Order   @relation(fields: [orderId], references: [id])
-  orderId   String
-  product   Product @relation(fields: [productId], references: [id])
-  productId String
-  price     Int
-  quantity  Int     @default(1)
-  fee       Int     @default(0)
-  total     Int     @default(0)
-
-  @@map("order_items")
-}
-
-model OrderPayment {
-  id String @id @default(uuid())
-
-  transactionId   String?
-  midtransOrderId String?
-  grossAmount     String?
-  paymentType     String?
-
-  transactionTime   DateTime?
-  transactionStatus String?
-
-  vaNumbers  Json?
-  billKey    String?
-  billerCode String?
-  acquirer   String?
-  actions    Json?
-
-  expiryTime  DateTime?
-  fraudStatus String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  orderId String @unique
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  @@map("order_payments")
-}
-
-model Payout {
-  id     String       @id @default(uuid())
-  amount Float
-  date   DateTime     @default(now())
-  status PayoutStatus @default(PENDING)
-
-  creatorId String
-  user      User   @relation(fields: [creatorId], references: [id])
-
-  methodId String
-  method   WithdrawalMethod @relation(fields: [methodId], references: [id])
-
-  @@map("payouts")
-}
-
-model WithdrawalMethod {
-  id         String               @id @default(uuid())
-  name       String
-  type       WithdrawalMethodType
-  details    Json
-  is_default Boolean              @default(false)
-
-  creatorId String
-  user      User   @relation(fields: [creatorId], references: [id])
-
-  payouts Payout[]
-
-  @@map("withdrawal_methods")
 }
 
 enum WithdrawalMethodType {

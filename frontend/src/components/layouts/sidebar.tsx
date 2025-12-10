@@ -18,7 +18,7 @@ export default function SidebarNav({ items }: SidebarNavProps) {
     router.push(`${pathname.split('/').slice(0, -1).join('/')}/${id}`);
   };
   const creatorFeatures = ['upload', 'payouts'];
-  const adminFeatures = ['payouts-requests', 'platform-settings'];
+  const adminFeatures = ['payouts-requests', 'platform-settings', 'categories'];
   const isAdmin = user?.role === 'ADMIN';
   const isCreator = user?.role === 'CREATOR';
   if (isLoading) return <SidebarSkeleton />;

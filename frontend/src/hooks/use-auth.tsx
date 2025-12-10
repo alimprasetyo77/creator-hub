@@ -49,7 +49,7 @@ export const useLogout = () => {
   const logoutMutation = useMutation({
     mutationFn: () => logout(),
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['user'] });
+      queryClient.clear();
       router.replace('/login');
     },
     onError: (error) => {

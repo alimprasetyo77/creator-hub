@@ -348,13 +348,6 @@ export type EnumPayoutStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumPayoutStatusFilter<$PrismaModel>
 }
 
-export type EnumWithdrawalMethodTypeFilter<$PrismaModel = never> = {
-  equals?: $Enums.WithdrawalMethodType | Prisma.EnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel> | $Enums.WithdrawalMethodType
-}
-
 export type JsonFilter<$PrismaModel = never> =
 | Prisma.PatchUndefined<
     Prisma.Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -379,14 +372,11 @@ export type JsonFilterBase<$PrismaModel = never> = {
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
 }
 
-export type EnumWithdrawalMethodTypeWithAggregatesFilter<$PrismaModel = never> = {
+export type EnumWithdrawalMethodTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.WithdrawalMethodType | Prisma.EnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
   in?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
   notIn?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumWithdrawalMethodTypeWithAggregatesFilter<$PrismaModel> | $Enums.WithdrawalMethodType
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel>
+  not?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel> | $Enums.WithdrawalMethodType
 }
 
 export type JsonWithAggregatesFilter<$PrismaModel = never> =
@@ -414,6 +404,16 @@ export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedJsonFilter<$PrismaModel>
   _max?: Prisma.NestedJsonFilter<$PrismaModel>
+}
+
+export type EnumWithdrawalMethodTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WithdrawalMethodType | Prisma.EnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumWithdrawalMethodTypeWithAggregatesFilter<$PrismaModel> | $Enums.WithdrawalMethodType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel>
 }
 
 export type NestedStringFilter<$PrismaModel = never> = {
@@ -732,16 +732,6 @@ export type NestedEnumWithdrawalMethodTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel> | $Enums.WithdrawalMethodType
 }
 
-export type NestedEnumWithdrawalMethodTypeWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.WithdrawalMethodType | Prisma.EnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumWithdrawalMethodTypeWithAggregatesFilter<$PrismaModel> | $Enums.WithdrawalMethodType
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel>
-}
-
 export type NestedJsonFilter<$PrismaModel = never> =
 | Prisma.PatchUndefined<
     Prisma.Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
@@ -764,6 +754,16 @@ export type NestedJsonFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   gte?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
+}
+
+export type NestedEnumWithdrawalMethodTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.WithdrawalMethodType | Prisma.EnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.WithdrawalMethodType[] | Prisma.ListEnumWithdrawalMethodTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumWithdrawalMethodTypeWithAggregatesFilter<$PrismaModel> | $Enums.WithdrawalMethodType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumWithdrawalMethodTypeFilter<$PrismaModel>
 }
 
 

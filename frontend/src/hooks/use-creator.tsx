@@ -3,20 +3,25 @@ import {
   createWithdrawalMethod,
   deleteWithdrawalMethod,
   getCustomerTransactions,
-  getOverview,
+  getOverviewCreator,
   getPayoutHistory,
   getPayoutSummary,
   getWithdrawalMethods,
   setDefaultWidrawalMethod,
+  updateWithdrawalMethod,
 } from '@/services/creator-service';
-import { CreatePayoutType, CreateWithdrawalMethodType } from '@/types/api/creator-type';
+import {
+  CreatePayoutType,
+  CreateWithdrawalMethodType,
+  UpdateWithdrawalMethodType,
+} from '@/types/api/creator-type';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-export const useOverview = () => {
+export const useOverviewCreator = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['overview'],
-    queryFn: () => getOverview(),
+    queryFn: () => getOverviewCreator(),
     refetchOnWindowFocus: false,
     staleTime: 1000 * 60 * 5,
   });
@@ -113,6 +118,23 @@ export const useCreateWithdrawalMethod = () => {
   });
   return {
     createWithdrawalMethod: mutate,
+    isPending,
+  };
+};
+export const useUpdateWithdrawalMethod = (withdrawalMethodId: string) => {
+  const qc = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: UpdateWithdrawalMethodType) => updateWithdrawalMethod(withdrawalMethodId, data),
+    onSuccess: ({ message }) => {
+      qc.invalidateQueries({ queryKey: ['withdrawal-methods'] });
+      toast.error(message);
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+  return {
+    updateWithdrawalMethod: mutate,
     isPending,
   };
 };

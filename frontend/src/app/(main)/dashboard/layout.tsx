@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import SidebarNav from '../../../components/layouts/sidebar';
-import { LayoutDashboard, Package, Receipt, Upload, Wallet, Settings } from 'lucide-react';
+import { LayoutDashboard, Package, Receipt, Upload, Wallet, Settings, FolderKanban } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -9,7 +9,8 @@ interface DashboardLayoutProps {
 export default function Layout({ children }: DashboardLayoutProps) {
   const sidebarItems = [
     { id: 'overview', label: 'Overview', icon: <LayoutDashboard className='size-5' /> },
-    { id: 'products', label: 'My Products', icon: <Package className='size-5' /> },
+    { id: 'products', label: 'Products', icon: <Package className='size-5' /> },
+    { id: 'categories', label: 'Categories', icon: <FolderKanban className='size-5' /> },
     { id: 'upload', label: 'Upload Product', icon: <Upload className='size-5' /> },
     { id: 'transactions', label: 'Transactions', icon: <Receipt className='size-5' /> },
     { id: 'payouts', label: 'Payouts', icon: <Wallet className='size-5' /> },

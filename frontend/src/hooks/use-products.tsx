@@ -47,7 +47,7 @@ export const useMyProducts = () => {
     refetchOnWindowFocus: false,
   });
   return {
-    myProducts: data?.data,
+    products: data?.data,
     isLoading,
   };
 };

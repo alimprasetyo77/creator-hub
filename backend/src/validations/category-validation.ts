@@ -10,7 +10,3 @@ export type CreateCategoryType = z.infer<typeof CreateCategorySchema>;
 export type UpdateCategoryType = z.infer<typeof updateCategorySchema>;
 
 export default { CreateCategorySchema, updateCategorySchema };
-
-export interface ICategory extends CreateCategoryType {
-  id: string;
-}

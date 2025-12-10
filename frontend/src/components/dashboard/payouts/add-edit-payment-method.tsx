@@ -4,11 +4,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useCreateWithdrawalMethod } from '@/hooks/use-creator';
+import { useCreateWithdrawalMethod, useUpdateWithdrawalMethod } from '@/hooks/use-creator';
 import {
   createWithdrawalMethodSchema,
   CreateWithdrawalMethodType,
   IWithdrawalMethod,
+  UpdateWithdrawalMethodType,
 } from '@/types/api/creator-type';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CreditCard } from 'lucide-react';
@@ -27,10 +28,10 @@ export default function AddEditPaymentMethod({
   paymentMethod,
 }: AddEditPaymentMethodProps) {
   const { createWithdrawalMethod, isPending: createWithdrawalMethodPending } = useCreateWithdrawalMethod();
-
+  const { updateWithdrawalMethod } = useUpdateWithdrawalMethod(paymentMethod?.id || '');
   const form = useForm<CreateWithdrawalMethodType>({
     resolver: zodResolver(createWithdrawalMethodSchema),
-    shouldUnregister: true,
+    // shouldUnregister: true,
     defaultValues: {
       name: '',
       type: 'BANK_TRANSFER',
@@ -45,20 +46,28 @@ export default function AddEditPaymentMethod({
   });
 
   const type = form.watch('type');
-
   useEffect(() => {
     if (isOpenAddEditPaymentMethod === 'edit' && paymentMethod) {
       form.reset(paymentMethod);
     }
-  }, [isOpenAddEditPaymentMethod, paymentMethod]);
+  }, [isOpenAddEditPaymentMethod, form, paymentMethod]);
 
-  const onSubmit = form.handleSubmit((values: CreateWithdrawalMethodType) => {
-    createWithdrawalMethod(values, {
-      onSettled: () => {
-        setIsOpenAddEditPaymentMethod(null);
-        form.reset();
-      },
-    });
+  const onSubmit = form.handleSubmit((values: CreateWithdrawalMethodType | UpdateWithdrawalMethodType) => {
+    if (isOpenAddEditPaymentMethod === 'add') {
+      createWithdrawalMethod(values as CreateWithdrawalMethodType, {
+        onSettled: () => {
+          setIsOpenAddEditPaymentMethod(null);
+          form.reset();
+        },
+      });
+    } else {
+      updateWithdrawalMethod(values as UpdateWithdrawalMethodType, {
+        onSettled: () => {
+          setIsOpenAddEditPaymentMethod(null);
+          form.reset();
+        },
+      });
+    }
   });
   return (
     <Dialog

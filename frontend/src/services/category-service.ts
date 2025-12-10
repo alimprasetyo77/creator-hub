@@ -1,12 +1,12 @@
 import { IResponse } from '@/types';
 import axiosWithConfig from '../lib/axios-config';
-import { CategoryType } from '@/types/api/category-type';
 import { AxiosError } from 'axios';
+import { CreateCategoryType, ICategory, UpdateCategoryType } from '@/types/api/category-type';
 
 const getCategories = async () => {
   try {
     const response = await axiosWithConfig.get('/api/categories');
-    return response.data as IResponse<CategoryType[]>;
+    return response.data as IResponse<ICategory[]>;
   } catch (error) {
     if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
       throw Error(error.message);
@@ -21,7 +21,7 @@ const getCategories = async () => {
 const createCategory = async (name: string) => {
   try {
     const response = await axiosWithConfig.post('/api/categories', { name });
-    return response.data as IResponse<CategoryType>;
+    return response.data as IResponse<CreateCategoryType>;
   } catch (error) {
     if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
       throw Error(error.message);
@@ -33,4 +33,34 @@ const createCategory = async (name: string) => {
   }
 };
 
-export { createCategory, getCategories };
+const updateCategory = async (categoryId: string, request: UpdateCategoryType) => {
+  try {
+    const response = await axiosWithConfig.patch(`/api/categories/${categoryId}`, request);
+    return response.data as IResponse<UpdateCategoryType>;
+  } catch (error) {
+    if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (error instanceof AxiosError && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
+const deleteCategory = async (categoryId: string) => {
+  try {
+    const response = await axiosWithConfig.delete(`/api/categories/${categoryId}`);
+    return response.data as IResponse<{}>;
+  } catch (error) {
+    if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (error instanceof AxiosError && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
+export { createCategory, getCategories, updateCategory, deleteCategory };

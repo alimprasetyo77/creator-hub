@@ -1,4 +1,5 @@
-import { createCategory, getCategories } from '@/services/category-service';
+import { createCategory, deleteCategory, getCategories, updateCategory } from '@/services/category-service';
+import { UpdateCategoryType } from '@/types/api/category-type';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -27,6 +28,44 @@ export const useCreateCategory = () => {
 
   return {
     createCategory: mutate,
+    isPending,
+  };
+};
+
+export const useUpdateCategory = (categoryId: string) => {
+  const queryClient = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: UpdateCategoryType) => updateCategory(categoryId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories-admin'] });
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+
+  return {
+    updateCategory: mutate,
+    isPending,
+  };
+};
+
+export const useDeleteCategory = () => {
+  const qc = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: string) => deleteCategory(data),
+    onSuccess: ({ message }) => {
+      qc.invalidateQueries({ queryKey: ['categories'] });
+      qc.invalidateQueries({ queryKey: ['categories-admin'] });
+      toast.error(message);
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+  return {
+    deleteCategory: mutate,
     isPending,
   };
 };

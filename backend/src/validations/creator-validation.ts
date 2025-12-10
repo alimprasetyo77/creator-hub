@@ -25,10 +25,12 @@ const createWithdrawalMethodSchema = z.object({
   is_default: z.boolean().optional(),
 });
 
-export type CreatePayoutType = z.infer<typeof createPayoutSchema>;
-export type createWithdrawalMethodType = z.infer<typeof createWithdrawalMethodSchema>;
+const updateWithdrawalMethodSchema = createWithdrawalMethodSchema.partial();
 
-export default { createPayoutSchema, createWithdrawalMethodSchema };
+export type CreatePayoutType = z.infer<typeof createPayoutSchema>;
+export type CreateWithdrawalMethodType = z.infer<typeof createWithdrawalMethodSchema>;
+export type UpdateWithdrawalMethodType = z.infer<typeof updateWithdrawalMethodSchema>;
+export default { createPayoutSchema, createWithdrawalMethodSchema, updateWithdrawalMethodSchema };
 export interface IOverview {
   summary: {
     totalRevenue: number;

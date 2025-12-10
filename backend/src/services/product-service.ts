@@ -1,4 +1,5 @@
 import { Product } from '../generated/prisma/browser';
+import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
 import { generateSlug } from '../utils/slug-generator';
@@ -131,13 +132,20 @@ const getById = async (id: string): Promise<Omit<Product, 'categoryId' | 'userId
  * @param {ProductCreateType} request - The request body
  * @returns {Promise<Product>} - The updated product
  */
-const update = async (id: string, userId: string, request: ProductUpdateType): Promise<Product> => {
+const update = async (
+  id: string,
+  user: UserRequest['user'],
+  request: ProductUpdateType
+): Promise<Product> => {
   const updateProductRequest = validate(productValidation.UpdateSchema, request);
 
   const product = await prisma.product.findUnique({ where: { id } });
+
   if (!product) throw new ResponseError(400, 'Product not found');
-  if (product.userId !== userId)
+
+  if (['USER', 'CREATOR'].includes(user?.role!) && product.userId !== user?.id)
     throw new ResponseError(400, 'You are not authorized to update this product');
+
   let thumbnail;
   if (updateProductRequest.thumbnail) {
     thumbnail = await uploadImage(updateProductRequest.thumbnail, product.thumbnail);

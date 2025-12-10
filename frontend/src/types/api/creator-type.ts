@@ -35,7 +35,7 @@ export type CreateWithdrawalMethodType = z.infer<typeof createWithdrawalMethodSc
 export type UpdateWithdrawalMethodType = z.infer<typeof updateWithdrawalMethodSchema>;
 export { createPayoutSchema, createWithdrawalMethodSchema, updateWithdrawalMethodSchema };
 
-export type IOverview = {
+export type IOverviewCreator = {
   summary: {
     totalRevenue: number;
     totalSales: number;
@@ -57,15 +57,19 @@ export type IOverview = {
 };
 
 export type ICustomerTransactions = {
-  id: string;
-  title: string;
-  customer: {
-    name: string;
-    email: string;
-  };
-  price: number;
-  orderStatus: string;
-  createdAt: string;
+  data: Array<{
+    id: string;
+    title: string;
+    customer: {
+      name: string;
+      email: string;
+    };
+    price: number;
+    orderStatus: string;
+    createdAt: string;
+  }>;
+  page: number;
+  totalPages: number;
 };
 
 export interface IPayout {

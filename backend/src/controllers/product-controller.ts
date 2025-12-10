@@ -122,8 +122,8 @@ const getById = async (req: Request, res: Response, next: NextFunction): Promise
 const update = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const request = req.body;
-    const userId = req.user?.id;
-    const response = await productService.update(req.params.id, userId!, request);
+    const user = req.user;
+    const response = await productService.update(req.params.id, user!, request);
     res.status(200).json({
       message: 'Update product successfully',
       data: response,

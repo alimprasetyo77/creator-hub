@@ -1,6 +1,7 @@
 import { NextFunction, Response } from 'express';
 import { UserRequest } from '../middlewares/auth-middleware';
 import creatorService from '../services/creator-service';
+import { IQueryPagination } from '../validations/user-validation';
 
 const getOverview = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -22,7 +23,11 @@ const getCustomerTransactions = async (
 ): Promise<void> => {
   try {
     const request = req.user;
-    const response = await creatorService.getCustomerTransactions(request);
+    const query = {
+      page: req.query.page,
+      limit: req.query.limit,
+    } as IQueryPagination;
+    const response = await creatorService.getCustomerTransactions(query, request);
     res.status(200).json({
       message: 'Get customer transactions successfully',
       data: response,
@@ -97,6 +102,20 @@ const createWithdrawalMethod = async (req: UserRequest, res: Response, next: Nex
     next(error);
   }
 };
+
+const updateWithdrawalMethod = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const withdrawalMethodId = req.params.id;
+    const request = req.body;
+    const response = await creatorService.updateWithdrawalMethod(withdrawalMethodId!, request);
+    res.status(200).json({
+      message: `Withdrawal method ${response} updated`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const setDefaultWidrawalMethod = async (
   req: UserRequest,
   res: Response,
@@ -134,6 +153,7 @@ export default {
   createPayout,
   getPayoutHistory,
   createWithdrawalMethod,
+  updateWithdrawalMethod,
   setDefaultWidrawalMethod,
   getWithdrawalMethods,
   deleteWithdrawalMethod,

@@ -1059,7 +1059,8 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const CategoryScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  name: 'name',
+  label: 'label'
 } as const
 
 export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typeof CategoryScalarFieldEnum]
@@ -1067,7 +1068,6 @@ export type CategoryScalarFieldEnum = (typeof CategoryScalarFieldEnum)[keyof typ
 
 export const ProductScalarFieldEnum = {
   id: 'id',
-  slug: 'slug',
   title: 'title',
   description: 'description',
   price: 'price',
@@ -1075,10 +1075,11 @@ export const ProductScalarFieldEnum = {
   sales: 'sales',
   rating: 'rating',
   featured: 'featured',
-  status: 'status',
   created_at: 'created_at',
   userId: 'userId',
-  categoryId: 'categoryId'
+  categoryId: 'categoryId',
+  slug: 'slug',
+  status: 'status'
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
@@ -1135,9 +1136,10 @@ export const PayoutScalarFieldEnum = {
   id: 'id',
   amount: 'amount',
   date: 'date',
-  status: 'status',
   creatorId: 'creatorId',
-  methodId: 'methodId'
+  status: 'status',
+  methodId: 'methodId',
+  fee: 'fee'
 } as const
 
 export type PayoutScalarFieldEnum = (typeof PayoutScalarFieldEnum)[keyof typeof PayoutScalarFieldEnum]
@@ -1146,10 +1148,10 @@ export type PayoutScalarFieldEnum = (typeof PayoutScalarFieldEnum)[keyof typeof 
 export const WithdrawalMethodScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  type: 'type',
-  details: 'details',
+  creatorId: 'creatorId',
   is_default: 'is_default',
-  creatorId: 'creatorId'
+  details: 'details',
+  type: 'type'
 } as const
 
 export type WithdrawalMethodScalarFieldEnum = (typeof WithdrawalMethodScalarFieldEnum)[keyof typeof WithdrawalMethodScalarFieldEnum]
