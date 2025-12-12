@@ -15,6 +15,7 @@ import jwt from 'jsonwebtoken';
 import { UserRequest } from '../middlewares/auth-middleware';
 import { supabase } from '../utils/supabase-client';
 import fs from 'fs';
+import { User } from '../generated/prisma/client';
 
 const register = async (request: RegisterType): Promise<void> => {
   const registerRequest = validate(userValidation.registerSchema, request);
@@ -32,7 +33,7 @@ const register = async (request: RegisterType): Promise<void> => {
   });
 };
 
-const login = async (request: LoginType): Promise<{ token: string }> => {
+const login = async (request: LoginType): Promise<{ token: string; role: string }> => {
   const loginRequest = validate(userValidation.loginSchema, request);
   const user = await prisma.user.findUnique({
     where: {
@@ -51,16 +52,20 @@ const login = async (request: LoginType): Promise<{ token: string }> => {
 
   const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1h' });
 
-  await prisma.user.update({
+  const result = await prisma.user.update({
     where: {
       id: user.id,
     },
     data: {
       token,
     },
+    select: {
+      role: true,
+      token: true,
+    },
   });
 
-  return { token };
+  return result as { token: string; role: string };
 };
 
 const logout = async (token: string, user: UserRequest['user']): Promise<void> => {

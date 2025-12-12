@@ -1,6 +1,6 @@
 import z from 'zod';
 import { IUser } from './user-type';
-import { CategoryType } from './category-type';
+import { ICategory } from './category-type';
 
 const MAX_MB = 2;
 const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
@@ -65,6 +65,6 @@ export interface IProduct {
   featured: boolean;
   status: string;
   created_at: string;
-  category: CategoryType;
+  category: ICategory;
   user: IUser;
 }

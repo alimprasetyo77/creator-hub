@@ -64,7 +64,7 @@ export default function Sidebar({ order }: SidebarProps) {
               </div>
               <div className='flex justify-between text-sm'>
                 <span className='text-muted-foreground'>Processing Fee</span>
-                <span>{formatIDR(0)}</span>
+                <span>{formatIDR(order.items[0].fee)}</span>
               </div>
               <Separator className='my-3' />
               <div className='flex justify-between'>

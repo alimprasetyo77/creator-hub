@@ -8,14 +8,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useLogin } from '@/hooks/use-auth';
 import { useState } from 'react';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function page() {
   const [showPassword, setShowPassword] = useState(false);
+  const { setIsAuthenticated } = useAuth();
   const { login } = useLogin();
-
+  const router = useRouter();
   const form = useForm<LoginType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -26,6 +28,14 @@ export default function page() {
 
   const onSubmit = form.handleSubmit((data: LoginType) =>
     login(data, {
+      onSuccess: ({ data }) => {
+        setIsAuthenticated(true);
+        if (data.role === 'ADMIN' || data.role === 'CREATOR') {
+          router.replace('/dashboard');
+        } else {
+          router.replace('/explore');
+        }
+      },
       onError: (error) => {
         form.setError('root', { message: error.message });
       },

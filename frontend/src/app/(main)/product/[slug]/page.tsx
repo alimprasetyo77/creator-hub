@@ -10,7 +10,6 @@ import {
   Check,
   ChevronLeft,
   FileText,
-  MessageSquare,
   Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,9 +24,11 @@ import { useGetProduct, useGetProducts } from '@/hooks/use-products';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
 import { useCreateOrder } from '@/hooks/use-orders';
+import { formatIDR } from '@/lib/utils';
+import { ProductDetailSkeleton } from '@/components/my-purchases/detail/product-detail-skeleton';
 
 interface Params {
-  params: Promise<{ slug: string }>; // Or a union type if multiple dynamic segments
+  params: Promise<{ slug: string }>;
 }
 export default function page({ params }: Params) {
   const { slug } = use(params);
@@ -41,13 +42,7 @@ export default function page({ params }: Params) {
   const isAdmin = user?.role === 'admin';
 
   if (isLoadingProduct || isLoadingProducts) {
-    return (
-      <div className='flex min-h-screen items-center justify-center bg-linear-to-b from-blue-50 to-white'>
-        <div className='text-center'>
-          <h2>Loading...</h2>
-        </div>
-      </div>
-    );
+    return <ProductDetailSkeleton />;
   }
   if (!product) {
     return (
@@ -62,7 +57,7 @@ export default function page({ params }: Params) {
     );
   }
   const relatedProducts = products!
-    .filter((p) => p.id !== product.id && p.category === product.category)
+    .filter((p) => p.id !== product.id && p.category.name === product.category.name)
     .slice(0, 3);
 
   const categoryGradients = {
@@ -86,9 +81,9 @@ export default function page({ params }: Params) {
       </div>
 
       <div className='container mx-auto px-4 py-8 md:px-6'>
-        <div className='grid gap-8 lg:grid-cols-3'>
+        <div className='grid lg:grid-cols-6'>
           {/* Main content - 2 columns */}
-          <div className='lg:col-span-2 space-y-6'>
+          <div className='lg:col-span-3 space-y-6'>
             {/* Product Image */}
             <div className='group relative overflow-hidden rounded-2xl border bg-white shadow-sm'>
               <div className='absolute inset-0 bg-linear-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100' />
@@ -151,15 +146,12 @@ export default function page({ params }: Params) {
 
             {/* Tabs for content */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-              <TabsList className='grid w-full grid-cols-3 bg-muted'>
+              <TabsList className='grid w-full grid-cols-2 bg-muted'>
                 <TabsTrigger value='overview'>
                   <FileText className='mr-2 h-4 w-4' />
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value='reviews'>
-                  <MessageSquare className='mr-2 h-4 w-4' />
-                  Reviews
-                </TabsTrigger>
+
                 <TabsTrigger value='details'>
                   <Info className='mr-2 h-4 w-4' />
                   Details
@@ -287,55 +279,6 @@ export default function page({ params }: Params) {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Individual Reviews */}
-                {/* <div className='space-y-4'>
-                  {productReviews.map((review) => (
-                    <Card key={review.id} className='border-none shadow-sm transition-all hover:shadow-md'>
-                      <CardContent className='p-6'>
-                        <div className='mb-4 flex items-start justify-between gap-4'>
-                          <div className='flex items-start gap-3'>
-                            <Avatar className='h-10 w-10'>
-                              <AvatarImage src={review.userAvatar} alt={review.userName} />
-                              <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className='font-medium'>{review.userName}</div>
-                              <div className='flex items-center gap-2'>
-                                <div className='flex items-center gap-1'>
-                                  {[...Array(5)].map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className={`h-3 w-3 ${
-                                        i < review.rating
-                                          ? 'fill-yellow-400 text-yellow-400'
-                                          : 'fill-gray-200 text-gray-200'
-                                      }`}
-                                    />
-                                  ))}
-                                </div>
-                                <span className='text-xs text-muted-foreground'>
-                                  {new Date(review.date).toLocaleDateString('en-US', {
-                                    month: 'short',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                  })}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className='mb-4 text-muted-foreground leading-relaxed'>{review.comment}</p>
-
-                        <Button variant='ghost' size='sm'>
-                          <ThumbsUp className='mr-2 h-3 w-3' />
-                          Helpful ({review.helpful})
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div> */}
               </TabsContent>
 
               {/* Details Tab */}
@@ -414,14 +357,14 @@ export default function page({ params }: Params) {
           </div>
 
           {/* Sidebar - 1 column */}
-          <div className='lg:col-span-1'>
+          <div className='lg:col-span-2 lg:col-start-5  '>
             <div className='sticky top-20'>
               <Card className='border-none shadow-lg'>
                 <CardContent className='p-6'>
                   {/* Price */}
                   <div className='mb-6'>
-                    <div className='mb-2 bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-5xl text-transparent'>
-                      ${product.price}
+                    <div className='mb-2 bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-4xl text-transparent'>
+                      {formatIDR(product.price)}
                     </div>
                     <p className='text-sm text-muted-foreground'>One-time payment</p>
                   </div>
@@ -486,7 +429,7 @@ export default function page({ params }: Params) {
         {/* Related Products */}
         {relatedProducts.length > 0 && (
           <div className='mt-16'>
-            <h2 className='mb-8'>Related Products</h2>
+            <h2 className='mb-8 text-lg font-medium'>Related Products</h2>
             <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
               {relatedProducts.map((relatedProduct) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} />

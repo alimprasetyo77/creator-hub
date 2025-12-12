@@ -38,13 +38,11 @@ export default function OverviewCreator() {
           title='Total Revenue'
           value={formatIDR(overview?.summary.totalRevenue || 0)}
           icon={<DollarSign className='h-6 w-6 text-blue-600' />}
-          trend={{ value: 12.5, isPositive: true }}
         />
         <StatsCard
           title='Total Sales'
           value={overview?.summary.totalSales || 0}
           icon={<TrendingUp className='h-6 w-6 text-purple-600' />}
-          trend={{ value: 8.2, isPositive: true }}
         />
         <StatsCard
           title='Products'
@@ -55,7 +53,6 @@ export default function OverviewCreator() {
           title='Customers'
           value={overview?.summary.customers || 0}
           icon={<Users className='h-6 w-6 text-purple-600' />}
-          trend={{ value: 5.1, isPositive: false }}
         />
       </div>
 

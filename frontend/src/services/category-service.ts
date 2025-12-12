@@ -18,9 +18,9 @@ const getCategories = async () => {
   }
 };
 
-const createCategory = async (name: string) => {
+const createCategory = async (request: CreateCategoryType) => {
   try {
-    const response = await axiosWithConfig.post('/api/categories', { name });
+    const response = await axiosWithConfig.post('/api/categories', request);
     return response.data as IResponse<CreateCategoryType>;
   } catch (error) {
     if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
@@ -35,7 +35,7 @@ const createCategory = async (name: string) => {
 
 const updateCategory = async (categoryId: string, request: UpdateCategoryType) => {
   try {
-    const response = await axiosWithConfig.patch(`/api/categories/${categoryId}`, request);
+    const response = await axiosWithConfig.put(`/api/categories/${categoryId}`, request);
     return response.data as IResponse<UpdateCategoryType>;
   } catch (error) {
     if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {

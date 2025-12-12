@@ -4,12 +4,12 @@ const CreateCategorySchema = z.object({
   name: z.string().nonempty('Category name is required'),
   label: z.string().nonempty('Category label is required'),
 });
-const updateCategorySchema = CreateCategorySchema.partial();
+const UpdateCategorySchema = CreateCategorySchema.partial();
 
 export type CreateCategoryType = z.infer<typeof CreateCategorySchema>;
-export type UpdateCategoryType = z.infer<typeof updateCategorySchema>;
+export type UpdateCategoryType = z.infer<typeof UpdateCategorySchema>;
 
-export default { CreateCategorySchema, updateCategorySchema };
+export { CreateCategorySchema, UpdateCategorySchema };
 
 export interface ICategory extends CreateCategoryType {
   id: string;

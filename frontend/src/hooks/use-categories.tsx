@@ -1,5 +1,5 @@
 import { createCategory, deleteCategory, getCategories, updateCategory } from '@/services/category-service';
-import { UpdateCategoryType } from '@/types/api/category-type';
+import { CreateCategoryType, UpdateCategoryType } from '@/types/api/category-type';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -17,9 +17,10 @@ export const useCategories = () => {
 export const useCreateCategory = () => {
   const queryClient = useQueryClient();
   const { mutate, isPending } = useMutation({
-    mutationFn: (name: string) => createCategory(name),
+    mutationFn: (data: CreateCategoryType) => createCategory(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['categories-admin'] });
     },
     onError: ({ message }) => {
       toast.error(message);

@@ -5,7 +5,10 @@ import { IResponse } from '../types';
 const login = async (data: LoginType) => {
   try {
     const response = await axiosWithConfig.post('/api/users/login', data);
-    return response.data as IResponse<{}>;
+    return response.data as IResponse<{
+      role: string;
+      token: string;
+    }>;
   } catch (error: any) {
     if (error.code === 'ERR_NETWORK') {
       throw Error(error.message);

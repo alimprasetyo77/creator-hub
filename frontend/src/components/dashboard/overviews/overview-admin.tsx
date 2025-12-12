@@ -42,25 +42,21 @@ export default function OverviewAdmin() {
           title='Gross Sales'
           value={formatIDR(overview?.summary.grossSales || 0)}
           icon={<DollarSign className='h-6 w-6 text-blue-600' />}
-          trend={{ value: 15.3, isPositive: true }}
         />
         <StatsCard
           title='Platform Revenue'
           value={formatIDR(overview?.summary.platformRevenue || 0)}
           icon={<TrendingUp className='h-6 w-6 text-purple-600' />}
-          trend={{ value: 12.1, isPositive: true }}
         />
         <StatsCard
           title='Total Users'
           value={overview?.summary.totalUsers || 0}
           icon={<Users className='h-6 w-6 text-blue-600' />}
-          trend={{ value: 8.7, isPositive: true }}
         />
         <StatsCard
           title='Total Products'
           value={overview?.summary.totalProducts || 0}
           icon={<Package className='h-6 w-6 text-purple-600' />}
-          trend={{ value: 5.4, isPositive: true }}
         />
       </div>
 

@@ -15,7 +15,7 @@ interface StatsCardProps {
 
 export default function StatsCard({ title, value, icon, trend, className }: StatsCardProps) {
   return (
-    <Card className={cn('overflow-hidden', className)}>
+    <Card className={cn('overflow-hidden py-0', className)}>
       <CardContent className='p-6'>
         <div className='flex items-center justify-between'>
           <div className='flex-1'>
@@ -28,7 +28,7 @@ export default function StatsCard({ title, value, icon, trend, className }: Stat
               </p>
             )}
           </div>
-          <div className='flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10'>
+          <div className='flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-blue-500/10 to-purple-500/10'>
             {icon}
           </div>
         </div>

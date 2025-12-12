@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { hostname: 'simulator.sandbox.midtrans.com' },
       { hostname: 'api.sandbox.midtrans.com' },
+      { hostname: 'zgxxuzcgrevfpzwkbczl.supabase.co' },
     ],
   },
 };

@@ -208,10 +208,9 @@ const getCategories = async () => {
          c."label",
          CAST(COUNT(p."categoryId") AS INTEGER) AS "productCount"
       FROM categories c
-      JOIN products p ON p."categoryId" = c.id
+      LEFT JOIN products p ON p."categoryId" = c.id
       GROUP BY c.id
    `;
-
   const categoriesRow = (categories as any) ?? [];
 
   return categoriesRow;

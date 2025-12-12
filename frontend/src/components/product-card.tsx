@@ -9,6 +9,7 @@ import { IProduct } from '@/types/api/product-type';
 import Link from 'next/link';
 import { formatIDR } from '@/lib/utils';
 import { useCreateOrder } from '@/hooks/use-orders';
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: IProduct;
@@ -17,13 +18,13 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { createOrder, isPending } = useCreateOrder();
   const categoryColors: any = {
-    'E-Book': 'bg-blue-100 text-blue-700',
+    'e-book': 'bg-blue-100 text-blue-700',
     template: 'bg-purple-100 text-purple-700',
-    'Ui-Kit': 'bg-pink-100 text-pink-700',
+    'ui-kit': 'bg-pink-100 text-pink-700',
     asset: 'bg-green-100 text-green-700',
     course: 'bg-orange-100 text-orange-700',
   };
-  const onClickBuyProduct = async () => {
+  const onClickBuyProduct = () => {
     createOrder({
       product_id: product.id,
     });
@@ -33,9 +34,11 @@ export function ProductCard({ product }: ProductCardProps) {
     <Card className='group  overflow-hidden transition-all hover:shadow-lg py-0 gap-2'>
       <Link href={'/product/' + product.slug} className='cursor-pointer'>
         <div className='relative aspect-5/3 overflow-hidden bg-muted border'>
-          <img
+          <Image
             src={product.thumbnail}
             alt={product.title}
+            width={1000}
+            height={1000}
             className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 '
           />
           {product.featured && (
@@ -45,19 +48,19 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
 
-        <CardContent className='px-4 py-2'>
+        <CardContent className='px-4 py-2 h-44 flex flex-col'>
           <div className='mb-2 flex items-center gap-2'>
             <Badge variant='secondary' className={(categoryColors as any)[product.category.name as any]}>
-              {product.category.name.replace('-', ' ')}
+              {product.category.label}
             </Badge>
             <div className='flex items-center gap-1 text-sm text-muted-foreground'>
               <Star className='h-3.5 w-3.5 fill-yellow-400 text-yellow-400' />
-              <span>{product.rating}</span>
+              <span>{product.rating || 4.8}</span>
             </div>
           </div>
 
           <h3 className='mb-2 line-clamp-2'>{product.title}</h3>
-          <p className='mb-3 line-clamp-2 text-sm text-muted-foreground'>{product.description}</p>
+          <p className='mb-3 line-clamp-2 text-sm text-muted-foreground grow'>{product.description}</p>
 
           <div className='flex items-center gap-2'>
             <Avatar className='h-6 w-6'>
@@ -71,7 +74,6 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <CardFooter className='flex items-center justify-between border-t p-4'>
         <span className='text-xl'>{formatIDR(product.price)}</span>
-
         <Button
           size='sm'
           className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 '

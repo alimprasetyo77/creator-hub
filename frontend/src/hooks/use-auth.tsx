@@ -2,16 +2,16 @@ import { LoginType, RegisterType } from '@/types/api/auth-type';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-// import { useAuth } from '@/contexts/auth-context';
 import { login, logout, register } from '@/services/auth-service';
+import { useAuth } from '@/contexts/auth-context';
 
 export const useLogin = () => {
-  const router = useRouter();
+  const qc = useQueryClient();
   const loginMutation = useMutation({
     mutationFn: (data: LoginType) => login(data),
     onSuccess: ({ message }) => {
+      qc.fetchQuery({ queryKey: ['user'] });
       toast.success(message);
-      router.replace('/');
     },
     onError: (error) => {
       if (error.message !== 'Email or password is incorrect') {
@@ -44,13 +44,15 @@ export const useRegister = () => {
 };
 
 export const useLogout = () => {
+  const { setIsAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const router = useRouter();
   const logoutMutation = useMutation({
     mutationFn: () => logout(),
     onSuccess: () => {
-      queryClient.clear();
       router.replace('/login');
+      queryClient.clear();
+      setIsAuthenticated(false);
     },
     onError: (error) => {
       toast.error(error.message);

@@ -26,7 +26,7 @@ export default function ProfileInformationForm() {
       ? {
           full_name: user.full_name,
           email: user.email,
-          role: user.role as 'USER' | 'CREATOR',
+          role: user.role as 'USER' | 'CREATOR' | 'ADMIN',
           avatar: '',
         }
       : {
@@ -144,12 +144,16 @@ export default function ProfileInformationForm() {
               <Field>
                 <FieldLabel htmlFor={field.name}>Account Type</FieldLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className='max-w-1/2' disabled={form.formState.isSubmitting}>
+                  <SelectTrigger
+                    className='max-w-1/2'
+                    disabled={form.formState.isSubmitting || user?.role === 'ADMIN'}
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value='USER'>Buyer</SelectItem>
                     <SelectItem value='CREATOR'>Creator</SelectItem>
+                    <SelectItem value='ADMIN'>Admin</SelectItem>
                   </SelectContent>
                 </Select>
                 {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}

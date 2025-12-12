@@ -1,7 +1,7 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { IUser } from '@/types/api/user-type';
 import { useUser } from '@/hooks/use-users';
 import axiosWithConfig from '@/lib/axios-config';
@@ -10,6 +10,7 @@ interface AuthContextValue {
   user: IUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -46,6 +47,7 @@ export function AuthProvider({ children, hasToken }: { children: React.ReactNode
       user: user ?? null,
       isLoading,
       isAuthenticated,
+      setIsAuthenticated,
     }),
     [user, isLoading, isAuthenticated]
   );
