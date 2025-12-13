@@ -6,11 +6,9 @@ import { login, logout, register } from '@/services/auth-service';
 import { useAuth } from '@/contexts/auth-context';
 
 export const useLogin = () => {
-  const qc = useQueryClient();
   const loginMutation = useMutation({
     mutationFn: (data: LoginType) => login(data),
     onSuccess: ({ message }) => {
-      qc.fetchQuery({ queryKey: ['user'] });
       toast.success(message);
     },
     onError: (error) => {

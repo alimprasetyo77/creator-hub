@@ -52,7 +52,7 @@ export const useMyPurchases = () => {
 };
 
 export const useUser = (options?: IOptionsProps) => {
-  const { data, isLoading, error, isFetching } = useQuery<IResponse<IUser>, AxiosError>({
+  const { data, isLoading, error } = useQuery<IResponse<IUser>, AxiosError>({
     queryKey: ['user'],
     queryFn: getUser,
     retry: false,
@@ -63,7 +63,6 @@ export const useUser = (options?: IOptionsProps) => {
     data: data?.data,
     isLoading,
     error,
-    isFetching,
   };
 };
 
