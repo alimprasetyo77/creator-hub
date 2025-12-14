@@ -5,9 +5,8 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 ![CreatorHub Homepage Preview](https://github.com/user-attachments/assets/82c09a8f-65a6-4ffd-8db8-a05e704010c9)
 
 ## 📌 Project Links
-- **Live Demo:** [https://alim-prasetyo-putra-sinambela.netlify.app/](https://alim-prasetyo-putra-sinambela.netlify.app/)
-- **Frontend Repository:** [Your Frontend Link]
-- **Backend Repository:** [Your Backend Link]
+- **Live Demo:** [https://creator-hub.com](https://creator-hub-blond.vercel.app)
+
 
 ## 🌟 Key Features
 
