@@ -42,7 +42,14 @@ const logout = async (req: UserRequest, res: Response, next: NextFunction): Prom
     const token = req.cookies.token;
     const user = req.user;
     await userService.logout(token, user);
-    res.clearCookie('token');
+    const isProduction =
+      process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT_NAME === 'production';
+    res.clearCookie('token', {
+      httpOnly: true,
+      path: '/',
+      secure: isProduction,
+      sameSite: isProduction ? 'none' : 'lax',
+    });
     res.status(200).json({
       message: 'User logged out',
     });
