@@ -25,9 +25,9 @@ export function AuthProvider({ children, hasToken }: { children: React.ReactNode
       (error) => {
         if (error.response?.status === 401) {
           error.response.data.errors = 'Session expired. Please login again.';
-          setIsAuthenticated(false);
-          queryClient.clear();
-          setTimeout(() => window.location.replace('/login'), 1000);
+          // setIsAuthenticated(false);
+          // queryClient.clear();
+          // setTimeout(() => window.location.replace('/login'), 1000);
         }
         return Promise.reject(error);
       }
