@@ -1,10 +1,10 @@
-'use client';
+// 'use client';
 
-import { useAuth } from '@/contexts/auth-context';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
-import { ROUTE_MAP } from '@/constants/routes';
-import { Loading } from './loading';
+// import { useAuth } from '@/contexts/auth-context';
+// import { usePathname, useRouter } from 'next/navigation';
+// import { useEffect, useMemo } from 'react';
+// import { ROUTE_MAP } from '@/constants/routes';
+// import { Loading } from './loading';
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // const { user, isAuthenticated, isLoading } = useAuth();
