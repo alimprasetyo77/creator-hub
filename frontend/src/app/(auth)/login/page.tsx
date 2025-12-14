@@ -29,12 +29,12 @@ export default function page() {
   const onSubmit = form.handleSubmit((data: LoginType) =>
     login(data, {
       onSuccess: ({ data }) => {
+        setIsAuthenticated(true);
         if (data.role === 'ADMIN' || data.role === 'CREATOR') {
           router.replace('/dashboard');
         } else {
           router.replace('/explore');
         }
-        setIsAuthenticated(true);
       },
       onError: (error) => {
         form.setError('root', { message: error.message });

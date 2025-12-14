@@ -34,7 +34,7 @@ export default async function RootLayout({
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          <AuthProvider hasToken={Boolean(token)}>
+          <AuthProvider hasToken={!!token}>
             <ProtectedRoute>{children}</ProtectedRoute>
           </AuthProvider>
         </Providers>

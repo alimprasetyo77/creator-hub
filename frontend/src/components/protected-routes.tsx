@@ -26,9 +26,9 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     return null;
   }, [pathname]);
 
-  // 2. Evaluasi Izin Akses Secara Sinkron (Kunci Anti-Flash)
+  // 2. Evaluasi Izin Akses (Strict Evaluation)
   const accessStatus = useMemo(() => {
-    if (isLoading) return 'LOADING';
+    if (isLoading) return 'CHECKING';
 
     if (!policy) return 'AUTHORIZED';
 
@@ -42,33 +42,28 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       if (policy.roles && (!user?.role || !policy.roles.includes(user.role as any))) {
         return 'REDIRECT_BY_ROLE';
       }
-
       return 'AUTHORIZED';
     }
 
     return 'AUTHORIZED';
   }, [isLoading, isAuthenticated, user, policy]);
 
-  // 3. Eksekusi Navigasi (Redirect)
+  // 3. Eksekusi Navigasi
   useEffect(() => {
-    if (accessStatus === 'LOADING' || accessStatus === 'AUTHORIZED') return;
+    if (accessStatus === 'CHECKING' || accessStatus === 'AUTHORIZED') return;
 
     if (accessStatus === 'REDIRECT_TO_LOGIN') {
       router.replace('/login');
-      return;
-    }
-
-    if (accessStatus === 'REDIRECT_BY_ROLE') {
+    } else if (accessStatus === 'REDIRECT_BY_ROLE') {
       const isAdminOrCreator = user?.role === 'ADMIN' || user?.role === 'CREATOR';
       const target = isAdminOrCreator ? '/dashboard/overview' : '/explore';
       router.replace(target);
     }
   }, [accessStatus, router, user]);
 
-  // 4. RENDER GUARD
   if (accessStatus !== 'AUTHORIZED') {
     return <Loading />;
   }
 
-  return children;
+  return <>{children}</>;
 }
