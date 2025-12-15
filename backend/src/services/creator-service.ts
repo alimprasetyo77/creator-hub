@@ -1,17 +1,22 @@
-import { request } from 'http';
-import { Payout, Prisma, WithdrawalMethod } from '../generated/prisma/client';
+import { Payout, WithdrawalMethod } from '../generated/prisma/client';
 import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
 import creatorValidation, {
   CreatePayoutType,
   CreateWithdrawalMethodType,
+  GenerateProductDescriptionType,
   IOverview,
   UpdateWithdrawalMethodType,
 } from '../validations/creator-validation';
 import { validate } from '../validations/validation';
 import { PayoutGetPayload } from '../generated/prisma/models';
 import { IQueryPagination } from '../validations/user-validation';
+import { GoogleGenAI } from '@google/genai';
+
+const genAI = new GoogleGenAI({
+  apiKey: process.env.GOOGLE_GENAI_API_KEY,
+});
 
 const getOverview = async (user: UserRequest['user']): Promise<IOverview> => {
   const summary = await prisma.$queryRaw`
@@ -336,6 +341,36 @@ const deleteWithdrawalMethod = async (userId: string, id: string): Promise<strin
   return result.name;
 };
 
+const generateProductDescription = async (request: GenerateProductDescriptionType): Promise<string> => {
+  const generateProductDescriptionRequest = validate(
+    creatorValidation.generateProductDescriptionSchema,
+    request
+  );
+
+  const { title, category } = generateProductDescriptionRequest;
+  try {
+    const prompt = `Write a professional product description for a digital asset.
+    Product: "${title}"
+    Category: "${category}"
+
+    IMPORTANT RULES:
+    1. Write the entire description as one single continuous paragraph without any line breaks or newlines.
+    2. Do not use any special characters, symbols, or formatting (no asterisks, no bullet points, no hashtags, no dashes).
+    3. Start directly with the product name as the opening of the text.
+    4. Do not include any introductory remarks or conversational filler.
+    5. Use only plain alphanumeric text and standard punctuation (periods and commas only).
+
+    Language: English. Professional and persuasive tone.`;
+    const response = await genAI.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    return response.text as string;
+  } catch (error) {
+    throw new ResponseError(500, 'Generate product description failed');
+  }
+};
+
 export default {
   getOverview,
   getCustomerTransactions,
@@ -347,4 +382,5 @@ export default {
   setDefaultWithdrawalMethod,
   getWithdrawalMethods,
   deleteWithdrawalMethod,
+  generateProductDescription,
 };

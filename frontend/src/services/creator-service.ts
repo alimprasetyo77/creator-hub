@@ -3,6 +3,7 @@ import { IResponse } from '@/types';
 import {
   CreatePayoutType,
   CreateWithdrawalMethodType,
+  GenerateProductDescriptionType,
   ICustomerTransactions,
   IOverviewCreator,
   IPayout,
@@ -164,6 +165,21 @@ const deleteWithdrawalMethod = async (id: string) => {
   }
 };
 
+const generateProductDescription = async (request: GenerateProductDescriptionType) => {
+  try {
+    const response = await axiosWithConfig.post('/api/creators/generate-product-description', request);
+    return response.data as IResponse<{}>;
+  } catch (error) {
+    if (isAxiosError(error) && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (isAxiosError(error) && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+    throw Error('An unexpected error occurred');
+  }
+};
+
 export {
   getOverviewCreator,
   getCustomerTransactions,
@@ -175,4 +191,5 @@ export {
   updateWithdrawalMethod,
   setDefaultWidrawalMethod,
   deleteWithdrawalMethod,
+  generateProductDescription,
 };

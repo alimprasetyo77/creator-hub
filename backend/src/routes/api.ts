@@ -69,6 +69,12 @@ apiRouter.post(
   allowedRoles(['CREATOR']),
   creatorController.createWithdrawalMethod
 );
+apiRouter.post(
+  '/api/creators/generate-product-description',
+  allowedRoles(['CREATOR']),
+  creatorController.generateProductDescription
+);
+
 apiRouter.put(
   '/api/creators/withdrawal-methods/:id',
   allowedRoles(['CREATOR']),
@@ -100,4 +106,5 @@ apiRouter.patch(
   adminController.rejectPayout
 );
 apiRouter.get('/api/admin/categories', allowedRoles(['ADMIN']), adminController.getCategories);
+
 export default apiRouter;

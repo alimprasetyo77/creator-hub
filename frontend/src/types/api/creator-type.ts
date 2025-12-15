@@ -30,10 +30,22 @@ const createWithdrawalMethodSchema = z.object({
 
 const updateWithdrawalMethodSchema = createWithdrawalMethodSchema.partial();
 
+const generateProductDescriptionSchema = z.object({
+  title: z.string().nonempty({ error: 'Title is required' }),
+  category: z.string().nonempty({ error: 'Category is required' }),
+});
+
+export type GenerateProductDescriptionType = z.infer<typeof generateProductDescriptionSchema>;
+
 export type CreatePayoutType = z.infer<typeof createPayoutSchema>;
 export type CreateWithdrawalMethodType = z.infer<typeof createWithdrawalMethodSchema>;
 export type UpdateWithdrawalMethodType = z.infer<typeof updateWithdrawalMethodSchema>;
-export { createPayoutSchema, createWithdrawalMethodSchema, updateWithdrawalMethodSchema };
+export {
+  createPayoutSchema,
+  createWithdrawalMethodSchema,
+  updateWithdrawalMethodSchema,
+  generateProductDescriptionSchema,
+};
 
 export type IOverviewCreator = {
   summary: {

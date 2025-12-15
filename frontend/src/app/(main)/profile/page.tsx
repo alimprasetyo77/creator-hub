@@ -7,7 +7,7 @@ export default function page() {
     <div className='min-h-screen bg-linear-to-b from-blue-50 to-white'>
       <div className='ml-48 max-w-4xl px-4 py-8 md:px-6'>
         <div className='mb-8'>
-          <h1>Profile Settings</h1>
+          <h1 className='text-lg font-medium'>Profile Settings</h1>
           <p className='text-muted-foreground'>Manage your account settings and preferences</p>
         </div>
 

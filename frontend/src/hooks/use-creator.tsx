@@ -2,6 +2,7 @@ import {
   createPayout,
   createWithdrawalMethod,
   deleteWithdrawalMethod,
+  generateProductDescription,
   getCustomerTransactions,
   getOverviewCreator,
   getPayoutHistory,
@@ -13,6 +14,7 @@ import {
 import {
   CreatePayoutType,
   CreateWithdrawalMethodType,
+  GenerateProductDescriptionType,
   UpdateWithdrawalMethodType,
 } from '@/types/api/creator-type';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -171,6 +173,22 @@ export const useDeleteWithdrawalMethod = () => {
   });
   return {
     deleteWithdrawalMethod: mutate,
+    isPending,
+  };
+};
+
+export const useGenerateProductDescription = () => {
+  const { mutate, isPending } = useMutation({
+    mutationFn: (data: GenerateProductDescriptionType) => generateProductDescription(data),
+    onSuccess: ({ message }) => {
+      toast.error(message);
+    },
+    onError: ({ message }) => {
+      toast.error(message);
+    },
+  });
+  return {
+    generateProductDescription: mutate,
     isPending,
   };
 };

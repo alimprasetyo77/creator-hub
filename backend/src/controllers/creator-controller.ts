@@ -1,4 +1,4 @@
-import { NextFunction, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { UserRequest } from '../middlewares/auth-middleware';
 import creatorService from '../services/creator-service';
 import { IQueryPagination } from '../validations/user-validation';
@@ -146,6 +146,19 @@ const deleteWithdrawalMethod = async (req: UserRequest, res: Response, next: Nex
   }
 };
 
+const generateProductDescription = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const request = req.body;
+    const response = await creatorService.generateProductDescription(request);
+    res.status(200).json({
+      message: 'Generate product description successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getOverview,
   getCustomerTransactions,
@@ -157,4 +170,5 @@ export default {
   setDefaultWidrawalMethod,
   getWithdrawalMethods,
   deleteWithdrawalMethod,
+  generateProductDescription,
 };

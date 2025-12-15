@@ -15,10 +15,15 @@ import Image from 'next/image';
 import { useCategories } from '@/hooks/use-categories';
 import { useCreateProduct } from '@/hooks/use-products';
 import { formatIDR } from '@/lib/utils';
+import { useGenerateProductDescription } from '@/hooks/use-creator';
+import { GenerateProductDescriptionType } from '@/types/api/creator-type';
+import { toast } from 'sonner';
 
 export default function Upload() {
   const { categories } = useCategories();
-  const { createProduct, isPending } = useCreateProduct();
+  const { createProduct, isPending: isPendingProduct } = useCreateProduct();
+  const { generateProductDescription, isPending: isPendingProductDescription } =
+    useGenerateProductDescription();
   const [previewImg, setPreviewImg] = useState('');
 
   const form = useForm<ProductCreateType>({
@@ -32,6 +37,27 @@ export default function Upload() {
       files: '',
     },
   });
+
+  const handleGenerateProductDescription = () => {
+    const payload: Partial<GenerateProductDescriptionType> = {};
+    if (!form.getValues('title') || !form.getValues('categoryId')) {
+      toast.message('Please fill the title and category for generate product description.');
+      return;
+    }
+    const category = categories?.find((category) => category.id === form.getValues('categoryId'));
+    if (!category) {
+      toast.message('Please fill the category for generate product description.');
+      return;
+    }
+    payload.title = form.getValues('title');
+    payload.category = category.name;
+
+    generateProductDescription(payload as GenerateProductDescriptionType, {
+      onSuccess: ({ data }) => {
+        data && form.setValue('description', data as string);
+      },
+    });
+  };
 
   const onSubmit = form.handleSubmit((data: ProductCreateType) => {
     createProduct(data, {
@@ -61,30 +87,6 @@ export default function Upload() {
                     <FieldLabel htmlFor={field.name}>Product Title</FieldLabel>
                     <Input id={field.name} placeholder='Enter product title...' {...field} />
                     <FieldError>{form.formState.errors.title?.message}</FieldError>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={form.control}
-                name='description'
-                render={({ field, fieldState }) => (
-                  <Field>
-                    <Field orientation={'horizontal'} className='flex items-center justify-between gap-0'>
-                      <FieldLabel htmlFor={field.name}>Description</FieldLabel>
-                      <Button type='button' variant='outline' size='sm' onClick={() => {}}>
-                        <Sparkles className='mr-2 h-4 w-4' />
-                        Generate with AI
-                      </Button>
-                    </Field>
-                    <Textarea
-                      id={field.name}
-                      placeholder='Describe your product...'
-                      {...field}
-                      rows={6}
-                      // value={productDescription}
-                      // onChange={(e) => setProductDescription(e.target.value)}
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
                   </Field>
                 )}
               />
@@ -135,6 +137,37 @@ export default function Upload() {
                 />
               </Field>
 
+              <Controller
+                control={form.control}
+                name='description'
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <Field orientation={'horizontal'} className='flex items-center justify-between gap-0'>
+                      <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                      <Button
+                        type='button'
+                        variant='outline'
+                        size='sm'
+                        disabled={isPendingProductDescription || !!field.value}
+                        onClick={handleGenerateProductDescription}
+                      >
+                        <Sparkles className='mr-2 h-4 w-4' />
+                        {isPendingProductDescription ? 'Generating...' : 'Generate with AI'}
+                      </Button>
+                    </Field>
+
+                    <Textarea
+                      id={field.name}
+                      placeholder='Describe your product...'
+                      {...field}
+                      rows={6}
+                      readOnly={isPendingProductDescription}
+                    />
+
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </Field>
+                )}
+              />
               <Controller
                 control={form.control}
                 name='files'
@@ -259,9 +292,9 @@ export default function Upload() {
               <Button
                 type='submit'
                 className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
-                disabled={!form.formState.isValid || form.formState.isSubmitting || isPending}
+                disabled={!form.formState.isValid || form.formState.isSubmitting || isPendingProduct}
               >
-                {isPending ? 'Publishing...' : 'Publish Product'}
+                {isPendingProduct ? 'Publishing...' : 'Publish Product'}
               </Button>
               <Button type='button' variant='outline'>
                 Save as Draft
