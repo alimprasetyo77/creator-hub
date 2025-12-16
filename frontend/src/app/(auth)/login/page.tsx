@@ -132,7 +132,7 @@ export default function page() {
               </Field>
             </form>
 
-            <div className='relative my-6'>
+            {/* <div className='relative my-6'>
               <div className='absolute inset-0 flex items-center'>
                 <span className='w-full border-t' />
               </div>
@@ -169,7 +169,7 @@ export default function page() {
                 </svg>
                 GitHub
               </Button>
-            </div>
+            </div> */}
 
             <p className='mt-6 text-center text-sm text-muted-foreground'>
               Don't have an account?{' '}

@@ -367,7 +367,7 @@ const generateProductDescription = async (request: GenerateProductDescriptionTyp
     });
     return response.text as string;
   } catch (error) {
-    throw new ResponseError(500, 'Generate product description failed');
+    throw new ResponseError(500, 'Failed to generate product description. Please try again later.');
   }
 };
 
