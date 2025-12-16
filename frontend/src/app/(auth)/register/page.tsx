@@ -95,16 +95,7 @@ export default function page() {
                   name='password'
                   render={({ field, fieldState }) => (
                     <Field className='gap-2'>
-                      <Field orientation={'horizontal'}>
-                        <FieldLabel htmlFor={field.name}>Password</FieldLabel>
-                        <button
-                          type='button'
-                          onClick={() => router.push('forgot-password')}
-                          className='text-sm text-blue-600 hover:underline'
-                        >
-                          Forgot password?
-                        </button>
-                      </Field>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                       <div className='relative'>
                         <Input
                           id={field.name}

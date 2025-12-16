@@ -288,18 +288,13 @@ export default function Upload() {
               />
             </FieldGroup>
 
-            <div className='flex gap-3'>
-              <Button
-                type='submit'
-                className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
-                disabled={!form.formState.isValid || form.formState.isSubmitting || isPendingProduct}
-              >
-                {isPendingProduct ? 'Publishing...' : 'Publish Product'}
-              </Button>
-              <Button type='button' variant='outline'>
-                Save as Draft
-              </Button>
-            </div>
+            <Button
+              type='submit'
+              className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+              disabled={!form.formState.isValid || form.formState.isSubmitting || isPendingProduct}
+            >
+              {isPendingProduct ? 'Publishing...' : 'Publish Product'}
+            </Button>
           </form>
         </CardContent>
       </Card>

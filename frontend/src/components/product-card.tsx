@@ -10,12 +10,15 @@ import Link from 'next/link';
 import { formatIDR } from '@/lib/utils';
 import { useCreateOrder } from '@/hooks/use-orders';
 import Image from 'next/image';
+import { useAuth } from '@/contexts/auth-context';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: IProduct;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const { isAuthenticated } = useAuth();
   const { createOrder, isPending } = useCreateOrder();
   const categoryColors: any = {
     'e-book': 'bg-blue-100 text-blue-700',
@@ -25,6 +28,10 @@ export function ProductCard({ product }: ProductCardProps) {
     course: 'bg-orange-100 text-orange-700',
   };
   const onClickBuyProduct = () => {
+    if (!isAuthenticated) {
+      toast.info('Please login first to buy this product.');
+      return;
+    }
     createOrder({
       product_id: product.id,
     });

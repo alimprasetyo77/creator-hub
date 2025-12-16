@@ -59,7 +59,7 @@ export const useDeleteCategory = () => {
     onSuccess: ({ message }) => {
       qc.invalidateQueries({ queryKey: ['categories'] });
       qc.invalidateQueries({ queryKey: ['categories-admin'] });
-      toast.error(message);
+      toast.success(message);
     },
     onError: ({ message }) => {
       toast.error(message);

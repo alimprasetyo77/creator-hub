@@ -54,7 +54,7 @@ export const useCreatePayout = () => {
       qc.invalidateQueries({ queryKey: ['user'] });
       qc.invalidateQueries({ queryKey: ['payout-history'] });
       qc.invalidateQueries({ queryKey: ['payout-summary'] });
-      toast.error(message);
+      toast.success(message);
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -112,7 +112,7 @@ export const useCreateWithdrawalMethod = () => {
     mutationFn: (data: CreateWithdrawalMethodType) => createWithdrawalMethod(data),
     onSuccess: ({ message }) => {
       qc.invalidateQueries({ queryKey: ['withdrawal-methods'] });
-      toast.error(message);
+      toast.success(message);
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -129,7 +129,7 @@ export const useUpdateWithdrawalMethod = (withdrawalMethodId: string) => {
     mutationFn: (data: UpdateWithdrawalMethodType) => updateWithdrawalMethod(withdrawalMethodId, data),
     onSuccess: ({ message }) => {
       qc.invalidateQueries({ queryKey: ['withdrawal-methods'] });
-      toast.error(message);
+      toast.success(message);
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -147,7 +147,7 @@ export const useSetDefaultWithdrawalMethod = () => {
     mutationFn: (data: string) => setDefaultWidrawalMethod(data),
     onSuccess: ({ message }) => {
       qc.invalidateQueries({ queryKey: ['withdrawal-methods'] });
-      toast.error(message);
+      toast.success(message);
     },
     onError: ({ message }) => {
       toast.error(message);
@@ -165,7 +165,7 @@ export const useDeleteWithdrawalMethod = () => {
     mutationFn: (data: string) => deleteWithdrawalMethod(data),
     onSuccess: ({ message }) => {
       qc.invalidateQueries({ queryKey: ['withdrawal-methods'] });
-      toast.error(message);
+      toast.success(message);
     },
     onError: (error) => {
       toast.error(error.message);
@@ -181,7 +181,7 @@ export const useGenerateProductDescription = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: (data: GenerateProductDescriptionType) => generateProductDescription(data),
     onSuccess: ({ message }) => {
-      toast.error(message);
+      toast.success(message);
     },
     onError: ({ message }) => {
       toast.error(message);

@@ -36,6 +36,8 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
       return isAuthenticated ? 'REDIRECT_BY_ROLE' : 'AUTHORIZED';
     }
 
+    if (policy.access === 'public') return 'AUTHORIZED';
+
     if (policy.access === 'private') {
       if (!isAuthenticated) return 'REDIRECT_TO_LOGIN';
 

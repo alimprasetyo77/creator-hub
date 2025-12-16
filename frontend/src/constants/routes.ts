@@ -1,6 +1,6 @@
 interface IRouteConfig {
   path: string;
-  access: 'guest' | 'private';
+  access: 'guest' | 'private' | 'public';
   roles?: Array<'ADMIN' | 'USER' | 'CREATOR'>;
 }
 
@@ -17,7 +17,7 @@ const ROUTE_CONFIG: IRouteConfig[] = [
   { path: '/dashboard/products', access: 'private', roles: ['ADMIN', 'CREATOR'] },
   { path: '/dashboard/transactions', access: 'private', roles: ['ADMIN', 'CREATOR'] },
   { path: '/dashboard/upload', access: 'private', roles: ['CREATOR'] },
-  { path: '/explore', access: 'private' },
+  { path: '/explore', access: 'public' },
   { path: '/my-purchases', access: 'private', roles: ['USER'] },
   { path: '/profile', access: 'private' },
 ];

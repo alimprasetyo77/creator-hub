@@ -23,9 +23,7 @@ apiRouter.delete('/api/users/current', userController.remove);
 apiRouter.delete('/api/users/logout', userController.logout);
 
 // API routes for product
-apiRouter.get('/api/products/slug/:slug', productController.getBySlug);
 apiRouter.get('/api/products/id/:id', productController.getById);
-apiRouter.get('/api/products', productController.getAll);
 apiRouter.get('/api/products/my-products', allowedRoles(['CREATOR']), productController.getMyProducts);
 apiRouter.post('/api/products', allowedRoles(['CREATOR']), formDataMiddleware, productController.create);
 apiRouter.put(
@@ -37,7 +35,6 @@ apiRouter.put(
 apiRouter.delete('/api/products/:id', allowedRoles(['CREATOR', 'ADMIN']), productController.remove);
 
 // API routes for category
-apiRouter.get('/api/categories', categoryController.getAll);
 apiRouter.post('/api/categories', allowedRoles(['ADMIN']), categoryController.create);
 apiRouter.put('/api/categories/:id', allowedRoles(['ADMIN']), categoryController.update);
 apiRouter.delete('/api/categories/:id', allowedRoles(['ADMIN']), categoryController.delete);

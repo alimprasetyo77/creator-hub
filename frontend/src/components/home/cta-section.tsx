@@ -13,7 +13,7 @@ export default function CTA() {
           Join thousands of creators earning from their digital products today
         </p>
         <div className='flex flex-col gap-4 sm:flex-row sm:justify-center'>
-          <Button size='lg' variant='secondary' className='text-lg' onClick={() => redirect('register')}>
+          <Button size='lg' variant='secondary' className='text-lg' onClick={() => redirect('/register')}>
             Create Free Account
             <ArrowRight className='ml-2 h-5 w-5' />
           </Button>
@@ -21,7 +21,7 @@ export default function CTA() {
             size='lg'
             variant='outline'
             className='border-white bg-transparent text-lg text-white hover:bg-white hover:text-blue-600'
-            onClick={() => redirect('marketplace')}
+            onClick={() => redirect('/explore')}
           >
             Browse Products
           </Button>

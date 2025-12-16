@@ -81,11 +81,6 @@ export default function Explore() {
                     {category.label}
                   </SelectItem>
                 ))}
-                {/* <SelectItem value='ebook'>E-books</SelectItem>
-                <SelectItem value='template'>Templates</SelectItem>
-                <SelectItem value='ui-kit'>UI Kits</SelectItem>
-                <SelectItem value='asset'>Assets</SelectItem>
-                <SelectItem value='course'>Courses</SelectItem> */}
               </SelectContent>
             </Select>
 
