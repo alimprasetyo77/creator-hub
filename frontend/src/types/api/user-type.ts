@@ -5,7 +5,7 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
 export const profileSchema = z.object({
   full_name: z.string().max(100).nonempty({ error: 'Full name is required' }),
   email: z.email().nonempty({ error: 'Email is required' }),
-  role: z.enum(['USER', 'CREATOR', 'ADMIN']),
+  // role: z.enum(['USER', 'CREATOR', 'ADMIN']),
   avatar: z
     .any()
     .refine(

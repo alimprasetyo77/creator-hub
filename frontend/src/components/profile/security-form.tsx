@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { changePasswordSchema, ChangePasswordType } from '@/types/api/user-type';
 export default function SecurityForm() {
-  const { changePassword } = useChangePassword({
+  const { changePassword, isPending } = useChangePassword({
     onSuccess: ({ message }) => {
       formChangePassword.reset();
       toast.success(message);
@@ -100,9 +100,9 @@ export default function SecurityForm() {
           <Button
             type='submit'
             variant='outline'
-            disabled={formChangePassword.formState.isSubmitting || !formChangePassword.formState.isDirty}
+            disabled={isPending || !formChangePassword.formState.isDirty}
           >
-            Update Password
+            {isPending ? 'Updating...' : 'Update Password'}
           </Button>
         </form>
       </CardContent>

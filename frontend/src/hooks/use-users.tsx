@@ -80,6 +80,7 @@ export const useUpdateUser = () => {
   });
   return {
     updateUser: mutation.mutate,
+    isPending: mutation.isPending,
   };
 };
 
@@ -90,6 +91,7 @@ export const useChangePassword = (options?: IOptionsProps) => {
   });
   return {
     changePassword: mutation.mutate,
+    isPending: mutation.isPending,
   };
 };
 

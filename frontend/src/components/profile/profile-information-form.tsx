@@ -1,13 +1,12 @@
 'use client';
-import { Loader, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
-import { Field, FieldContent, FieldDescription, FieldError, FieldGroup, FieldLabel } from '../ui/field';
+import { Field, FieldContent, FieldError, FieldGroup, FieldLabel } from '../ui/field';
 import { Controller, useForm } from 'react-hook-form';
 import { Input } from '../ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { profileSchema, ProfileType } from '@/types/api/user-type';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useUpdateUser } from '@/hooks/use-users';
@@ -18,7 +17,7 @@ export default function ProfileInformationForm() {
   const [previewImage, setPreviewImage] = useState('');
 
   const { user } = useAuth();
-  const { updateUser } = useUpdateUser();
+  const { updateUser, isPending } = useUpdateUser();
 
   const form = useForm<ProfileType>({
     resolver: zodResolver(profileSchema),
@@ -26,13 +25,11 @@ export default function ProfileInformationForm() {
       ? {
           full_name: user.full_name,
           email: user.email,
-          role: user.role as 'USER' | 'CREATOR' | 'ADMIN',
           avatar: '',
         }
       : {
           full_name: '',
           email: '',
-          role: 'USER',
           avatar: '',
         },
   });
@@ -137,7 +134,7 @@ export default function ProfileInformationForm() {
             />
           </Field>
 
-          <Controller
+          {/* <Controller
             control={form.control}
             name='role'
             render={({ field, fieldState }) => (
@@ -164,14 +161,14 @@ export default function ProfileInformationForm() {
                 </FieldDescription>
               </Field>
             )}
-          />
+          /> */}
 
           <Button
             type='submit'
             className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
-            disabled={!form.formState.isDirty || form.formState.isSubmitting}
+            disabled={!form.formState.isDirty || isPending}
           >
-            {form.formState.isSubmitting ? <Loader /> : 'Save changes'}
+            {isPending ? 'Saving...' : 'Save changes'}
           </Button>
         </form>
       </CardContent>

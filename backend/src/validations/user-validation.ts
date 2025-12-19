@@ -16,7 +16,7 @@ const loginSchema = z.object({
 });
 
 const updateSchema = registerSchema
-  .omit({ password: true })
+  .omit({ password: true, role: true })
   .partial()
   .extend({
     avatar: z
