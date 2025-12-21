@@ -20,6 +20,7 @@ export default function Navbar() {
   const { logout } = useLogout();
   const { user, isLoading } = useAuth();
   const router = useRouter();
+
   return (
     <nav className='sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60'>
       <div className='container mx-auto flex h-16 items-center justify-between px-4 md:px-6'>
@@ -46,9 +47,7 @@ export default function Navbar() {
 
         <div className='flex items-center gap-2'>
           {isLoading ? (
-            <>
-              <Skeleton className='size-10 rounded-full' />
-            </>
+            <Skeleton className='size-10 rounded-full' />
           ) : !user?.token ? (
             <>
               <Button variant='ghost' onClick={() => router.push('/login')}>

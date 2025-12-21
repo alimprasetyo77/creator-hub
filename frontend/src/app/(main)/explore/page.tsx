@@ -1,15 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGetProducts } from '@/hooks/use-products';
-import { ProductCard } from '@/components/product-card';
-import { ExploreSkeleton } from '@/components/explore/explore-skeleton';
 import { useCategories } from '@/hooks/use-categories';
-
+import { Search, SlidersHorizontal } from 'lucide-react';
+import { ExploreSkeleton } from '@/components/explore/explore-skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import dynamic from 'next/dynamic';
+const ProductCard = dynamic(() => import('@/components/product-card').then((mod) => mod.ProductCard), {
+  ssr: false,
+});
 export default function Explore() {
   const { categories } = useCategories();
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,34 +19,36 @@ export default function Explore() {
   const [sortBy, setSortBy] = useState('popular');
   const { products, isLoading } = useGetProducts();
 
+  const sortedProducts = useMemo(() => {
+    if (!products) return [];
+
+    const filtered = products.filter((product) => {
+      const matchesSearch =
+        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesCategory = category === 'all' || product.category.name === category;
+      return matchesSearch && matchesCategory;
+    });
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'price-low':
+          return a.price - b.price;
+        case 'price-high':
+          return b.price - a.price;
+        case 'rating':
+          return b.rating - a.rating;
+        default:
+          return b.sales - a.sales;
+      }
+    });
+  }, [products, searchQuery, category, sortBy]);
+
   if (isLoading) {
     return <ExploreSkeleton />;
   }
 
-  if (!products || products?.length === 0) return <div>No products found</div>;
-
-  const filteredProducts = products?.filter((product) => {
-    const matchesSearch =
-      product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = category === 'all' || product.category.name === (category as string);
-    return matchesSearch && matchesCategory;
-  });
-
-  const sortedProducts = [...filteredProducts!].sort((a, b) => {
-    switch (sortBy) {
-      case 'price-low':
-        return a.price - b.price;
-      case 'price-high':
-        return b.price - a.price;
-      case 'rating':
-        return b.rating - a.rating;
-      case 'popular':
-      default:
-        return b.sales - a.sales;
-    }
-  });
-
+  if (products?.length === 0) return <div>No products found</div>;
   return (
     <div className='min-h-screen bg-linear-to-b from-blue-50 to-white'>
       <div className='container mx-auto px-4 py-8 md:px-6'>
@@ -70,7 +74,7 @@ export default function Explore() {
 
           <div className='flex flex-wrap gap-3'>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className='w-[180px] bg-white'>
+              <SelectTrigger className='w-45 bg-white'>
                 <SlidersHorizontal className='mr-2 h-4 w-4' />
                 <SelectValue placeholder='Category' />
               </SelectTrigger>
@@ -85,7 +89,7 @@ export default function Explore() {
             </Select>
 
             <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className='w-[180px] bg-white'>
+              <SelectTrigger className='w-45 bg-white'>
                 <SelectValue placeholder='Sort by' />
               </SelectTrigger>
               <SelectContent>

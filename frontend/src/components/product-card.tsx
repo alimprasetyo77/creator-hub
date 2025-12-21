@@ -20,6 +20,7 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { isAuthenticated } = useAuth();
   const { createOrder, isPending } = useCreateOrder();
+
   const categoryColors: any = {
     'e-book': 'bg-blue-100 text-blue-700',
     template: 'bg-purple-100 text-purple-700',
@@ -27,6 +28,7 @@ export function ProductCard({ product }: ProductCardProps) {
     asset: 'bg-green-100 text-green-700',
     course: 'bg-orange-100 text-orange-700',
   };
+
   const onClickBuyProduct = () => {
     if (!isAuthenticated) {
       toast.info('Please login first to buy this product.');
@@ -44,8 +46,8 @@ export function ProductCard({ product }: ProductCardProps) {
           <Image
             src={product.thumbnail}
             alt={product.title}
-            width={1000}
-            height={1000}
+            width={600}
+            height={300}
             className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 '
           />
           {product.featured && (

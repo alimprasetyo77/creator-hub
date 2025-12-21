@@ -39,13 +39,19 @@ const create = async (userId: string, request: ProductCreateType): Promise<void>
  */
 const getAll = async (): Promise<any> => {
   const products = await prisma.product.findMany({
-    omit: { categoryId: true, userId: true },
-    include: {
-      category: true,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      price: true,
+      thumbnail: true,
+      slug: true,
+      category: { select: { label: true, name: true } },
       user: {
-        omit: {
-          password: true,
-          token: true,
+        select: {
+          id: true,
+          full_name: true,
+          avatar: true,
         },
       },
     },

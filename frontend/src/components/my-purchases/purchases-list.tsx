@@ -25,9 +25,7 @@ export default function PurchasesList({ myPurchases }: PurchasesListProps) {
     <div className='space-y-4'>
       {myPurchases.map((purchase, index) => (
         <Card key={index} className='overflow-hidden py-0'>
-          <CardContent
-            className={`p-0 ${['failed', 'expired'].includes(purchase.orderStatus) && 'opacity-50'}`}
-          >
+          <CardContent className={`p-0`}>
             <div className='flex flex-col gap-4 p-6 md:flex-row md:items-center'>
               <img
                 src={purchase.items[0].thumbnail}
@@ -37,7 +35,7 @@ export default function PurchasesList({ myPurchases }: PurchasesListProps) {
 
               <div className='flex-1'>
                 <div className='mb-2 flex items-center gap-2'>
-                  <Badge variant='secondary'>{purchase.items[0].category.name.replace('-', ' ')}</Badge>
+                  <Badge variant='secondary'>{purchase.items[0].category.name}</Badge>
                   <Badge
                     className={(badgeVariantsForPaymentType as any)[purchase.orderStatus as any]}
                     asChild
