@@ -164,7 +164,16 @@ const create = async (user: UserRequest['user'], request: CreateOrderType): Prom
   if (orderPending) {
     return { orderId: orderPending.id };
   }
-
+  const hasBeenPurchased = await prisma.order.findFirst({
+    where: {
+      userId: user!.id,
+      items: { some: { productId: product!.id } },
+      orderStatus: 'PAID',
+    },
+  });
+  if (hasBeenPurchased) {
+    throw new ResponseError(400, 'You have already purchased this product.');
+  }
   const fee = Math.round(product.price * 0.02);
   const total = product.price + fee;
   const order = await prisma.order.create({

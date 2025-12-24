@@ -199,8 +199,8 @@ const getMyDashboardPurchasesInfo = async (user: UserRequest['user']): Promise<I
 };
 
 const getMyPurchases = async (user: UserRequest['user'], query: IQueryPagination): Promise<{}> => {
-  const page = parseInt(query.page as string) || 1;
-  const limit = parseInt(query.limit as string) || 10;
+  const page = query.page || 1;
+  const limit = query.limit || 10;
 
   const skip = (page - 1) * limit;
 

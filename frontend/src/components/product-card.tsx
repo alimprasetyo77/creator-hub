@@ -49,6 +49,7 @@ export function ProductCard({ product }: ProductCardProps) {
             width={600}
             height={300}
             className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 '
+            loading='eager'
           />
           {product.featured && (
             <Badge className='absolute right-2 top-2 bg-linear-to-r from-blue-600 to-purple-600 text-white'>
@@ -69,7 +70,7 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
 
           <h3 className='mb-2 line-clamp-2'>{product.title}</h3>
-          <p className='mb-3 line-clamp-2 text-sm text-muted-foreground grow'>{product.description}</p>
+          <p className='mb-3 line-clamp-3 text-sm text-muted-foreground grow'>{product.description}</p>
 
           <div className='flex items-center gap-2'>
             <Avatar className='h-6 w-6'>

@@ -55,8 +55,8 @@ export type UpdateUserType = z.infer<typeof updateSchema>;
 export default { registerSchema, loginSchema, updateSchema, changePasswordSchema };
 
 export interface IQueryPagination {
-  page: string;
-  limit: string;
+  page: number;
+  limit: number;
 }
 export interface IMyDashboardPurchasesInfo {
   totalPurchases: number;

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { IQueryPagination } from './user-validation';
 const MAX_MB = 2;
 const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
@@ -47,3 +48,9 @@ export type ProductCreateType = z.infer<typeof CreateSchema>;
 export type ProductUpdateType = z.infer<typeof UpdateSchema>;
 
 export default { CreateSchema, UpdateSchema };
+
+export interface IQueriesProduct extends IQueryPagination {
+  search?: string;
+  category?: string;
+  sortBy?: 'popular' | 'rating' | 'price-low' | 'price-high';
+}

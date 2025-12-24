@@ -95,9 +95,8 @@ const getOverview = async () => {
   return response;
 };
 
-const getBuyerSellerTransactions = async (query: IQueryPagination) => {
-  const page = parseInt(query.page as string) || 1;
-  const limit = parseInt(query.limit as string) || 10;
+const getBuyerSellerTransactions = async (queries: IQueryPagination) => {
+  const { page, limit } = queries;
   const skip = (page - 1) * limit;
   const result = await prisma.$queryRaw`
    SELECT
@@ -134,9 +133,9 @@ const getBuyerSellerTransactions = async (query: IQueryPagination) => {
   return response;
 };
 
-const getPayoutsRequests = async (query: IQueryPagination) => {
-  const page = parseInt(query.page as string) || 1;
-  const limit = parseInt(query.limit as string) || 10;
+const getPayoutsRequests = async (queries: IQueryPagination) => {
+  const { page, limit } = queries;
+
   const skip = (page - 1) * limit;
 
   const results = await prisma.payout.findMany({

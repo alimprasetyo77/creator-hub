@@ -132,8 +132,8 @@ const getMyPurchases = async (req: UserRequest, res: Response, next: NextFunctio
   try {
     const user = req.user;
     const query = {
-      page: req.query.page ? req.query.page : 1,
-      limit: req.query.limit ? req.query.limit : 10,
+      page: req.query.page ? Number(req.query.page) : 1,
+      limit: req.query.limit ? Number(req.query.limit) : 10,
     } as IQueryPagination;
 
     const response = await userService.getMyPurchases(user, query);

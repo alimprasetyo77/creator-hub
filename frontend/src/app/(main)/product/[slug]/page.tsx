@@ -34,7 +34,7 @@ export default function page({ params }: Params) {
   const { slug } = use(params);
   const [activeTab, setActiveTab] = useState('overview');
   const { product, isLoading: isLoadingProduct } = useGetProduct({ slug });
-  const { products, isLoading: isLoadingProducts } = useGetProducts();
+  const { products, isLoading: isLoadingProducts } = useGetProducts({ limit: 3, page: 1 });
   const { createOrder, isPending } = useCreateOrder();
 
   const { user } = useAuth();

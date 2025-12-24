@@ -1,54 +1,33 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { Activity, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useGetProducts } from '@/hooks/use-products';
 import { useCategories } from '@/hooks/use-categories';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Loader2, Search, SlidersHorizontal } from 'lucide-react';
 import { ExploreSkeleton } from '@/components/explore/explore-skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import dynamic from 'next/dynamic';
+import { IQueriesProducts } from '@/types/api/product-type';
+
 const ProductCard = dynamic(() => import('@/components/product-card').then((mod) => mod.ProductCard), {
   ssr: false,
 });
+
 export default function Explore() {
   const { categories } = useCategories();
   const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('popular');
-  const { products, isLoading } = useGetProducts();
+  const [sortBy, setSortBy] = useState<Required<IQueriesProducts['sortBy']>>('popular');
+  const { products, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetProducts({
+    page: 1,
+    limit: 8,
+    category: category,
+    sortBy,
+    search: searchQuery,
+  });
 
-  const sortedProducts = useMemo(() => {
-    if (!products) return [];
-
-    const filtered = products.filter((product) => {
-      const matchesSearch =
-        product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = category === 'all' || product.category.name === category;
-      return matchesSearch && matchesCategory;
-    });
-
-    return [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return a.price - b.price;
-        case 'price-high':
-          return b.price - a.price;
-        case 'rating':
-          return b.rating - a.rating;
-        default:
-          return b.sales - a.sales;
-      }
-    });
-  }, [products, searchQuery, category, sortBy]);
-
-  if (isLoading) {
-    return <ExploreSkeleton />;
-  }
-
-  if (products?.length === 0) return <div>No products found</div>;
   return (
     <div className='min-h-screen bg-linear-to-b from-blue-50 to-white'>
       <div className='container mx-auto px-4 py-8 md:px-6'>
@@ -88,7 +67,10 @@ export default function Explore() {
               </SelectContent>
             </Select>
 
-            <Select value={sortBy} onValueChange={setSortBy}>
+            <Select
+              value={sortBy}
+              onValueChange={(value) => setSortBy(value as Required<IQueriesProducts['sortBy']>)}
+            >
               <SelectTrigger className='w-45 bg-white'>
                 <SelectValue placeholder='Sort by' />
               </SelectTrigger>
@@ -105,18 +87,24 @@ export default function Explore() {
         {/* Results count */}
         <div className='mb-6'>
           <p className='text-sm text-muted-foreground'>
-            Showing {sortedProducts.length} {sortedProducts.length === 1 ? 'product' : 'products'}
+            Showing {products?.length} {products?.length === 1 ? 'product' : 'products'}
           </p>
         </div>
 
         {/* Products grid */}
-        {sortedProducts.length > 0 ? (
+        <Activity mode={isLoading ? 'visible' : 'hidden'}>
+          <ExploreSkeleton />
+        </Activity>
+
+        <Activity mode={products && products.length > 0 ? 'visible' : 'hidden'}>
           <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-            {sortedProducts.map((product) => (
+            {products?.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
-        ) : (
+        </Activity>
+
+        <Activity mode={products && products?.length === 0 ? 'visible' : 'hidden'}>
           <div className='py-20 text-center'>
             <p className='text-muted-foreground'>No products found matching your criteria.</p>
             <Button
@@ -129,7 +117,28 @@ export default function Explore() {
               Clear filters
             </Button>
           </div>
-        )}
+        </Activity>
+
+        {/* {products && products.length > 0 ? (
+        ) : (
+
+        )} */}
+
+        <Activity mode={hasNextPage ? 'visible' : 'hidden'}>
+          <div className='mt-10 flex justify-center'>
+            <Activity mode={!isFetchingNextPage ? 'visible' : 'hidden'}>
+              <Button variant='outline' onClick={() => fetchNextPage()}>
+                Load More
+              </Button>
+            </Activity>
+
+            <Activity mode={isFetchingNextPage ? 'visible' : 'hidden'}>
+              <Button size={'icon-sm'} variant={'ghost'}>
+                <Loader2 className='size-5 animate-spin' />
+              </Button>
+            </Activity>
+          </div>
+        </Activity>
       </div>
     </div>
   );

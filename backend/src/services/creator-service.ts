@@ -100,9 +100,8 @@ SELECT
   return response;
 };
 
-const getCustomerTransactions = async (query: IQueryPagination, user: UserRequest['user']) => {
-  const page = parseInt(query.page as string) || 1;
-  const limit = parseInt(query.limit as string) || 10;
+const getCustomerTransactions = async (queries: IQueryPagination, user: UserRequest['user']) => {
+  const { page, limit } = queries;
   const skip = (page - 1) * limit;
   const result = await prisma.$queryRaw`
     SELECT

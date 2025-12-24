@@ -7,20 +7,29 @@ import {
   getProducts,
   updateProduct,
 } from '@/services/product-service';
-import { ProductCreateType, ProductUpdateType } from '@/types/api/product-type';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { IQueriesProducts, ProductCreateType, ProductUpdateType } from '@/types/api/product-type';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useDebounce } from './use-debounce';
 
-export const useGetProducts = () => {
-  const { data, isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: getProducts,
-    staleTime: 1000 * 60 * 5,
+export const useGetProducts = (queries: IQueriesProducts) => {
+  const debouncedSearchQuery = useDebounce({ value: queries.search || '', delay: 500 });
+
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ['products', { ...queries, search: debouncedSearchQuery }],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => getProducts({ ...queries, page: pageParam, search: debouncedSearchQuery }),
+    getNextPageParam: (lastPage) => {
+      return lastPage.data.hasMore ? lastPage.data.page + 1 : undefined;
+    },
     refetchOnWindowFocus: false,
   });
   return {
-    products: data?.data,
+    products: data?.pages.flatMap((page) => page.data.data),
     isLoading,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
   };
 };
 

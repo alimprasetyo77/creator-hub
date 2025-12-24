@@ -19,8 +19,8 @@ const getBuyerSellerTransactions = async (req: UserRequest, res: Response, next:
   try {
     const user = req.user;
     const query = {
-      limit: req.query.limit,
-      page: req.query.page,
+      limit: req.query.limit ? Number(req.query.limit) : 10,
+      page: req.query.page ? Number(req.query.page) : 1,
     } as IQueryPagination;
     const response = await adminService.getBuyerSellerTransactions(query);
     res.status(200).json({
@@ -34,8 +34,8 @@ const getBuyerSellerTransactions = async (req: UserRequest, res: Response, next:
 const getPayoutsRequests = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const query = {
-      page: req.query.page,
-      limit: req.query.limit,
+      limit: req.query.limit ? Number(req.query.limit) : 10,
+      page: req.query.page ? Number(req.query.page) : 1,
     } as IQueryPagination;
     const response = await adminService.getPayoutsRequests(query);
     res.status(200).json({

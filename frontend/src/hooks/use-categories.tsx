@@ -7,6 +7,8 @@ export const useCategories = () => {
   const { data, isLoading } = useQuery({
     queryKey: ['categories'],
     queryFn: getCategories,
+    refetchOnWindowFocus: false,
+    retry: false,
   });
   return {
     categories: data?.data,

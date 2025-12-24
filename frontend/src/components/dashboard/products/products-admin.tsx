@@ -19,7 +19,7 @@ import { Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ProductsAdmin() {
-  const { products } = useGetProducts();
+  const { products } = useGetProducts({ page: 1, limit: 10 });
   const [viewProduct, setViewProduct] = useState<IProduct | null>(null);
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<IProduct | null>(null);

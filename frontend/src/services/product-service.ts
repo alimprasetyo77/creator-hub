@@ -1,13 +1,23 @@
-import { IResponse } from '@/types';
+import { IResponse, IResponsePagination } from '@/types';
 import axiosWithConfig from '../lib/axios-config';
-import { IProduct, ProductCreateType, ProductUpdateType } from '@/types/api/product-type';
+import { IProduct, IQueriesProducts, ProductCreateType, ProductUpdateType } from '@/types/api/product-type';
 import { AxiosError } from 'axios';
 import { checkProperty } from '../lib/utils';
 
-const getProducts = async () => {
+const getProducts = async (queries: IQueriesProducts) => {
+  const { limit, page, search, category, sortBy } = queries || {};
   try {
-    const response = await axiosWithConfig.get('/api/products');
-    return response.data as IResponse<IProduct[]>;
+    const params = {
+      page: page || 1,
+      limit: limit || 10,
+      ...(search && { search: search }),
+      ...(category && { category: category }),
+      ...(sortBy && { sortBy: sortBy }),
+    } as IQueriesProducts;
+
+    const response = await axiosWithConfig.get('/api/products', { params });
+
+    return response.data as IResponsePagination<IProduct[]>;
   } catch (error) {
     if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
       throw Error(error.message);

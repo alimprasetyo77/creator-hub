@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import productService from '../services/product-service';
 import { UserRequest } from '../middlewares/auth-middleware';
+import { IQueriesProduct } from '../validations/product-validation';
 
 /**
  * Create a new product
@@ -36,7 +37,16 @@ const create = async (req: UserRequest, res: Response, next: NextFunction): Prom
  */
 const getAll = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const response = await productService.getAll();
+    const queries = {
+      page: req.query.page ? Number(req.query.page) : 1,
+      limit: req.query.limit ? Number(req.query.limit) : 10,
+      search: req.query.search ? String(req.query.search) : undefined,
+      category: req.query.category !== 'all' ? String(req.query.category) : undefined,
+      sortBy: req.query.sortBy ? String(req.query.sortBy) : undefined,
+    } as IQueriesProduct;
+
+    const response = await productService.getAll(queries);
+
     res.status(200).json({
       message: 'Get all products successfully',
       data: response,

@@ -1,10 +1,16 @@
 import { Product } from '../generated/prisma/browser';
+import { ProductOrderByWithRelationInput, ProductWhereInput } from '../generated/prisma/models';
 import { UserRequest } from '../middlewares/auth-middleware';
 import prisma from '../utils/prisma';
 import { ResponseError } from '../utils/response-error';
 import { generateSlug } from '../utils/slug-generator';
 import uploadImage from '../utils/upload-file';
-import productValidation, { ProductCreateType, ProductUpdateType } from '../validations/product-validation';
+import productValidation, {
+  IQueriesProduct,
+  ProductCreateType,
+  ProductUpdateType,
+} from '../validations/product-validation';
+import { IQueryPagination } from '../validations/user-validation';
 import { validate } from '../validations/validation';
 
 /**
@@ -37,26 +43,63 @@ const create = async (userId: string, request: ProductCreateType): Promise<void>
  *
  * @returns {Promise<Omit<Product, 'categoryId' | 'userId'>[]>} - An array of products
  */
-const getAll = async (): Promise<any> => {
-  const products = await prisma.product.findMany({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      price: true,
-      thumbnail: true,
-      slug: true,
-      category: { select: { label: true, name: true } },
-      user: {
-        select: {
-          id: true,
-          full_name: true,
-          avatar: true,
+const getAll = async (queries: IQueriesProduct): Promise<any> => {
+  const { page, limit, search, category, sortBy } = queries;
+  const skip = (page - 1) * limit;
+
+  const whereClause: ProductWhereInput = {
+    ...((search || category) && {
+      AND: [
+        {
+          ...(search && { title: { contains: search, mode: 'insensitive' } }),
+        },
+        {
+          ...(category && { category: { name: category } }),
+        },
+      ],
+    }),
+  };
+
+  const orderBy: ProductOrderByWithRelationInput = {
+    ...(sortBy === 'popular' && { sales: 'desc' }),
+    ...(sortBy === 'rating' && { rating: 'desc' }),
+    ...(sortBy === 'price-low' && { price: 'asc' }),
+    ...(sortBy === 'price-high' && { price: 'desc' }),
+  };
+
+  const [products, total] = await prisma.$transaction([
+    prisma.product.findMany({
+      where: whereClause,
+      orderBy: orderBy,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        price: true,
+        thumbnail: true,
+        slug: true,
+        category: { select: { label: true, name: true } },
+        user: {
+          select: {
+            id: true,
+            full_name: true,
+            avatar: true,
+          },
         },
       },
-    },
-  });
-  return products;
+      skip,
+      take: limit,
+    }),
+    prisma.product.count({ where: whereClause }),
+  ]);
+
+  const response = {
+    data: products,
+    page,
+    hasMore: total > page * limit,
+    total: total,
+  };
+  return response;
 };
 
 /**

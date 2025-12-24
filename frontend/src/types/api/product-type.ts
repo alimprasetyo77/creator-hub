@@ -68,3 +68,11 @@ export interface IProduct {
   category: ICategory;
   user: IUser;
 }
+
+export interface IQueriesProducts {
+  search?: string;
+  page: number;
+  limit: number;
+  category?: string;
+  sortBy?: 'popular' | 'rating' | 'price-low' | 'price-high';
+}
