@@ -73,6 +73,24 @@ const getProductById = async (id: string) => {
   }
 };
 
+const getSimiliarProductsByCategory = async (category: string, productId: string) => {
+  try {
+    const params = {
+      category,
+      productId,
+    };
+    const response = await axiosWithConfig.get('/api/products/similiar', { params });
+    return response.data as IResponse<IProduct[]>;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
+      throw Error(error.message);
+    }
+    if (error instanceof AxiosError && error.response?.data?.errors) {
+      throw Error(error.response.data.errors);
+    }
+  }
+};
+
 const createProduct = async (data: ProductCreateType) => {
   try {
     const formData = new FormData();
@@ -141,4 +159,5 @@ export {
   createProduct,
   updateProduct,
   deleteProduct,
+  getSimiliarProductsByCategory,
 };

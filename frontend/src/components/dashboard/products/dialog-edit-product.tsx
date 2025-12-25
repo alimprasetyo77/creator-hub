@@ -7,11 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useCategories } from '@/hooks/use-categories';
+import { useGenerateProductDescription } from '@/hooks/use-creator';
 import { useUpdateProduct } from '@/hooks/use-products';
 import { formatIDR } from '@/lib/utils';
+import { GenerateProductDescriptionType } from '@/types/api/creator-type';
 import { IProduct, ProductUpdateSchema, ProductUpdateType } from '@/types/api/product-type';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, Sparkles } from 'lucide-react';
+import Image from 'next/image';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -25,27 +28,47 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
   const [previewThumbnail, setPreviewThumbnail] = useState(editProduct?.thumbnail ?? '');
   const { categories, isLoading: isLoadingCategories } = useCategories();
   const { updateProduct, isPending } = useUpdateProduct(editProduct?.id!);
-
+  const { generateProductDescription, isPending: isPendingGenerateDescription } =
+    useGenerateProductDescription();
   const form = useForm<ProductUpdateType>({
     resolver: zodResolver(ProductUpdateSchema),
     defaultValues: editProduct
       ? {
           title: editProduct.title,
           description: editProduct.description,
-          price: editProduct.price.toString(),
+          price: formatIDR(editProduct.price),
           thumbnail: '',
           categoryId: editProduct.category.id,
         }
       : undefined,
   });
 
+  const handleGenerateProductDescription = () => {
+    const payload: Partial<GenerateProductDescriptionType> = {};
+    if (!form.getValues('title') || !form.getValues('categoryId')) {
+      toast.message('Please fill the title and category for generate product description.');
+      return;
+    }
+    const category = categories?.find((category) => category.id === form.getValues('categoryId'));
+    if (!category) {
+      toast.message('Please fill the category for generate product description.');
+      return;
+    }
+    payload.title = form.getValues('title');
+    payload.category = category.name;
+
+    generateProductDescription(payload as GenerateProductDescriptionType, {
+      onSuccess: ({ data }) => {
+        data && form.setValue('description', data as string);
+      },
+    });
+  };
+
   const onSubmit = form.handleSubmit((data: ProductUpdateType) => {
     updateProduct(data, {
       onSuccess: ({ message }) => {
         toast.success(message);
-        setTimeout(() => {
-          setEditProduct(null);
-        }, 2000);
+        setEditProduct(null);
       },
       onSettled: () => {
         form.reset();
@@ -69,7 +92,13 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                 <Field className='space-y-0'>
                   <Field className='relative gap-y-0 h-48 w-full overflow-hidden rounded-lg group'>
                     {previewThumbnail ? (
-                      <img src={previewThumbnail!} alt={field.name} className='h-full w-full object-cover ' />
+                      <Image
+                        src={previewThumbnail!}
+                        alt={field.name}
+                        width={600}
+                        height={300}
+                        className='h-full w-full object-contain '
+                      />
                     ) : null}
                     <Input
                       type='file'
@@ -128,7 +157,7 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                         <SelectContent>
                           {categories?.map((category) => (
                             <SelectItem key={category.id} value={category.id}>
-                              {category.name}
+                              {category.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -137,30 +166,6 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                     </Field>
                   )}
                 />
-
-                {/* <Controller
-                control={form.control}
-                name='status'
-                render={({ field }) => (
-
-              <Field className='gap-y-2'>
-                <Label htmlFor='edit-status'>Status</Label>
-                <Select
-                  value={field.name}
-                  onValueChange={(value) => field.onChange(value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select status' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='active'>Active</SelectItem>
-                    <SelectItem value='draft'>Draft</SelectItem>
-                    <SelectItem value='pending'>Pending</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-                )}
-                /> */}
               </Field>
 
               <Controller
@@ -170,13 +175,15 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                   <Field className='gap-y-2'>
                     <Label htmlFor={field.name}>Price (IDR)</Label>
                     <Input
-                      {...field}
                       id={field.name}
-                      type='number'
-                      placeholder='29'
-                      min='0'
-                      step='0.01'
-                      value={field.value}
+                      type='text'
+                      placeholder='Enter product price...'
+                      {...field}
+                      onChange={(e) => {
+                        let raw = e.target.value.replace(/[^0-9]/g, '');
+                        if (!raw) return field.onChange('');
+                        field.onChange(formatIDR(+raw));
+                      }}
                     />
                     {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                   </Field>
@@ -190,7 +197,13 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                   <Field className='gap-y-2'>
                     <Field className='flex items-center justify-between'>
                       <Label htmlFor='edit-description'>Description</Label>
-                      <Button type='button' variant='outline' size='sm' onClick={() => {}}>
+                      <Button
+                        type='button'
+                        variant='outline'
+                        size='sm'
+                        disabled={isPendingGenerateDescription || !!field.value}
+                        onClick={handleGenerateProductDescription}
+                      >
                         <Sparkles className='mr-2 h-4 w-4' />
                         Generate with AI
                       </Button>
@@ -201,6 +214,7 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                       placeholder='Describe your product...'
                       rows={6}
                       value={field.value}
+                      disabled={isPendingGenerateDescription}
                     />
                     {fieldState.error && <FieldError>{fieldState.error.message}</FieldError>}
                   </Field>
@@ -219,7 +233,9 @@ export default function DialogEditProduct({ editProduct, setEditProduct }: IDial
                   </div>
                   <div className='flex justify-between border-t pt-2'>
                     <span className='text-muted-foreground'>Projected Revenue:</span>
-                    <span>{formatIDR(parseFloat(form.getValues('price') || '0') * editProduct?.sales!)}</span>
+                    <span>
+                      {formatIDR(+form.getValues('price')!.replace(/[^0-9]/g, '') * editProduct?.sales!)}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -12,24 +12,20 @@ import { useCreateOrder } from '@/hooks/use-orders';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
+import { Activity } from 'react';
+import categoriesColors from '@/constants/categories-colors';
 
 interface ProductCardProps {
   product: IProduct;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { createOrder, isPending } = useCreateOrder();
-
-  const categoryColors: any = {
-    'e-book': 'bg-blue-100 text-blue-700',
-    template: 'bg-purple-100 text-purple-700',
-    'ui-kit': 'bg-pink-100 text-pink-700',
-    asset: 'bg-green-100 text-green-700',
-    course: 'bg-orange-100 text-orange-700',
-  };
+  const isAdmin = user?.role === 'ADMIN';
 
   const onClickBuyProduct = () => {
+    if (isAdmin) return;
     if (!isAuthenticated) {
       toast.info('Please login first to buy this product.');
       return;
@@ -42,13 +38,15 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Card className='group  overflow-hidden transition-all hover:shadow-lg py-0 gap-2'>
       <Link href={'/product/' + product.slug} className='cursor-pointer'>
-        <div className='relative aspect-5/3 overflow-hidden bg-muted border'>
+        <div className='relative overflow-hidden bg-muted border'>
           <Image
             src={product.thumbnail}
             alt={product.title}
             width={600}
             height={300}
-            className='h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 '
+            className={`aspect-3/2 ${
+              product.category.name === 'e-book' ? 'object-contain' : 'object-cover'
+            } object-top transition-transform duration-300 group-hover:scale-105`}
             loading='eager'
           />
           {product.featured && (
@@ -60,7 +58,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <CardContent className='px-4 py-2 h-44 flex flex-col'>
           <div className='mb-2 flex items-center gap-2'>
-            <Badge variant='secondary' className={(categoryColors as any)[product.category.name as any]}>
+            <Badge variant='outline' className={categoriesColors[product.category.name]}>
               {product.category.label}
             </Badge>
             <div className='flex items-center gap-1 text-sm text-muted-foreground'>
@@ -84,15 +82,17 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <CardFooter className='flex items-center justify-between border-t p-4'>
         <span className='text-xl'>{formatIDR(product.price)}</span>
-        <Button
-          size='sm'
-          className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 '
-          onClick={onClickBuyProduct}
-          disabled={isPending}
-        >
-          <ShoppingCart className='mr-2 h-4 w-4' />
-          Buy Now
-        </Button>
+        <Activity mode={isAdmin ? 'hidden' : 'visible'}>
+          <Button
+            size='sm'
+            className='bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 '
+            onClick={onClickBuyProduct}
+            disabled={isPending}
+          >
+            <ShoppingCart className='mr-2 h-4 w-4' />
+            Buy Now
+          </Button>
+        </Activity>
       </CardFooter>
     </Card>
   );

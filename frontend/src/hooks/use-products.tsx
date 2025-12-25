@@ -5,6 +5,7 @@ import {
   getProductById,
   getProductBySlug,
   getProducts,
+  getSimiliarProductsByCategory,
   updateProduct,
 } from '@/services/product-service';
 import { IQueriesProducts, ProductCreateType, ProductUpdateType } from '@/types/api/product-type';
@@ -44,6 +45,20 @@ export const useGetProduct = ({ slug, id }: Partial<{ slug: string; id: string }
 
   return {
     product: data?.data,
+    isLoading,
+  };
+};
+
+export const useSimiliarProducts = (category: string, productId: string) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['similiar-products', category, productId],
+    queryFn: () => getSimiliarProductsByCategory(category, productId),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+    enabled: !!category && !!productId,
+  });
+  return {
+    similiarProducts: data?.data,
     isLoading,
   };
 };

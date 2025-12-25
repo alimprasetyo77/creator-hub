@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import categoriesColors from '@/constants/categories-colors';
 import { useGetProducts } from '@/hooks/use-products';
 import { formatIDR } from '@/lib/utils';
 import { IProduct } from '@/types/api/product-type';
@@ -23,6 +24,7 @@ export default function ProductsAdmin() {
   const [viewProduct, setViewProduct] = useState<IProduct | null>(null);
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<IProduct | null>(null);
+
   return (
     <div className='space-y-6'>
       <div>
@@ -34,19 +36,19 @@ export default function ProductsAdmin() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className='w-[350px]'>Product</TableHead>
+              <TableHead className='w-87.5'>Product</TableHead>
               <TableHead>Creator</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Sales</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className='w-[50px]'></TableHead>
+              <TableHead className='w-12.5'></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {products?.map((product) => (
               <TableRow key={product.id}>
-                <TableCell className='w-[350px]'>
+                <TableCell className='w-87.5'>
                   <div className='flex items-center gap-3'>
                     <img
                       src={product.thumbnail}
@@ -57,7 +59,11 @@ export default function ProductsAdmin() {
                   </div>
                 </TableCell>
                 <TableCell>{product.user.full_name}</TableCell>
-                <TableCell>{product.category.name}</TableCell>
+                <TableCell>
+                  <Badge variant='outline' className={categoriesColors[product.category.name]}>
+                    {product.category.label}
+                  </Badge>
+                </TableCell>
                 <TableCell>{formatIDR(product.price)}</TableCell>
                 <TableCell>{product.sales}</TableCell>
                 <TableCell>

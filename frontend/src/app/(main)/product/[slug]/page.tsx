@@ -20,28 +20,34 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { ProductCard } from '@/components/product-card';
-import { useGetProduct, useGetProducts } from '@/hooks/use-products';
+import { useGetProduct, useSimiliarProducts } from '@/hooks/use-products';
 import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from 'next/navigation';
 import { useCreateOrder } from '@/hooks/use-orders';
 import { formatIDR } from '@/lib/utils';
 import { ProductDetailSkeleton } from '@/components/my-purchases/detail/product-detail-skeleton';
+import categoriesColors from '@/constants/categories-colors';
+import Image from 'next/image';
 
 interface Params {
   params: Promise<{ slug: string }>;
 }
+
 export default function page({ params }: Params) {
   const { slug } = use(params);
   const [activeTab, setActiveTab] = useState('overview');
   const { product, isLoading: isLoadingProduct } = useGetProduct({ slug });
-  const { products, isLoading: isLoadingProducts } = useGetProducts({ limit: 3, page: 1 });
+  const { similiarProducts, isLoading: isLoadingSimiliarProducts } = useSimiliarProducts(
+    product?.category.name!,
+    product?.id!
+  );
   const { createOrder, isPending } = useCreateOrder();
 
   const { user } = useAuth();
   const router = useRouter();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'ADMIN';
 
-  if (isLoadingProduct || isLoadingProducts) {
+  if (isLoadingProduct || isLoadingSimiliarProducts) {
     return <ProductDetailSkeleton />;
   }
   if (!product) {
@@ -56,17 +62,6 @@ export default function page({ params }: Params) {
       </div>
     );
   }
-  const relatedProducts = products!
-    .filter((p) => p.id !== product.id && p.category.name === product.category.name)
-    .slice(0, 3);
-
-  const categoryGradients = {
-    ebook: 'from-blue-500 to-cyan-500',
-    template: 'from-violet-500 to-purple-500',
-    'ui-kit': 'from-pink-500 to-rose-500',
-    asset: 'from-emerald-500 to-teal-500',
-    course: 'from-orange-500 to-amber-500',
-  };
 
   return (
     <div className='min-h-screen bg-linear-to-b from-blue-50 to-white'>
@@ -87,11 +82,13 @@ export default function page({ params }: Params) {
             {/* Product Image */}
             <div className='group relative overflow-hidden rounded-2xl border bg-white shadow-sm'>
               <div className='absolute inset-0 bg-linear-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100' />
-              <div className='relative p-2'>
-                <img
+              <div className='relative p-2 '>
+                <Image
                   src={product.thumbnail}
                   alt={product.title}
-                  className='h-auto w-full rounded-xl object-cover transition-transform duration-700 group-hover:scale-[1.02]'
+                  width={800}
+                  height={600}
+                  className='h-auto w-full max-h-[600px] rounded-xl object-contain transition-transform duration-700 group-hover:scale-[1.02]'
                 />
               </div>
             </div>
@@ -101,11 +98,12 @@ export default function page({ params }: Params) {
               <CardContent className='p-6'>
                 <div className='mb-4 flex flex-wrap items-center gap-2'>
                   <Badge
+                    variant={'outline'}
                     className={`bg-linear-to-r ${
-                      (categoryGradients as any)[product.category as any]
+                      categoriesColors[product.category.name]
                     } border-0 text-white`}
                   >
-                    {product.category.name.replace('-', ' ').toUpperCase()}
+                    {product.category.label}
                   </Badge>
                   {product.featured && (
                     <Badge className='border-0 bg-linear-to-r from-blue-600 to-purple-600 text-white'>
@@ -114,7 +112,7 @@ export default function page({ params }: Params) {
                   )}
                 </div>
 
-                <h1 className='mb-4'>{product.title}</h1>
+                <h1 className='mb-4 font-medium text-lg'>{product.title}</h1>
 
                 <div className='flex flex-wrap items-center gap-4'>
                   <div className='flex items-center gap-2'>
@@ -123,7 +121,7 @@ export default function page({ params }: Params) {
                         <Star
                           key={i}
                           className={`h-5 w-5 ${
-                            i < Math.floor(product.rating)
+                            i < Math.floor(product.rating || 4.7)
                               ? 'fill-yellow-400 text-yellow-400'
                               : 'fill-gray-200 text-gray-200'
                           }`}
@@ -427,12 +425,12 @@ export default function page({ params }: Params) {
         </div>
 
         {/* Related Products */}
-        {relatedProducts.length > 0 && (
+        {similiarProducts && similiarProducts.length > 0 && (
           <div className='mt-16'>
             <h2 className='mb-8 text-lg font-medium'>Related Products</h2>
             <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'>
-              {relatedProducts.map((relatedProduct) => (
-                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+              {similiarProducts?.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>

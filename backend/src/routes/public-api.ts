@@ -10,6 +10,7 @@ publicRouter.post('/api/users/login', userController.login);
 
 publicRouter.post('/api/payment/notification-handler', orderController.paymentNotificationHandler);
 
+publicRouter.get('/api/products/similiar', productController.getSimiliarProductsByCategory);
 publicRouter.get('/api/products/slug/:slug', productController.getBySlug);
 publicRouter.get('/api/products', productController.getAll);
 

@@ -1,9 +1,5 @@
 import { OrderGetPayload } from '../generated/prisma/models';
-import {
-  CreateCompleteOrderType,
-  CreateOrderType,
-  ICheckoutOrderSuccessResponse,
-} from '../validations/order-validation';
+import { CreateCompleteOrderType, ICheckoutOrderSuccessResponse } from '../validations/order-validation';
 import { ResponseError } from './response-error';
 const midtransHeaders = {
   headers: {

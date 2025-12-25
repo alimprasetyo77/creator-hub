@@ -126,7 +126,7 @@ export default function Upload() {
                         <SelectContent>
                           {categories?.map((category) => (
                             <SelectItem key={category.id} value={category.id} className='capitalize!'>
-                              {category.name}
+                              {category.label}
                             </SelectItem>
                           ))}
                         </SelectContent>

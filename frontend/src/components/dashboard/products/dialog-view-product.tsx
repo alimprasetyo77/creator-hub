@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import categoriesColors from '@/constants/categories-colors';
 import { formatIDR } from '@/lib/utils';
 import { IProduct } from '@/types/api/product-type';
 import { Edit } from 'lucide-react';
+import Image from 'next/image';
 
 interface IDialogViewProductProps {
   viewProduct: IProduct | null;
@@ -28,10 +30,12 @@ export default function DialogViewProduct({
         </DialogHeader>
         <div className='space-y-6'>
           <div className='relative h-48 w-full overflow-hidden rounded-lg'>
-            <img
-              src={viewProduct?.thumbnail}
-              alt={viewProduct?.title}
-              className='h-full w-full object-cover'
+            <Image
+              src={viewProduct?.thumbnail!}
+              alt={viewProduct?.title!}
+              width={600}
+              height={300}
+              className='h-full w-full object-contain'
             />
           </div>
 
@@ -45,7 +49,9 @@ export default function DialogViewProduct({
               <div>
                 <Label>Category</Label>
                 <div className='mt-1'>
-                  <Badge variant='secondary'>{viewProduct?.category.name}</Badge>
+                  <Badge variant='outline' className={categoriesColors[viewProduct?.category.name!]}>
+                    {viewProduct?.category.label}
+                  </Badge>
                 </div>
               </div>
 
@@ -85,7 +91,7 @@ export default function DialogViewProduct({
 
               <div>
                 <Label>Rating</Label>
-                <p className='mt-1'>⭐ {viewProduct?.rating}</p>
+                <p className='mt-1'>⭐ {viewProduct?.rating || 4.8}</p>
               </div>
             </div>
 

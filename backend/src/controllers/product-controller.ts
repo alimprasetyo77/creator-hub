@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import productService from '../services/product-service';
 import { UserRequest } from '../middlewares/auth-middleware';
-import { IQueriesProduct } from '../validations/product-validation';
+import { IQueriesProduct, SimiliarProductsType } from '../validations/product-validation';
 
 /**
  * Create a new product
@@ -41,7 +41,7 @@ const getAll = async (req: Request, res: Response, next: NextFunction): Promise<
       page: req.query.page ? Number(req.query.page) : 1,
       limit: req.query.limit ? Number(req.query.limit) : 10,
       search: req.query.search ? String(req.query.search) : undefined,
-      category: req.query.category !== 'all' ? String(req.query.category) : undefined,
+      category: req.query.category && req.query.category !== 'all' ? String(req.query.category) : undefined,
       sortBy: req.query.sortBy ? String(req.query.sortBy) : undefined,
     } as IQueriesProduct;
 
@@ -121,6 +121,32 @@ const getById = async (req: Request, res: Response, next: NextFunction): Promise
 };
 
 /**
+ * Get Similiar Products by category
+ * process request with product-service and return response
+ *
+ * @param {Request} req - The request object
+ * @param {Response} res - The response object
+ * @param {NextFunction} next - The next middleware function
+ * @returns {Promise<void>}
+ */
+const getSimiliarProductsByCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const request = req.query as SimiliarProductsType;
+    const response = await productService.getSimiliarProductsByCategory(request);
+    res.status(200).json({
+      message: 'Get similiar products successfully',
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
  * Update product by id
  * process request with product-service and return response
  *
@@ -163,4 +189,13 @@ const remove = async (req: UserRequest, res: Response, next: NextFunction): Prom
   }
 };
 
-export default { create, getAll, getMyProducts, getById, getBySlug, update, remove };
+export default {
+  create,
+  getAll,
+  getMyProducts,
+  getById,
+  getBySlug,
+  update,
+  remove,
+  getSimiliarProductsByCategory,
+};

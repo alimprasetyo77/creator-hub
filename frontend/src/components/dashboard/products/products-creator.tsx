@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import categoriesColors from '@/constants/categories-colors';
 import { useMyProducts } from '@/hooks/use-products';
 import { formatIDR } from '@/lib/utils';
 import { IProduct } from '@/types/api/product-type';
@@ -71,7 +72,9 @@ export default function ProductsCreator() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant='secondary'>{product.category.name}</Badge>
+                  <Badge variant='outline' className={categoriesColors[product.category.name]}>
+                    {product.category.label}
+                  </Badge>
                 </TableCell>
                 <TableCell>{formatIDR(product.price)}</TableCell>
                 <TableCell>{product.sales}</TableCell>

@@ -43,11 +43,16 @@ const CreateSchema = base
   });
 
 const UpdateSchema = base.partial();
+const GetSimiliarProductSchema = z.object({
+  category: z.string().min(1, 'Category is required'),
+  productId: z.string().min(1, 'Product ID is required'),
+});
 
 export type ProductCreateType = z.infer<typeof CreateSchema>;
 export type ProductUpdateType = z.infer<typeof UpdateSchema>;
+export type SimiliarProductsType = z.infer<typeof GetSimiliarProductSchema>;
 
-export default { CreateSchema, UpdateSchema };
+export default { CreateSchema, UpdateSchema, GetSimiliarProductSchema };
 
 export interface IQueriesProduct extends IQueryPagination {
   search?: string;

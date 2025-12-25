@@ -9,8 +9,8 @@ import productValidation, {
   IQueriesProduct,
   ProductCreateType,
   ProductUpdateType,
+  SimiliarProductsType,
 } from '../validations/product-validation';
-import { IQueryPagination } from '../validations/user-validation';
 import { validate } from '../validations/validation';
 
 /**
@@ -46,7 +46,6 @@ const create = async (userId: string, request: ProductCreateType): Promise<void>
 const getAll = async (queries: IQueriesProduct): Promise<any> => {
   const { page, limit, search, category, sortBy } = queries;
   const skip = (page - 1) * limit;
-
   const whereClause: ProductWhereInput = {
     ...((search || category) && {
       AND: [
@@ -71,14 +70,14 @@ const getAll = async (queries: IQueriesProduct): Promise<any> => {
     prisma.product.findMany({
       where: whereClause,
       orderBy: orderBy,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        price: true,
-        thumbnail: true,
-        slug: true,
-        category: { select: { label: true, name: true } },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            label: true,
+          },
+        },
         user: {
           select: {
             id: true,
@@ -108,7 +107,6 @@ const getAll = async (queries: IQueriesProduct): Promise<any> => {
  * @param {string} userId - The id of the user
  * @returns {Promise<Omit<Product, 'categoryId' | 'userId'>[]>} - An array of products
  */
-
 const getMyProducts = async (userId: string): Promise<any> => {
   const products = await prisma.product.findMany({
     where: { userId },
@@ -170,6 +168,46 @@ const getById = async (id: string): Promise<Omit<Product, 'categoryId' | 'userId
     },
   });
   return product;
+};
+
+/**
+ * Get Similiar Products by category
+ * validate queries
+ * fetch from database and return top 3 by sales excluding current product
+ *
+ * @param {SimiliarProductsType} request - The request queries
+ * @returns {Promise<ProductInclude[]>} - An array of similiar products
+ */
+const getSimiliarProductsByCategory = async (request: SimiliarProductsType): Promise<any[]> => {
+  const { category, productId } = validate(productValidation.GetSimiliarProductSchema, request);
+  const products = await prisma.product.findMany({
+    where: {
+      AND: [
+        {
+          category: {
+            name: category,
+          },
+        },
+        {
+          NOT: {
+            id: productId,
+          },
+        },
+      ],
+    },
+    orderBy: {
+      sales: 'desc',
+    },
+    take: 3,
+    include: {
+      category: true,
+      user: true,
+    },
+    omit: {
+      categoryId: true,
+    },
+  });
+  return products;
 };
 
 /**
@@ -238,4 +276,13 @@ const deleteById = async (id: string): Promise<void> => {
   });
 };
 
-export default { create, getAll, getMyProducts, getBySlug, getById, update, deleteById };
+export default {
+  create,
+  getAll,
+  getMyProducts,
+  getBySlug,
+  getById,
+  update,
+  deleteById,
+  getSimiliarProductsByCategory,
+};
