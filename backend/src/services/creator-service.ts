@@ -128,6 +128,7 @@ const getCustomerTransactions = async (queries: IQueryPagination, user: UserRequ
     data: resultRow,
     page,
     totalPages: Math.ceil(resultRow.length / limit),
+    total: resultRow.length,
   };
 
   return response;

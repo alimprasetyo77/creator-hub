@@ -340,7 +340,26 @@ const paymentNotificationHandler = async (
 
   const order = await prisma.order.findUnique({
     where: { id: order_id },
-    select: { userId: true, orderStatus: true, paymentInfo: true, items: true },
+    select: {
+      orderStatus: true,
+      paymentInfo: true,
+      items: {
+        select: {
+          productId: true,
+          quantity: true,
+          total: true,
+          product: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!order) {
@@ -350,22 +369,24 @@ const paymentNotificationHandler = async (
   const updatePaymentStatus = async (status: Order['orderStatus']) => {
     try {
       if (status === 'PAID') {
-        await prisma.product.update({
-          where: { id: order.items[0].productId },
-          data: {
-            sales: {
-              increment: order.items[0].quantity,
+        await Promise.all([
+          prisma.product.update({
+            where: { id: order.items[0].productId },
+            data: {
+              sales: {
+                increment: order.items[0].quantity,
+              },
             },
-          },
-        });
-        await prisma.user.update({
-          where: { id: order.userId },
-          data: {
-            balance: {
-              increment: order.items[0].total,
+          }),
+          prisma.user.update({
+            where: { id: order.items[0].product.user.id },
+            data: {
+              balance: {
+                increment: order.items[0].total,
+              },
             },
-          },
-        });
+          }),
+        ]);
       }
       await prisma.order.update({
         where: { id: order_id },

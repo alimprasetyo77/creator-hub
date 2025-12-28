@@ -11,6 +11,7 @@ import productValidation, {
   ProductUpdateType,
   SimiliarProductsType,
 } from '../validations/product-validation';
+import { IQueryPagination } from '../validations/user-validation';
 import { validate } from '../validations/validation';
 
 /**
@@ -95,8 +96,8 @@ const getAll = async (queries: IQueriesProduct): Promise<any> => {
   const response = {
     data: products,
     page,
-    hasMore: total > page * limit,
     total: total,
+    totalPages: Math.ceil(total / limit),
   };
   return response;
 };
@@ -107,21 +108,35 @@ const getAll = async (queries: IQueriesProduct): Promise<any> => {
  * @param {string} userId - The id of the user
  * @returns {Promise<Omit<Product, 'categoryId' | 'userId'>[]>} - An array of products
  */
-const getMyProducts = async (userId: string): Promise<any> => {
-  const products = await prisma.product.findMany({
-    where: { userId },
-    omit: { categoryId: true, userId: true },
-    include: {
-      category: true,
-      user: {
-        omit: {
-          password: true,
-          token: true,
+const getMyProducts = async (queries: IQueryPagination, userId: string): Promise<any> => {
+  const { page, limit } = queries;
+  const skip = (page - 1) * limit;
+  const [products, total] = await prisma.$transaction([
+    prisma.product.findMany({
+      where: { userId },
+      omit: { categoryId: true, userId: true },
+      include: {
+        category: true,
+        user: {
+          omit: {
+            password: true,
+            token: true,
+          },
         },
       },
-    },
-  });
-  return products;
+      skip,
+      take: limit,
+    }),
+    prisma.product.count({ where: { userId } }),
+  ]);
+
+  const response = {
+    data: products,
+    page,
+    totalPages: Math.ceil(total / limit),
+    total: total,
+  };
+  return response;
 };
 
 /**

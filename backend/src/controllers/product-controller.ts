@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import productService from '../services/product-service';
 import { UserRequest } from '../middlewares/auth-middleware';
 import { IQueriesProduct, SimiliarProductsType } from '../validations/product-validation';
+import { IQueryPagination } from '../validations/user-validation';
 
 /**
  * Create a new product
@@ -66,8 +67,13 @@ const getAll = async (req: Request, res: Response, next: NextFunction): Promise<
  * @returns {Promise<void>}
  */
 const getMyProducts = async (req: UserRequest, res: Response, next: NextFunction): Promise<void> => {
+  const queries = {
+    limit: req.query.limit ? Number(req.query.limit) : 10,
+    page: req.query.page ? Number(req.query.page) : 1,
+  } as IQueryPagination;
+
   try {
-    const response = await productService.getMyProducts(req.user?.id!);
+    const response = await productService.getMyProducts(queries, req.user?.id!);
     res.status(200).json({
       message: 'Get my products successfully',
       data: response,

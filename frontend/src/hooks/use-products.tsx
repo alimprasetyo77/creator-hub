@@ -12,6 +12,20 @@ import { IQueriesProducts, ProductCreateType, ProductUpdateType } from '@/types/
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useDebounce } from './use-debounce';
+import { IPaginationQueries } from '@/types';
+
+export const useProductsPagination = ({ page, limit }: { page: number; limit: number }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ['products-pagination', page],
+    queryFn: () => getProducts({ page, limit }),
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
+  return {
+    productsPagination: data?.data,
+    isLoading,
+  };
+};
 
 export const useGetProducts = (queries: IQueriesProducts) => {
   const debouncedSearchQuery = useDebounce({ value: queries.search || '', delay: 500 });
@@ -63,10 +77,10 @@ export const useSimiliarProducts = (category: string, productId: string) => {
   };
 };
 
-export const useMyProducts = () => {
+export const useMyProducts = ({ page, limit }: IPaginationQueries) => {
   const { data, isLoading } = useQuery({
-    queryKey: ['my-products'],
-    queryFn: () => getMyProducts(),
+    queryKey: ['my-products', page],
+    queryFn: () => getMyProducts({ page, limit }),
     staleTime: 1000 * 60 * 5,
     refetchOnWindowFocus: false,
   });

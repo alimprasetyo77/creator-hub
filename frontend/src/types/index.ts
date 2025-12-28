@@ -10,5 +10,11 @@ export interface IResponsePagination<T> {
     page: number;
     hasMore: boolean;
     total: number;
+    totalPages: number;
   };
+}
+
+export interface IPaginationQueries {
+  page?: number;
+  limit?: number;
 }

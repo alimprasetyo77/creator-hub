@@ -17,7 +17,6 @@ type PaginationCustomProps = {
 
 export function PaginationCustom({ page, totalPages, onPageChange }: PaginationCustomProps) {
   const pages = getPaginationPages(page, totalPages);
-
   if (totalPages <= 1) return null;
 
   return (

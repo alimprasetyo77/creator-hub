@@ -54,11 +54,11 @@ const getOverview = async () => {
 
   const productsByCategory = await prisma.$queryRaw`
         SELECT
-            c."name" AS category,
+            c."label" AS category,
             CAST(COALESCE(COUNT(*), 0) AS INTEGER) AS "totalProducts"
         FROM products p
         JOIN categories c ON c.id = p."categoryId"
-        GROUP BY c."name"
+        GROUP BY c."label"
      `;
 
   const recentActivities = await prisma.$queryRaw`

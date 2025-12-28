@@ -1,4 +1,4 @@
-import { IResponse, IResponsePagination } from '@/types';
+import { IPaginationQueries, IResponse, IResponsePagination } from '@/types';
 import axiosWithConfig from '../lib/axios-config';
 import { IProduct, IQueriesProducts, ProductCreateType, ProductUpdateType } from '@/types/api/product-type';
 import { AxiosError } from 'axios';
@@ -29,10 +29,15 @@ const getProducts = async (queries: IQueriesProducts) => {
   }
 };
 
-const getMyProducts = async () => {
+const getMyProducts = async ({ limit, page }: IPaginationQueries) => {
   try {
-    const response = await axiosWithConfig.get('/api/products/my-products');
-    return response.data as IResponse<IProduct[]>;
+    const params = {
+      page: page || 1,
+      limit: limit || 10,
+    } as IPaginationQueries;
+
+    const response = await axiosWithConfig.get('/api/products/my-products', { params });
+    return response.data as IResponsePagination<IProduct[]>;
   } catch (error) {
     if (error instanceof AxiosError && error.code === 'ERR_NETWORK') {
       throw Error(error.message);

@@ -2,6 +2,7 @@
 import DialogDeleteProduct from '@/components/dashboard/products/dialog-delete-product';
 import DialogEditProduct from '@/components/dashboard/products/dialog-edit-product';
 import DialogViewProduct from '@/components/dashboard/products/dialog-view-product';
+import { PaginationCustom } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -21,8 +22,9 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function ProductsCreator() {
+  const [page, setPage] = useState(1);
   const router = useRouter();
-  const { products } = useMyProducts();
+  const { products } = useMyProducts({ page, limit: 10 });
   const [viewProduct, setViewProduct] = useState<IProduct | null>(null);
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<IProduct | null>(null);
@@ -56,7 +58,7 @@ export default function ProductsCreator() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products?.map((product) => (
+            {products?.data?.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>
                   <div className='flex items-center gap-3'>
@@ -139,6 +141,11 @@ export default function ProductsCreator() {
       {deleteProduct && (
         <DialogDeleteProduct deleteProduct={deleteProduct} setDeleteProduct={setDeleteProduct} />
       )}
+      <PaginationCustom
+        onPageChange={(page) => setPage(page)}
+        totalPages={products?.totalPages!}
+        page={products?.page!}
+      ></PaginationCustom>
     </div>
   );
 }

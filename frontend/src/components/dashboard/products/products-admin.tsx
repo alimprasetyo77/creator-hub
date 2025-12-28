@@ -2,6 +2,7 @@
 import DialogDeleteProduct from '@/components/dashboard/products/dialog-delete-product';
 import DialogEditProduct from '@/components/dashboard/products/dialog-edit-product';
 import DialogViewProduct from '@/components/dashboard/products/dialog-view-product';
+import { PaginationCustom } from '@/components/pagination';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,14 +14,15 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import categoriesColors from '@/constants/categories-colors';
-import { useGetProducts } from '@/hooks/use-products';
+import { useProductsPagination } from '@/hooks/use-products';
 import { formatIDR } from '@/lib/utils';
 import { IProduct } from '@/types/api/product-type';
 import { Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Activity, useState } from 'react';
 
 export default function ProductsAdmin() {
-  const { products } = useGetProducts({ page: 1, limit: 10 });
+  const [page, setPage] = useState(1);
+  const { productsPagination, isLoading } = useProductsPagination({ page, limit: 10 });
   const [viewProduct, setViewProduct] = useState<IProduct | null>(null);
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<IProduct | null>(null);
@@ -46,7 +48,7 @@ export default function ProductsAdmin() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {products?.map((product) => (
+            {productsPagination?.data?.map((product) => (
               <TableRow key={product.id}>
                 <TableCell className='w-87.5'>
                   <div className='flex items-center gap-3'>
@@ -126,6 +128,11 @@ export default function ProductsAdmin() {
       {deleteProduct && (
         <DialogDeleteProduct deleteProduct={deleteProduct} setDeleteProduct={setDeleteProduct} />
       )}
+      <PaginationCustom
+        onPageChange={(page) => setPage(page)}
+        totalPages={Math.ceil((productsPagination?.total || 0) / 10)}
+        page={productsPagination?.page!}
+      ></PaginationCustom>
     </div>
   );
 }

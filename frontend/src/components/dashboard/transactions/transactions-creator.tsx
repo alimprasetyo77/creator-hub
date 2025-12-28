@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useCustomerTransactions } from '@/hooks/use-creator';
+import { formatIDR } from '@/lib/utils';
 import { useState } from 'react';
 
 export default function TransactionsCreator() {
@@ -54,7 +55,7 @@ export default function TransactionsCreator() {
                     minute: 'numeric',
                   })}
                 </TableCell>
-                <TableCell>${transaction.price}</TableCell>
+                <TableCell>{formatIDR(transaction.price)}</TableCell>
                 <TableCell>
                   <Badge
                     className={(badgeVariantsForPaymentType as any)[transaction.orderStatus.toLowerCase()]}
@@ -66,9 +67,7 @@ export default function TransactionsCreator() {
             ))}
           </TableBody>
         </Table>
-        <div className='mt-6 flex justify-center'>
-          <PaginationCustom page={page} totalPages={transactions?.totalPages || 1} onPageChange={setPage} />
-        </div>
+        <PaginationCustom page={page} totalPages={transactions?.totalPages || 1} onPageChange={setPage} />
       </Card>
     </div>
   );
