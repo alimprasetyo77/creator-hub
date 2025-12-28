@@ -347,7 +347,7 @@ const paymentNotificationHandler = async (
         select: {
           productId: true,
           quantity: true,
-          total: true,
+          price: true,
           product: {
             select: {
               user: {
@@ -382,7 +382,7 @@ const paymentNotificationHandler = async (
             where: { id: order.items[0].product.user.id },
             data: {
               balance: {
-                increment: order.items[0].total,
+                increment: order.items[0].price,
               },
             },
           }),
