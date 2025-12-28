@@ -16,7 +16,7 @@ model User {
   created_at       DateTime           @default(now())
   avatar           String?            @db.VarChar(225)
   token            String?
-  balance          Float?
+  balance          Int?               @default(0)
   orders           Order[]
   payouts          Payout[]
   products         Product[]

@@ -93,11 +93,13 @@ const getAll = async (queries: IQueriesProduct): Promise<any> => {
     prisma.product.count({ where: whereClause }),
   ]);
 
+  const totalPages = Math.ceil(total / limit);
   const response = {
     data: products,
     page,
+    hasMore: page < totalPages,
     total: total,
-    totalPages: Math.ceil(total / limit),
+    totalPages,
   };
   return response;
 };
