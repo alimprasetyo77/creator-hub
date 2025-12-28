@@ -18,11 +18,11 @@ import { useProductsPagination } from '@/hooks/use-products';
 import { formatIDR } from '@/lib/utils';
 import { IProduct } from '@/types/api/product-type';
 import { Edit, Eye, MoreVertical, Trash2 } from 'lucide-react';
-import { Activity, useState } from 'react';
+import { useState } from 'react';
 
 export default function ProductsAdmin() {
   const [page, setPage] = useState(1);
-  const { productsPagination, isLoading } = useProductsPagination({ page, limit: 10 });
+  const { productsPagination } = useProductsPagination({ page, limit: 10 });
   const [viewProduct, setViewProduct] = useState<IProduct | null>(null);
   const [editProduct, setEditProduct] = useState<IProduct | null>(null);
   const [deleteProduct, setDeleteProduct] = useState<IProduct | null>(null);
