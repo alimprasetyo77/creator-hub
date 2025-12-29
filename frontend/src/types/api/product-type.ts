@@ -4,7 +4,7 @@ import { ICategory } from './category-type';
 
 const MAX_MB = 2;
 const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 const ACCEPTED_FILE_TYPES = ['application/pdf', 'application/zip'];
 const base = z.object({
   title: z.string().min(1, 'Title is required').max(255),
@@ -17,7 +17,7 @@ const base = z.object({
     .any()
     .refine(
       (file) => ACCEPTED_IMAGE_TYPES.includes(file?.type),
-      'Only .jpg, .jpeg, .png formats are supported'
+      'Only .webp, .jpg, .jpeg, .png formats are supported'
     )
     .refine((file) => file?.size <= MAX_UPLOAD_SIZE, `Max image size is 2MB`)
     .or(z.literal('')),

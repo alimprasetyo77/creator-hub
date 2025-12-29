@@ -247,7 +247,7 @@ export type UserWhereInput = {
   created_at?: Prisma.DateTimeFilter<"User"> | Date | string
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   token?: Prisma.StringNullableFilter<"User"> | string | null
-  balance?: Prisma.FloatNullableFilter<"User"> | number | null
+  balance?: Prisma.IntNullableFilter<"User"> | number | null
   orders?: Prisma.OrderListRelationFilter
   payouts?: Prisma.PayoutListRelationFilter
   products?: Prisma.ProductListRelationFilter
@@ -282,7 +282,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   created_at?: Prisma.DateTimeFilter<"User"> | Date | string
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   token?: Prisma.StringNullableFilter<"User"> | string | null
-  balance?: Prisma.FloatNullableFilter<"User"> | number | null
+  balance?: Prisma.IntNullableFilter<"User"> | number | null
   orders?: Prisma.OrderListRelationFilter
   payouts?: Prisma.PayoutListRelationFilter
   products?: Prisma.ProductListRelationFilter
@@ -318,7 +318,7 @@ export type UserScalarWhereWithAggregatesInput = {
   created_at?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   token?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  balance?: Prisma.FloatNullableWithAggregatesFilter<"User"> | number | null
+  balance?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
 }
 
 export type UserCreateInput = {
@@ -362,7 +362,7 @@ export type UserUpdateInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   payouts?: Prisma.PayoutUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
@@ -378,7 +378,7 @@ export type UserUncheckedUpdateInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   payouts?: Prisma.PayoutUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
@@ -406,7 +406,7 @@ export type UserUpdateManyMutationInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -418,7 +418,7 @@ export type UserUncheckedUpdateManyInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -486,7 +486,7 @@ export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
+export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
   decrement?: number
@@ -605,7 +605,7 @@ export type UserUpdateWithoutProductsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   payouts?: Prisma.PayoutUpdateManyWithoutUserNestedInput
   withdrawalMethod?: Prisma.WithdrawalMethodUpdateManyWithoutUserNestedInput
@@ -620,7 +620,7 @@ export type UserUncheckedUpdateWithoutProductsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   payouts?: Prisma.PayoutUncheckedUpdateManyWithoutUserNestedInput
   withdrawalMethod?: Prisma.WithdrawalMethodUncheckedUpdateManyWithoutUserNestedInput
@@ -681,7 +681,7 @@ export type UserUpdateWithoutOrdersInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   payouts?: Prisma.PayoutUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   withdrawalMethod?: Prisma.WithdrawalMethodUpdateManyWithoutUserNestedInput
@@ -696,7 +696,7 @@ export type UserUncheckedUpdateWithoutOrdersInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   payouts?: Prisma.PayoutUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   withdrawalMethod?: Prisma.WithdrawalMethodUncheckedUpdateManyWithoutUserNestedInput
@@ -757,7 +757,7 @@ export type UserUpdateWithoutPayoutsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
   withdrawalMethod?: Prisma.WithdrawalMethodUpdateManyWithoutUserNestedInput
@@ -772,7 +772,7 @@ export type UserUncheckedUpdateWithoutPayoutsInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
   withdrawalMethod?: Prisma.WithdrawalMethodUncheckedUpdateManyWithoutUserNestedInput
@@ -833,7 +833,7 @@ export type UserUpdateWithoutWithdrawalMethodInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   orders?: Prisma.OrderUpdateManyWithoutUserNestedInput
   payouts?: Prisma.PayoutUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUpdateManyWithoutUserNestedInput
@@ -848,7 +848,7 @@ export type UserUncheckedUpdateWithoutWithdrawalMethodInput = {
   created_at?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  balance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  balance?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   orders?: Prisma.OrderUncheckedUpdateManyWithoutUserNestedInput
   payouts?: Prisma.PayoutUncheckedUpdateManyWithoutUserNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutUserNestedInput
@@ -1429,7 +1429,7 @@ export interface UserFieldRefs {
   readonly created_at: Prisma.FieldRef<"User", 'DateTime'>
   readonly avatar: Prisma.FieldRef<"User", 'String'>
   readonly token: Prisma.FieldRef<"User", 'String'>
-  readonly balance: Prisma.FieldRef<"User", 'Float'>
+  readonly balance: Prisma.FieldRef<"User", 'Int'>
 }
     
 

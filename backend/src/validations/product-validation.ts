@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { IQueryPagination } from './user-validation';
 const MAX_MB = 2;
 const MAX_UPLOAD_SIZE = 1024 * 1024 * MAX_MB;
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png'];
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
 const base = z.object({
   title: z.string().min(1, 'Title is required').max(255),
@@ -13,7 +13,7 @@ const base = z.object({
       newFilename: z.string(),
       originalFilename: z.string(),
       mimetype: z.string().refine((type) => ACCEPTED_IMAGE_TYPES.includes(type), {
-        message: 'Only .jpg, .jpeg, and .png formats are supported.',
+        message: 'Only .webp, .jpg, .jpeg, and .png formats are supported.',
       }),
       size: z.number().max(MAX_UPLOAD_SIZE, {
         message: `Max file size is ${MAX_MB}MB.`,

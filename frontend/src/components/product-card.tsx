@@ -45,7 +45,7 @@ export function ProductCard({ product }: ProductCardProps) {
             width={600}
             height={300}
             className={`aspect-3/2 ${
-              product.category.name === 'e-book' ? 'object-contain' : 'object-cover'
+              product.category.name === 'e-book' ? 'object-contain' : 'object-fill'
             } object-top transition-transform duration-300 group-hover:scale-105`}
             loading='eager'
           />

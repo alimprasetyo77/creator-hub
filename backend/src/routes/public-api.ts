@@ -1,8 +1,10 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import userController from '../controllers/user-controller';
 import orderController from '../controllers/order-controller';
 import categoryController from '../controllers/category-controller';
 import productController from '../controllers/product-controller';
+import prisma from '../utils/prisma';
+import { formDataMiddleware } from '../middlewares/formdata-middleware';
 const publicRouter = express.Router();
 
 publicRouter.post('/api/users/register', userController.register);

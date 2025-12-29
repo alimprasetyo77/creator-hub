@@ -236,10 +236,11 @@ export default function Upload() {
                     <Input
                       id={field.name}
                       type='file'
-                      accept='.jpg,.jpeg,.png'
+                      accept='.jpg,.jpeg,.png,.webp'
                       className='hidden'
                       onChange={(e) => {
                         const value = e.target.files;
+                        if (value?.length === 0) return;
                         field.onChange(value![0]);
                         setPreviewImg(URL.createObjectURL(value![0]));
                       }}
@@ -270,7 +271,9 @@ export default function Upload() {
                       ) : (
                         <Field className='gap-0 text-center'>
                           <p className='mb-2'>Upload product thumbnail</p>
-                          <p className='text-sm text-muted-foreground'>JPG, PNG (recommended 1200x900px)</p>
+                          <p className='text-sm text-muted-foreground'>
+                            JPG, JPEG, PNG, WEBP (recommended 1200x900px)
+                          </p>
                           <FieldLabel
                             htmlFor={field.name}
                             className='flex flex-col items-center justify-center max-w-fit mx-auto'

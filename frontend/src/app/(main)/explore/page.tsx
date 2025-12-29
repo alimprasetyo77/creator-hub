@@ -96,15 +96,13 @@ export default function Explore() {
           <ExploreSkeleton />
         </Activity>
 
-        <Activity mode={products && products.length > 0 ? 'visible' : 'hidden'}>
-          <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
-            {products?.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </Activity>
+        <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'>
+          {products?.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
 
-        <Activity mode={products && products?.length === 0 ? 'visible' : 'hidden'}>
+        <Activity mode={products && products.length === 0 ? 'visible' : 'hidden'}>
           <div className='py-20 text-center'>
             <p className='text-muted-foreground'>No products found matching your criteria.</p>
             <Button
@@ -118,11 +116,6 @@ export default function Explore() {
             </Button>
           </div>
         </Activity>
-
-        {/* {products && products.length > 0 ? (
-        ) : (
-
-        )} */}
 
         <Activity mode={hasNextPage ? 'visible' : 'hidden'}>
           <div className='mt-10 flex justify-center'>

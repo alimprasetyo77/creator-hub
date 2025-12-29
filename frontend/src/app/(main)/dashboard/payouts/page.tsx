@@ -8,10 +8,10 @@ import { usePayoutSummary, useWithdrawalMethods } from '@/hooks/use-creator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Clock, CreditCard } from 'lucide-react';
 import PaymentMethod from '@/components/dashboard/payouts/payment-method';
+
 export default function Payouts() {
   const { payoutSummary, isLoading: summaryLoading } = usePayoutSummary();
   const { withdrawalMethods } = useWithdrawalMethods();
-
   return (
     <div className='space-y-6'>
       <div>
