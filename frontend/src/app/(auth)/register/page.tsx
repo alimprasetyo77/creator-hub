@@ -23,7 +23,7 @@ import { useRouter } from 'next/navigation';
 
 export default function page() {
   const [showPassword, setShowPassword] = useState(false);
-  const { register } = useRegister();
+  const { register, isLoading } = useRegister();
   const router = useRouter();
   const form = useForm<RegisterType>({
     resolver: zodResolver(registerSchema),
@@ -153,9 +153,9 @@ export default function page() {
               <Button
                 type='submit'
                 className='w-full bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
-                disabled={form.formState.isSubmitting || !form.formState.isDirty}
+                disabled={isLoading || form.formState.isSubmitting || !form.formState.isDirty}
               >
-                Create account
+                {isLoading ? 'Creating account...' : 'Create account'}
               </Button>
             </form>
 

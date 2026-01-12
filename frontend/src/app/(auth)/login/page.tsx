@@ -16,7 +16,7 @@ import { useAuth } from '@/contexts/auth-context';
 export default function page() {
   const [showPassword, setShowPassword] = useState(false);
   const { setIsAuthenticated } = useAuth();
-  const { login } = useLogin();
+  const { login, isLoading } = useLogin();
   const router = useRouter();
   const form = useForm<LoginType>({
     resolver: zodResolver(loginSchema),
@@ -125,9 +125,9 @@ export default function page() {
                 <Button
                   type='submit'
                   className='w-full bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
-                  disabled={form.formState.isSubmitting || !form.formState.isDirty}
+                  disabled={isLoading || form.formState.isSubmitting || !form.formState.isDirty}
                 >
-                  Sign In
+                  {isLoading ? 'Signing in...' : 'Sign in'}
                 </Button>
               </Field>
             </form>

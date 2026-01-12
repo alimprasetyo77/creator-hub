@@ -120,7 +120,7 @@ export default function Explore() {
         <Activity mode={hasNextPage ? 'visible' : 'hidden'}>
           <div className='mt-10 flex justify-center'>
             <Activity mode={!isFetchingNextPage ? 'visible' : 'hidden'}>
-              <Button variant='outline' onClick={() => fetchNextPage()}>
+              <Button variant='ghost' onClick={() => fetchNextPage()}>
                 Load More
               </Button>
             </Activity>

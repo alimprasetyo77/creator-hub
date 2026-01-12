@@ -20,6 +20,7 @@ export const useLogin = () => {
 
   return {
     login: loginMutation.mutate,
+    isLoading: loginMutation.isPending,
   };
 };
 
@@ -38,6 +39,7 @@ export const useRegister = () => {
 
   return {
     register: registerMutation.mutateAsync,
+    isLoading: registerMutation.isPending,
   };
 };
 
