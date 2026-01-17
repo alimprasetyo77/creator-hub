@@ -4,6 +4,7 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 
 ![CreatorHub Homepage Preview](https://github.com/user-attachments/assets/82c09a8f-65a6-4ffd-8db8-a05e704010c9)
 
+
 ## 📌 Project Links
 - **Live Demo:** [https://creator-hub.com](https://creator-hub-blond.vercel.app)
 
@@ -41,13 +42,13 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 - **ORM:** Prisma
 - **Database:** PostgreSQL (via Supabase)
 - **Storage:** Supabase Storage (for assets and thumbnails)
-
+  
 ## ⚙️ Local Setup
 
 ### Frontend
 1. Clone the frontend repository.
 2. Install dependencies: `npm install`.
-3. Configure `.env.local` (Add Backend API URL & Midtrans Client Key).
+3. Configure `.env.local` (Add Backend API URL).
 4. Start development server: `npm run dev`.
 
 ### Backend
