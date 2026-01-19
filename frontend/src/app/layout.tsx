@@ -5,6 +5,7 @@ import Providers from '@/app/providers';
 import { AuthProvider } from '@/contexts/auth-context';
 import { cookies } from 'next/headers';
 import ProtectedRoute from '@/components/protected-routes';
+import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -38,6 +39,7 @@ export default async function RootLayout({
             <ProtectedRoute>{children}</ProtectedRoute>
           </AuthProvider>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
