@@ -21,6 +21,7 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<v
     const response = await userService.login(request);
     const isProduction =
       process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT_NAME === 'production';
+    console.log('Setting cookie with secure:', isProduction);
     res.cookie('token', response.token, {
       httpOnly: true,
       maxAge: 60 * 60 * 1000,
@@ -114,7 +115,7 @@ const remove = async (req: UserRequest, res: Response, next: NextFunction): Prom
 const getMyDashboardPurchasesInfo = async (
   req: UserRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> => {
   try {
     const user = req.user;
