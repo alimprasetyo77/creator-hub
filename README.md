@@ -2,7 +2,6 @@
 
 CreatorHub is a high-performance, full-stack digital marketplace designed for creators to monetize digital assets such as E-books, UI Kits, Templates, and Courses. This platform bridges the gap between talented creators and professionals seeking high-quality digital resources.
 
-![CreatorHub Homepage Preview](https://github.com/user-attachments/assets/82c09a8f-65a6-4ffd-8db8-a05e704010c9)
 
 
 ## 📌 Project Links
@@ -31,17 +30,20 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework:** Next.js (App Router)
-- **Language:** TypeScript
-- **Styling:** Tailwind CSS & Shadcn UI
-- **State Management:** TanStack Query (React Query) & Context API
-- **Form Handling:** React Hook Form & Zod (Validation)
+-  Next.js (App Router)
+-  TypeScript
+-  Tailwind CSS & Shadcn UI
+-  TanStack Query (React Query) & Context API
+-  React Hook Form & Zod (Validation)
+-  Vercel for Deployment
 
 ### Backend
-- **Environment:** Express.js (TypeScript)
-- **ORM:** Prisma
-- **Database:** PostgreSQL (via Supabase)
-- **Storage:** Supabase Storage (for assets and thumbnails)
+-  Express.js (TypeScript)
+-  Prisma
+-  Zod
+-  PostgreSQL (via Supabase)
+-  Supabase Storage (for assets and thumbnails)
+-  Railway for Deployment
   
 ## ⚙️ Local Setup
 
