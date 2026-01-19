@@ -21,13 +21,13 @@ const login = async (req: Request, res: Response, next: NextFunction): Promise<v
     const response = await userService.login(request);
     const isProduction =
       process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT_NAME === 'production';
-    console.log('Setting cookie with secure:', isProduction);
+
     res.cookie('token', response.token, {
       httpOnly: true,
-      maxAge: 60 * 60 * 1000,
-      path: '/',
       secure: isProduction,
       sameSite: isProduction ? 'none' : 'lax',
+      path: '/',
+      maxAge: 60 * 60 * 1000,
     });
     res.status(200).json({
       message: 'User logged in successfully',
