@@ -13,7 +13,6 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 ### 🔐 Advanced Authentication & RBAC
 - **Multi-role Ecosystem:** Tailored experiences and dashboards for **Admin**, **Creator**, and **Buyer**.
 - **Secure Auth Flow:** Implemented JWT-based authentication via **HttpOnly Cookies** to mitigate XSS risks and ensure session persistence.
-- **Anti-Flash Route Guard:** A custom-built synchronization logic that locks the UI during authorization checks, preventing any unauthorized content flickering.
 
 ### 💸 Automated Payment Gateway
 - **Midtrans Core API:** Seamless payment integration supporting Virtual Accounts and E-wallets.
@@ -23,9 +22,9 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 - **AI Product Description Generator:** Integrated AI API (Gemini/OpenAI) to assist creators in generating professional, SEO-friendly product descriptions automatically.
 
 ### 📊 Professional Dashboards
-- **Creator Hub:** Comprehensive sales analytics, product CRUD management, and payout request tracking.
-- **Admin Panel:** Platform-wide oversight including category management and payout approval workflows.
-- **Buyer Experience:** Advanced product discovery with real-time filtering, search, and instant digital downloads.
+- **Creator:** Comprehensive sales analytics, product CRUD management, and payout request tracking.
+- **Admin:** Platform-wide oversight including category management and payout approval workflows.
+- **Buyer:** Advanced product discovery with real-time filtering, search, and instant digital downloads.
 
 ## 🛠️ Tech Stack
 
