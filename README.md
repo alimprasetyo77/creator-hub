@@ -10,7 +10,7 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 
 ## 🌟 Key Features
 
-### 🔐 Advanced Authentication & RBAC
+### 🔐 Authentication
 - **Multi-role Ecosystem:** Tailored experiences and dashboards for **Admin**, **Creator**, and **Buyer**.
 - **Secure Auth Flow:** Implemented JWT-based authentication via **HttpOnly Cookies** to mitigate XSS risks and ensure session persistence.
 
@@ -19,7 +19,7 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 - **Webhook Integration:** Automated payment status updates and instant product delivery upon successful transaction.
 
 ### 🤖 AI Integration
-- **AI Product Description Generator:** Integrated AI API (Gemini/OpenAI) to assist creators in generating professional, SEO-friendly product descriptions automatically.
+- **AI Product Description Generator:** Integrated AI API (Gemini) to assist creators in generating professional, SEO-friendly product descriptions automatically.
 
 ### 📊 Professional Dashboards
 - **Creator:** Comprehensive sales analytics, product CRUD management, and payout request tracking.
