@@ -31,18 +31,23 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 ### Frontend
 -  Next.js (App Router)
 -  TypeScript
--  Tailwind CSS & Shadcn UI
--  TanStack Query (React Query) & Context API
--  React Hook Form & Zod (Validation)
--  Vercel for Deployment
+-  Tailwind CSS
+-  Shadcn UI
+-  TanStack Query
+-  Context API
+-  React Hook Form
+-  Zod 
+-  Vercel
 
 ### Backend
--  Express.js (TypeScript)
+-  Node.js
+-  Express.js
+-  TypeScript
 -  Prisma
 -  Zod
 -  PostgreSQL (via Supabase)
--  Supabase Storage (for assets and thumbnails)
--  Railway for Deployment
+-  Supabase Storage 
+-  Railway 
   
 ## ⚙️ Local Setup
 
@@ -58,8 +63,4 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 3. Configure `.env` (Add Database URL, JWT Secret, and Midtrans Server Key).
 4. Run `npx prisma generate` and start: `npm run dev`.
 
-## 📜 License
-This project is part of my professional portfolio. Feel free to explore the code!
 
----
-Developed by **Alim Prasetyo Putra Sinambela**
