@@ -45,7 +45,7 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 -  TypeScript
 -  Prisma
 -  Zod
--  PostgreSQL (via Supabase)
+-  PostgreSQL 
 -  Supabase Storage 
 -  Railway 
   
