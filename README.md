@@ -10,7 +10,7 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 
 ## 🌟 Key Features
 
-### 🔐 Advanced Authentication & RBAC
+### 🔐 Authentication
 - **Multi-role Ecosystem:** Tailored experiences and dashboards for **Admin**, **Creator**, and **Buyer**.
 - **Secure Auth Flow:** Implemented JWT-based authentication via **HttpOnly Cookies** to mitigate XSS risks and ensure session persistence.
 
@@ -19,7 +19,7 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 - **Webhook Integration:** Automated payment status updates and instant product delivery upon successful transaction.
 
 ### 🤖 AI Integration
-- **AI Product Description Generator:** Integrated AI API (Gemini/OpenAI) to assist creators in generating professional, SEO-friendly product descriptions automatically.
+- **AI Product Description Generator:** Integrated AI API (Gemini) to assist creators in generating professional, SEO-friendly product descriptions automatically.
 
 ### 📊 Professional Dashboards
 - **Creator:** Comprehensive sales analytics, product CRUD management, and payout request tracking.
@@ -31,18 +31,23 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 ### Frontend
 -  Next.js (App Router)
 -  TypeScript
--  Tailwind CSS & Shadcn UI
--  TanStack Query (React Query) & Context API
--  React Hook Form & Zod (Validation)
--  Vercel for Deployment
+-  Tailwind CSS
+-  Shadcn UI
+-  TanStack Query
+-  Context API
+-  React Hook Form
+-  Zod 
+-  Vercel
 
 ### Backend
--  Express.js (TypeScript)
+-  Node.js
+-  Express.js
+-  TypeScript
 -  Prisma
 -  Zod
 -  PostgreSQL (via Supabase)
--  Supabase Storage (for assets and thumbnails)
--  Railway for Deployment
+-  Supabase Storage 
+-  Railway 
   
 ## ⚙️ Local Setup
 
@@ -58,8 +63,4 @@ CreatorHub is a high-performance, full-stack digital marketplace designed for cr
 3. Configure `.env` (Add Database URL, JWT Secret, and Midtrans Server Key).
 4. Run `npx prisma generate` and start: `npm run dev`.
 
-## 📜 License
-This project is part of my professional portfolio. Feel free to explore the code!
 
----
-Developed by **Alim Prasetyo Putra Sinambela**
