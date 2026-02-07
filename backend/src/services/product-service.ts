@@ -128,6 +128,7 @@ const getMyProducts = async (queries: IQueryPagination, userId: string): Promise
       },
       skip,
       take: limit,
+      orderBy: { created_at: 'asc' },
     }),
     prisma.product.count({ where: { userId } }),
   ]);
@@ -239,7 +240,7 @@ const getSimiliarProductsByCategory = async (request: SimiliarProductsType): Pro
 const update = async (
   id: string,
   user: UserRequest['user'],
-  request: ProductUpdateType
+  request: ProductUpdateType,
 ): Promise<Product> => {
   const updateProductRequest = validate(productValidation.UpdateSchema, request);
 

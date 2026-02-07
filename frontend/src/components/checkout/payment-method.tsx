@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { PaymentMethodType } from '@/app/(main)/checkout/[id]/page';
+import { PaymentMethodType } from '@/app/(protected)/checkout/[id]/page';
 import { paymentMethods } from '@/constants/checkout';
 import { CheckCircle } from 'lucide-react';
 

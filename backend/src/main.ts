@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Express } from 'express';
 import dotenv from 'dotenv';
 import publicRouter from './routes/public-api';
 import apiRouter from './routes/api';
@@ -8,8 +8,7 @@ import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
-const app = express();
-app.set('trust proxy', 1);
+const app: Express = express();
 
 app.use(
   cors({

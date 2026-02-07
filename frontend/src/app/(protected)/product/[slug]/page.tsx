@@ -28,6 +28,7 @@ import { formatIDR } from '@/lib/utils';
 import { ProductDetailSkeleton } from '@/components/my-purchases/detail/product-detail-skeleton';
 import categoriesColors from '@/constants/categories-colors';
 import Image from 'next/image';
+import { toast } from 'sonner';
 
 interface Params {
   params: Promise<{ slug: string }>;
@@ -35,17 +36,27 @@ interface Params {
 
 export default function page({ params }: Params) {
   const { slug } = use(params);
+  const { user, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const isAdmin = user?.role === 'ADMIN';
   const [activeTab, setActiveTab] = useState('overview');
   const { product, isLoading: isLoadingProduct } = useGetProduct({ slug });
   const { similiarProducts, isLoading: isLoadingSimiliarProducts } = useSimiliarProducts(
     product?.category.name!,
-    product?.id!
+    product?.id!,
   );
   const { createOrder, isPending } = useCreateOrder();
 
-  const { user } = useAuth();
-  const router = useRouter();
-  const isAdmin = user?.role === 'ADMIN';
+  const onClickBuyProduct = (productId: string) => {
+    if (isAdmin) return;
+    if (!isAuthenticated) {
+      toast.info('Please login first to buy this product.');
+      return;
+    }
+    createOrder({
+      product_id: productId,
+    });
+  };
 
   if (isLoadingProduct || isLoadingSimiliarProducts) {
     return <ProductDetailSkeleton />;
@@ -381,7 +392,7 @@ export default function page({ params }: Params) {
                         <Button
                           className='w-full bg-linear-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
                           size='lg'
-                          onClick={() => createOrder({ product_id: product.id })}
+                          onClick={() => onClickBuyProduct(product.id)}
                           disabled={isPending}
                         >
                           <ShoppingCart className='mr-2 h-5 w-5' />

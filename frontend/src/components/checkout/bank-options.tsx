@@ -1,6 +1,6 @@
 import { bankOptions } from '@/constants/checkout';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { BankOptionType } from '@/app/(main)/checkout/[id]/page';
+import { BankOptionType } from '@/app/(protected)/checkout/[id]/page';
 import Image from 'next/image';
 import { CheckCircle } from 'lucide-react';
 

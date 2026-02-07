@@ -1,4 +1,4 @@
-import { PaymentMethodType } from '@/app/(main)/checkout/[id]/page';
+import { PaymentMethodType } from '@/app/(protected)/checkout/[id]/page';
 import { Building2, QrCode } from 'lucide-react';
 
 const paymentMethods = [

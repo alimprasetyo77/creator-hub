@@ -4,7 +4,6 @@ import './globals.css';
 import Providers from '@/app/providers';
 import { AuthProvider } from '@/contexts/auth-context';
 import { cookies } from 'next/headers';
-import ProtectedRoute from '@/components/protected-routes';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,7 +34,7 @@ export default async function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <AuthProvider hasToken={!!token}>
-            <ProtectedRoute>{children}</ProtectedRoute>
+            <>{children}</>
           </AuthProvider>
         </Providers>
       </body>

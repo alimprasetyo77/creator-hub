@@ -15,7 +15,6 @@ import jwt from 'jsonwebtoken';
 import { UserRequest } from '../middlewares/auth-middleware';
 import { supabase } from '../utils/supabase-client';
 import fs from 'fs';
-import { User } from '../generated/prisma/client';
 
 const register = async (request: RegisterType): Promise<void> => {
   const registerRequest = validate(userValidation.registerSchema, request);
@@ -50,7 +49,11 @@ const login = async (request: LoginType): Promise<{ token: string; role: string 
     throw new ResponseError(400, 'Email or password is incorrect');
   }
 
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET_KEY as string, { expiresIn: '1h' });
+  const token = jwt.sign(
+    { id: user.id, role: user.role.toLowerCase() },
+    process.env.JWT_SECRET_KEY as string,
+    { expiresIn: '1h' },
+  );
 
   const result = await prisma.user.update({
     where: {
